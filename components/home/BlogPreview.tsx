@@ -1,0 +1,115 @@
+'use client';
+
+import Link from 'next/link';
+import { ArrowRight, Clock, Tag } from 'lucide-react';
+import { useI18n } from '@/lib/i18n-context';
+
+const posts = [
+  {
+    title: 'How AI is Reshaping Saudi Arabia\'s Business Landscape in 2025',
+    excerpt: 'Artificial intelligence is no longer a futuristic concept — it\'s actively transforming how Saudi businesses operate, compete, and grow.',
+    category: 'AI & Technology',
+    readTime: '6 min read',
+    date: 'Jan 15, 2025',
+    color: '#f5a623',
+    image: 'https://images.pexels.com/photos/8386440/pexels-photo-8386440.jpeg?auto=compress&cs=tinysrgb&w=600',
+  },
+  {
+    title: 'Vision 2030: Digital Transformation Opportunities for Saudi SMEs',
+    excerpt: 'Saudi Vision 2030 is creating unprecedented opportunities for small and medium enterprises ready to embrace digital transformation.',
+    category: 'Business Strategy',
+    readTime: '8 min read',
+    date: 'Jan 22, 2025',
+    color: '#10b981',
+    image: 'https://images.pexels.com/photos/3184433/pexels-photo-3184433.jpeg?auto=compress&cs=tinysrgb&w=600',
+  },
+  {
+    title: 'The Complete Guide to E-commerce Success on Salla Platform',
+    excerpt: 'Maximize your Salla store\'s potential with these proven strategies for product presentation, SEO, and conversion optimization.',
+    category: 'E-commerce',
+    readTime: '10 min read',
+    date: 'Feb 3, 2025',
+    color: '#3b82f6',
+    image: 'https://images.pexels.com/photos/230544/pexels-photo-230544.jpeg?auto=compress&cs=tinysrgb&w=600',
+  },
+];
+
+export default function BlogPreview() {
+  const { t } = useI18n();
+
+  return (
+    <section className="section-padding bg-navy-900 relative overflow-hidden">
+      <div className="absolute inset-0 grid-pattern opacity-20" />
+
+      <div className="container-max relative z-10">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
+          <div>
+            <span className="section-label mb-4 inline-flex">
+              {t.blog.label}
+            </span>
+            <h2 className="heading-lg text-white">
+              {t.blog.title1}{' '}
+              <span className="orange-gradient-text">{t.blog.title2}</span>
+            </h2>
+          </div>
+          <Link href="/blog" className="btn-secondary text-sm whitespace-nowrap">
+            {t.blog.allArticles}
+            <ArrowRight size={16} />
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {posts.map((post, i) => (
+            <Link
+              key={i}
+              href="/blog"
+              className="glass-card-hover overflow-hidden group block"
+            >
+             
+                <div className="bg-white rounded-xl p-3">
+  <img
+    src={post.image}
+    alt={post.title}
+    className="w-full h-48 object-cover rounded-lg"
+  />
+</div>
+
+              <div className="p-5">
+                <div className="flex items-center gap-3 mb-3">
+                  <span
+                    className="flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full"
+                    style={{ background: `${post.color}15`, color: post.color, border: `1px solid ${post.color}25` }}
+                  >
+                    <Tag size={10} />
+                    {post.category}
+                  </span>
+                  <span className="flex items-center gap-1 text-xs text-slate-500">
+                    <Clock size={11} />
+                    {post.readTime}
+                  </span>
+                </div>
+
+                <h3 className="text-white font-bold text-base mb-2 leading-snug group-hover:text-brand-orange transition-colors duration-200">
+                  {post.title}
+                </h3>
+                <p className="text-slate-400 text-sm leading-relaxed line-clamp-2 mb-3">
+                  {post.excerpt}
+                </p>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-slate-500">{post.date}</span>
+                  <span
+                    className="text-xs font-medium flex items-center gap-1"
+                    style={{ color: post.color }}
+                  >
+                    {t.blog.readMore} <ArrowRight size={12} />
+                  </span>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}

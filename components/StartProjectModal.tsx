@@ -1,0 +1,305 @@
+'use client';
+
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { X, Loader as Loader2, Send, CircleCheck as CheckCircle } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
+import { useTheme } from '@/lib/theme-context';
+import { useI18n } from '@/lib/i18n-context';
+
+const SERVICES = [
+  'Website Development',
+  'E-commerce (Salla)',
+  'SEO Services',
+  'Systems & Automation',
+  'Mobile App',
+  'UI/UX Design',
+  'AI Solutions',
+  'Business Consulting',
+  'Other',
+];
+
+const BUDGETS = [
+  'Under SAR 5,000',
+  'SAR 5,000 – 15,000',
+  'SAR 15,000 – 30,000',
+  'SAR 30,000 – 60,000',
+  'SAR 60,000+',
+  'Not sure yet',
+];
+
+interface Props {
+  onClose: () => void;
+  defaultService?: string;
+  source?: string;
+}
+
+const inputCls = 'w-full px-4 py-3 rounded-xl text-sm focus:outline-none transition-all duration-200';
+
+export default function StartProjectModal({ onClose, defaultService = '', source = 'website' }: Props) {
+  const { theme } = useTheme();
+  const { locale } = useI18n();
+  const isLight = theme === 'light';
+  const isAR = locale === 'ar';
+  const [form, setForm] = useState({
+    name: '',
+    company: '',
+    email: '',
+    phone: '',
+    service: defaultService,
+    budget_range: '',
+    message: '',
+  });
+  const [saving, setSaving] = useState(false);
+  const [done, setDone] = useState(false);
+  const [focusedField, setFocusedField] = useState<string | null>(null);
+  const [honeypot, setHoneypot] = useState('');
+  const [formError, setFormError] = useState('');
+
+  const set = (k: string, v: string) => { setForm(f => ({ ...f, [k]: v })); setFormError(''); };
+
+  const inputStyle = isLight
+    ? { background: 'rgba(255,255,255,0.92)', border: '1px solid rgba(0,0,0,0.1)', color: '#0c1628' }
+    : { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#ffffff' };
+  const inputFocusStyle = { borderColor: isLight ? 'rgba(217,119,6,0.4)' : 'rgba(245,166,35,0.4)' };
+
+  const getInputStyle = (field: string) => ({
+    ...inputStyle,
+    ...(focusedField === field ? inputFocusStyle : {}),
+  });
+
+  const handleSubmit = async () => {
+    if (honeypot) return;
+    if (!form.name.trim() || form.name.trim().length < 2) { setFormError(isAR ? 'يرجى إدخال الاسم الكامل.' : 'Please enter your full name.'); return; }
+    if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) { setFormError(isAR ? 'يرجى إدخال بريد إلكتروني صالح.' : 'Please enter a valid email address.'); return; }
+    if (form.message && form.message.length > 4000) { setFormError(isAR ? 'الرسالة طويلة جدًا (الحد 4000 حرف).' : 'Message is too long (max 4000 characters).'); return; }
+    setSaving(true);
+    await supabase.from('project_leads').insert([{
+      ...form,
+      name: form.name.trim(),
+      email: form.email.trim().toLowerCase(),
+      message: form.message.trim(),
+      source,
+    }]);
+    setSaving(false);
+    setDone(true);
+  };
+
+  return (
+    <AnimatePresence>
+      <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <motion.div
+          className="absolute inset-0 bg-black/80 backdrop-blur-md"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          onClick={onClose}
+        />
+        <motion.div
+          className="relative w-full sm:max-w-xl max-h-[95vh] overflow-y-auto rounded-t-3xl sm:rounded-2xl"
+          initial={{ opacity: 0, y: 48, scale: 0.97 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: 24, scale: 0.97 }}
+          transition={{ type: 'spring', stiffness: 360, damping: 30 }}
+          style={{
+            background: isLight ? 'rgba(248,249,252,0.98)' : 'rgba(5,13,26,0.97)',
+            border: isLight ? '1px solid rgba(0,0,0,0.08)' : '1px solid rgba(255,255,255,0.09)',
+            boxShadow: isLight
+              ? '0 32px 100px rgba(0,0,0,0.15), 0 0 0 1px rgba(217,119,6,0.1)'
+              : '0 32px 100px rgba(0,0,0,0.7), 0 0 0 1px rgba(245,166,35,0.1)',
+          }}
+        >
+          {!done ? (
+            <div className="p-7">
+              {/* Header */}
+              <div className="flex items-start justify-between mb-7">
+                <div>
+                  <h2 className={`font-black text-2xl mb-1 ${isLight ? 'text-slate-900' : 'text-white'}`} style={{ letterSpacing: '-0.03em' }}>
+                    {isAR ? 'ابدأ مشروعك' : 'Start Your Project'}
+                  </h2>
+                  <p className={`text-sm ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>{isAR ? 'املأ البيانات وسنعود إليك خلال 24 ساعة.' : 'Fill in the details and we&apos;ll get back to you within 24 hours.'}</p>
+                </div>
+                <button
+                  onClick={onClose}
+                  className={`w-9 h-9 rounded-xl flex items-center justify-center transition-colors flex-shrink-0 ${isLight ? 'text-slate-500 hover:text-slate-900' : 'text-slate-400 hover:text-white'}`}
+                  style={{ background: isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.06)' }}
+                >
+                  <X size={17} />
+                </button>
+              </div>
+
+              {/* Form */}
+              <div className="space-y-4">
+                {/* Honeypot */}
+                <div aria-hidden="true" style={{ position: 'absolute', left: '-9999px', opacity: 0, pointerEvents: 'none' }}>
+                  <input tabIndex={-1} type="text" value={honeypot} onChange={e => setHoneypot(e.target.value)} autoComplete="off" />
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs text-slate-500 mb-1.5">{isAR ? 'الاسم *' : 'Your Name *'}</label>
+                    <input
+                      className={inputCls}
+                      style={getInputStyle('name')}
+                      placeholder={isAR ? 'الاسم الكامل' : 'Full name'}
+                      value={form.name}
+                      onChange={e => set('name', e.target.value)}
+                      onFocus={() => setFocusedField('name')}
+                      onBlur={() => setFocusedField(null)}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-slate-500 mb-1.5">{isAR ? 'الشركة' : 'Company'}</label>
+                    <input
+                      className={inputCls}
+                      style={getInputStyle('company')}
+                      placeholder={isAR ? 'اسم الشركة' : 'Company name'}
+                      value={form.company}
+                      onChange={e => set('company', e.target.value)}
+                      onFocus={() => setFocusedField('company')}
+                      onBlur={() => setFocusedField(null)}
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs text-slate-500 mb-1.5">{isAR ? 'البريد الإلكتروني' : 'Email'}</label>
+                    <input
+                      className={inputCls}
+                      style={getInputStyle('email')}
+                      placeholder={isAR ? 'you@example.com' : 'you@company.com'}
+                      type="email"
+                      value={form.email}
+                      onChange={e => set('email', e.target.value)}
+                      onFocus={() => setFocusedField('email')}
+                      onBlur={() => setFocusedField(null)}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-slate-500 mb-1.5">{isAR ? 'الهاتف / واتساب' : 'Phone / WhatsApp'}</label>
+                    <input
+                      className={inputCls}
+                      style={getInputStyle('phone')}
+                      placeholder="+966 5XX XXX XXX"
+                      value={form.phone}
+                      onChange={e => set('phone', e.target.value)}
+                      onFocus={() => setFocusedField('phone')}
+                      onBlur={() => setFocusedField(null)}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs text-slate-500 mb-1.5">{isAR ? 'الخدمة / المنتج' : 'Service / Product'}</label>
+                  <select
+                    className={inputCls}
+                    style={getInputStyle('service')}
+                    value={form.service}
+                    onChange={e => set('service', e.target.value)}
+                    onFocus={() => setFocusedField('service')}
+                    onBlur={() => setFocusedField(null)}
+                  >
+                    <option value="" style={{ background: '#050d1a' }}>{isAR ? 'اختر خدمة' : 'Select a service'}</option>
+                    {SERVICES.map(s => (
+                      <option key={s} value={s} style={{ background: '#050d1a' }}>{s}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs text-slate-500 mb-1.5">{isAR ? 'نطاق الميزانية' : 'Budget Range'}</label>
+                  <select
+                    className={inputCls}
+                    style={getInputStyle('budget')}
+                    value={form.budget_range}
+                    onChange={e => set('budget_range', e.target.value)}
+                    onFocus={() => setFocusedField('budget')}
+                    onBlur={() => setFocusedField(null)}
+                  >
+                    <option value="" style={{ background: '#050d1a' }}>{isAR ? 'اختر نطاق الميزانية' : 'Select budget range'}</option>
+                    {BUDGETS.map(b => (
+                      <option key={b} value={b} style={{ background: '#050d1a' }}>{b}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs text-slate-500 mb-1.5">{isAR ? 'وصف المشروع' : 'Project Description'}</label>
+                  <textarea
+                    className={inputCls}
+                    style={getInputStyle('message')}
+                    rows={3}
+                    placeholder={isAR ? 'أخبرنا عن أهداف المشروع والجدول الزمني والمتطلبات الخاصة...' : 'Tell us about your project goals, timeline, and any specific requirements...'}
+                    value={form.message}
+                    onChange={e => set('message', e.target.value)}
+                    onFocus={() => setFocusedField('message')}
+                    onBlur={() => setFocusedField(null)}
+                  />
+                </div>
+              </div>
+
+              {/* Urgency note */}
+              <div
+                className="flex items-center gap-2.5 px-4 py-3 rounded-xl mt-5 mb-5"
+                style={{ background: 'rgba(245,166,35,0.06)', border: '1px solid rgba(245,166,35,0.15)' }}
+              >
+                <div className="w-2 h-2 rounded-full bg-brand-orange animate-pulse flex-shrink-0" />
+                <p className="text-slate-400 text-xs">
+                  <span className="text-brand-orange font-semibold">{isAR ? 'المقاعد محدودة.' : 'Limited slots available.'}</span>
+                  {' '}{isAR ? 'نستقبل بحد أقصى 5 عملاء جدد شهريًا. الرد خلال 24 ساعة.' : 'We onboard max 5 new clients per month. Respond within 24h.'}
+                </p>
+              </div>
+
+              {formError && (
+                <p className="text-red-400 text-xs px-1">{formError}</p>
+              )}
+
+              <button
+                onClick={handleSubmit}
+                disabled={saving || !form.name.trim()}
+                className="btn-primary w-full py-4 text-base justify-center"
+              >
+                {saving ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
+                {saving ? (isAR ? 'جارٍ الإرسال…' : 'Sending…') : (isAR ? 'إرسال ملخص المشروع' : 'Send Project Brief')}
+              </button>
+            </div>
+          ) : (
+            <div className="p-10 text-center">
+              <motion.div
+                initial={{ scale: 0.5, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+              >
+                <div
+                  className="w-20 h-20 rounded-3xl mx-auto mb-6 flex items-center justify-center"
+                  style={{ background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.25)' }}
+                >
+                  <CheckCircle size={36} className="text-emerald-400" />
+                </div>
+              </motion.div>
+              <h3 className={`font-black text-2xl mb-3 ${isLight ? 'text-slate-900' : 'text-white'}`} style={{ letterSpacing: '-0.03em' }}>
+                {isAR ? 'تم استلام الطلب!' : 'Brief Received!'}
+              </h3>
+              <p className={`mb-2 leading-relaxed ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
+                {isAR ? 'شكرًا لك، ' : 'Thank you, '}<span className={`font-semibold ${isLight ? 'text-slate-900' : 'text-white'}`}>{form.name}</span>{isAR ? '. تم استلام ملخص المشروع وسيتواصل فريقنا خلال ' : '. We&apos;ve received your project brief and our team will reach out within '}<span className="text-brand-orange font-semibold">24 {isAR ? 'ساعة' : 'hours'}</span>.
+              </p>
+              <p className="text-slate-500 text-sm mb-8">{isAR ? 'يمكنك استكشاف أعمالنا أو التواصل عبر واتساب للحصول على رد أسرع.' : 'Meanwhile, feel free to explore our work or reach us on WhatsApp for faster response.'}</p>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <a
+                  href="https://wa.me/966562270319?text=Hello%2C%20I%20just%20submitted%20a%20project%20brief%20on%20Commergio"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-primary"
+                  style={{ background: '#25D366', boxShadow: '0 4px 16px rgba(37,211,102,0.25)' }}
+                >
+                  {isAR ? 'متابعة عبر واتساب' : 'Follow Up on WhatsApp'}
+                </a>
+                <button onClick={onClose} className="btn-secondary">{isAR ? 'إغلاق' : 'Close'}</button>
+              </div>
+            </div>
+          )}
+        </motion.div>
+      </div>
+    </AnimatePresence>
+  );
+}
