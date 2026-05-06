@@ -67,7 +67,7 @@ export const translations = {
         'Saudi regulations compliance',
       ],
       badge: "Saudi Arabia's Premier Tech Partner",
-      badgeSub: 'Trusted by startups, enterprises, and government-affiliated entities across the Kingdom.',
+      badgeSub: 'Trusted by startups and enterprises entities across the Kingdom.',
       reasons: [
         { title: 'Rapid Deployment', desc: 'Agile delivery frameworks ensure your projects launch on time. We move fast without compromising quality.', metric: '40% faster' },
         { title: 'Global Standards, Local Expertise', desc: 'Silicon Valley methodologies applied to the Saudi market. We understand Vision 2030 and build for it.', metric: 'MENA + Global' },
@@ -290,7 +290,7 @@ export const translations = {
         'امتثال كامل للأنظمة السعودية',
       ],
       badge: 'الشريك التقني الأول في المملكة العربية السعودية',
-      badgeSub: 'شريك موثوق للشركات الناشئة والمؤسسات والجهات الحكومية في المملكة.',
+      badgeSub: 'شريك موثوق للشركات الناشئة والمؤسسات  في المملكة.',
       reasons: [
         { title: 'تسليم سريع', desc: 'أطر عمل رشيقة تضمن إطلاق مشروعك في الموعد المحدد. نتحرك بسرعة دون التنازل عن الجودة.', metric: 'أسرع بـ 40%' },
         { title: 'معايير عالمية وخبرة محلية', desc: 'منهجيات وادي السيليكون مطبّقة على السوق السعودي. نفهم رؤية 2030 ونبني لتحقيقها.', metric: 'MENA + عالمي' },
