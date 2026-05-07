@@ -7,8 +7,8 @@ import type { Product } from '@/lib/types';
 import ImageUpload from './ImageUpload';
 import { useAdminI18n } from '@/lib/admin-i18n-context';
 
-const inputCls = "w-full px-3.5 py-2.5 rounded-xl text-white text-sm focus:outline-none transition-all duration-200 focus:border-orange-400/40";
-const inputStyle = { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.09)' };
+const inputCls = "w-full px-3.5 py-2.5 rounded-xl text-slate-800 text-sm focus:outline-none transition-all duration-200 focus:border-orange-400/40";
+const inputStyle = { background: 'rgba(255,255,255,0.95)', border: '1px solid rgba(15,23,42,0.12)' };
 
 const CATEGORIES = ['SaaS', 'Platform', 'Tool', 'Mobile App', 'API', 'Other'];
 
@@ -203,7 +203,7 @@ function ProductModal({ form, setForm, onSave, onClose, saving, isEdit }: {
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
       <div className="absolute inset-0 bg-black/75 backdrop-blur-sm" onClick={onClose} />
       <div className="relative w-full sm:max-w-lg max-h-[95vh] overflow-y-auto rounded-t-3xl sm:rounded-2xl p-6"
-        style={{ background: 'rgba(6,14,28,0.97)', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 24px 80px rgba(0,0,0,0.6)' }}>
+        style={{ background: 'rgba(248,250,252,0.98)', border: '1px solid rgba(15,23,42,0.1)', boxShadow: '0 24px 80px rgba(15,23,42,0.16)' }}>
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2 className="text-white font-bold text-lg" style={{ letterSpacing: '-0.02em' }}>{isEdit ? t.editProduct : t.addProductBtn}</h2>

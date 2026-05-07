@@ -41,7 +41,7 @@ useEffect(() => {
 
   if (checking) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#050d1a]">
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <Loader2 size={28} className="animate-spin text-brand-orange" />
       </div>
     );
@@ -158,9 +158,9 @@ const markMessageRead = async (id: string) => {
   ] as const;
 
   return (
-    <div className="min-h-screen pt-20" dir={isRTL ? 'rtl' : 'ltr'} style={{ background: '#040b16' }}>
+    <div className="admin-light min-h-screen pt-20 bg-slate-50" dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Top header */}
-      <div className="border-b" style={{ borderColor: 'rgba(255,255,255,0.06)', background: 'rgba(4,11,22,0.95)', backdropFilter: 'blur(20px)' }}>
+      <div className="border-b border-slate-200/80 bg-slate-50/95 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 md:px-8 py-5">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-4">
@@ -173,7 +173,7 @@ const markMessageRead = async (id: string) => {
 
             <div className="flex items-center gap-3">
               {/* Language switcher */}
-              <div className="flex items-center gap-1 p-1 rounded-xl" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
+              <div className="flex items-center gap-1 p-1 rounded-xl bg-white border border-slate-200">
                 <button
                   onClick={() => setLocale('en')}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ${locale === 'en' ? 'text-[#040c18]' : 'text-slate-400 hover:text-white'}`}
@@ -201,8 +201,7 @@ const markMessageRead = async (id: string) => {
               {/* Sign out */}
               <button
                 onClick={handleSignOut}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium text-slate-400 hover:text-white transition-all duration-200"
-                style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium text-slate-500 hover:text-slate-900 transition-all duration-200 bg-white border border-slate-200"
                 title="Sign out"
               >
                 <LogOut size={13} />
@@ -256,6 +255,30 @@ const markMessageRead = async (id: string) => {
       {showInvoiceModal && (
         <InvoiceModal onClose={() => { setShowInvoiceModal(false); fetchInvoices(); }} />
       )}
+      <style jsx global>{`
+        .admin-light .glass-card {
+          background: rgba(255, 255, 255, 0.92) !important;
+          border-color: rgba(15, 23, 42, 0.08) !important;
+          box-shadow: 0 1px 0 rgba(255, 255, 255, 1) inset, 0 8px 28px rgba(15, 23, 42, 0.08) !important;
+        }
+        .admin-light .text-white { color: #0f172a !important; }
+        .admin-light .text-slate-300 { color: #334155 !important; }
+        .admin-light .text-slate-400 { color: #475569 !important; }
+        .admin-light .text-slate-500 { color: #64748b !important; }
+        .admin-light .text-slate-600 { color: #64748b !important; }
+        .admin-light [style*='rgba(6,14,28'],
+        .admin-light [style*='rgba(5,13,26'],
+        .admin-light [style*='rgba(4,11,22'],
+        .admin-light [style*='#040b16'],
+        .admin-light [style*='#050d1a'] {
+          background: rgba(248, 250, 252, 0.96) !important;
+          border-color: rgba(15, 23, 42, 0.1) !important;
+        }
+        .admin-light [class*='bg-black/75'],
+        .admin-light [class*='bg-black/80'] {
+          background: rgba(15, 23, 42, 0.35) !important;
+        }
+      `}</style>
     </div>
   );
 }
@@ -542,8 +565,8 @@ function InvoiceModal({ onClose }: { onClose: () => void }) {
     onClose();
   };
 
-  const inputCls = "w-full px-3.5 py-2.5 rounded-xl text-white text-sm focus:outline-none transition-all duration-200 focus:border-brand-orange/40";
-  const inputStyle = { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.09)' };
+  const inputCls = "w-full px-3.5 py-2.5 rounded-xl text-slate-800 text-sm focus:outline-none transition-all duration-200 focus:border-brand-orange/40";
+  const inputStyle = { background: 'rgba(255,255,255,0.95)', border: '1px solid rgba(15,23,42,0.12)' };
 
   const clientFields: { label: string; field: string; placeholder: string; type?: string }[] = [
     { label: t.clientName, field: 'client_name', placeholder: '' },
@@ -554,9 +577,9 @@ function InvoiceModal({ onClose }: { onClose: () => void }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-      <div className="absolute inset-0 bg-black/75 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 bg-slate-900/35 backdrop-blur-sm" onClick={onClose} />
       <div className="relative w-full sm:max-w-xl max-h-[95vh] sm:max-h-[88vh] overflow-y-auto rounded-t-3xl sm:rounded-2xl p-6"
-        style={{ background: 'rgba(6,14,28,0.97)', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 24px 80px rgba(0,0,0,0.6)' }}>
+        style={{ background: 'rgba(248,250,252,0.98)', border: '1px solid rgba(15,23,42,0.1)', boxShadow: '0 24px 80px rgba(15,23,42,0.16)' }}>
 
         <div className="flex items-center justify-between mb-6">
           <div>

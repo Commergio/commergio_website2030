@@ -35,21 +35,21 @@ export default function ImageUpload({ bucket, currentUrl, onUpload, label = 'Upl
       {label && <label className="block text-xs text-slate-500 mb-1.5">{label}</label>}
       <div
         className="relative rounded-xl overflow-hidden cursor-pointer group transition-all duration-200"
-        style={{ background: 'rgba(255,255,255,0.04)', border: '2px dashed rgba(255,255,255,0.12)', minHeight: 120 }}
+        style={{ background: 'rgba(255,255,255,0.94)', border: '2px dashed rgba(15,23,42,0.16)', minHeight: 120 }}
         onClick={() => inputRef.current?.click()}
       >
         {preview ? (
           <>
             <img src={preview} alt="preview" className="w-full h-32 object-cover" />
-            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-              <div className="flex items-center gap-2 text-white text-sm font-medium">
+            <div className="absolute inset-0 bg-slate-100/90 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+              <div className="flex items-center gap-2 text-slate-800 text-sm font-medium">
                 <Upload size={16} />
                 Change
               </div>
             </div>
             <button
               onClick={(e) => { e.stopPropagation(); setPreview(''); onUpload(''); }}
-              className="absolute top-2 right-2 w-6 h-6 rounded-full bg-black/70 flex items-center justify-center text-white hover:bg-red-500 transition-colors"
+              className="absolute top-2 right-2 w-6 h-6 rounded-full bg-white/95 border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-red-500 hover:text-white transition-colors"
             >
               <X size={12} />
             </button>
@@ -64,13 +64,13 @@ export default function ImageUpload({ bucket, currentUrl, onUpload, label = 'Upl
                   <ImageIcon size={18} className="text-brand-orange" />
                 </div>
                 <p className="text-slate-400 text-xs">Click to upload</p>
-                <p className="text-slate-600 text-xs">PNG, JPG, WebP up to 5MB</p>
+                <p className="text-slate-500 text-xs">PNG, JPG, WebP up to 5MB</p>
               </>
             )}
           </div>
         )}
         {uploading && preview && (
-          <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+          <div className="absolute inset-0 bg-slate-100/85 flex items-center justify-center">
             <Loader2 size={24} className="animate-spin text-brand-orange" />
           </div>
         )}
@@ -131,7 +131,7 @@ export function MultiImageUpload({ bucket, currentUrls = [], onUpload, label = '
             <img src={url} alt="" className="w-full h-full object-cover" />
             <button
               onClick={() => remove(i)}
-              className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/70 flex items-center justify-center text-white hover:bg-red-500 transition-colors opacity-0 group-hover:opacity-100"
+              className="absolute top-1 right-1 w-5 h-5 rounded-full bg-white/95 border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-red-500 hover:text-white transition-colors opacity-0 group-hover:opacity-100"
             >
               <X size={10} />
             </button>
@@ -139,7 +139,7 @@ export function MultiImageUpload({ bucket, currentUrls = [], onUpload, label = '
         ))}
         <div
           className="aspect-video rounded-lg flex flex-col items-center justify-center cursor-pointer transition-all"
-          style={{ background: 'rgba(255,255,255,0.04)', border: '2px dashed rgba(255,255,255,0.12)' }}
+          style={{ background: 'rgba(255,255,255,0.94)', border: '2px dashed rgba(15,23,42,0.16)' }}
           onClick={() => inputRef.current?.click()}
         >
           {uploading ? (
