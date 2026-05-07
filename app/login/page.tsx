@@ -10,6 +10,9 @@ import { useTheme } from '@/lib/theme-context';
 import { useI18n } from '@/lib/i18n-context';
 
 const ADMIN_EMAIL = 'info@commergio.com';
+const IS_SUPABASE_CONFIGURED =
+  Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL) &&
+  Boolean(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
 
 export default function LoginPage() {
   const router = useRouter();
@@ -28,6 +31,15 @@ const handleLogin = async (e: React.FormEvent) => {
   e.preventDefault();
   setError('');
 
+  if (!IS_SUPABASE_CONFIGURED) {
+    setError(
+      isAR
+        ? 'إعدادات Supabase غير مكتملة. أضف NEXT_PUBLIC_SUPABASE_URL و NEXT_PUBLIC_SUPABASE_ANON_KEY في ملف .env.local.'
+        : 'Supabase is not configured. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to .env.local.'
+    );
+    return;
+  }
+
   if (!email.trim()) { setError(isAR ? 'البريد الإلكتروني مطلوب.' : 'Email is required.'); return; }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setError(isAR ? 'أدخل بريدًا إلكترونيًا صالحًا.' : 'Enter a valid email address.'); return; }
   if (!password) { setError(isAR ? 'كلمة المرور مطلوبة.' : 'Password is required.'); return; }
@@ -44,6 +56,13 @@ const handleLogin = async (e: React.FormEvent) => {
 
   if (authError) {
     setError(authError.message);
+    return;
+  }
+
+  const userEmail = data?.user?.email?.toLowerCase() ?? '';
+  if (userEmail !== ADMIN_EMAIL.toLowerCase()) {
+    await supabase.auth.signOut();
+    setError(isAR ? 'غير مصرح لك بدخول لوحة التحكم.' : 'You are not authorized to access the admin panel.');
     return;
   }
 

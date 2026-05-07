@@ -32,6 +32,13 @@ useEffect(() => {
       return;
     }
 
+    const userEmail = session.user?.email?.toLowerCase() ?? '';
+    if (userEmail !== ADMIN_EMAIL.toLowerCase()) {
+      await supabase.auth.signOut();
+      window.location.href = '/login';
+      return;
+    }
+
     setAuthed(true);
     setChecking(false);
   };
