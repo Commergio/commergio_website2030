@@ -50,7 +50,7 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16">
 
           {/* Logo */}
-          <BrandLogo fillHeight />
+          <BrandLogo size={56} />
 
           {/* Desktop Menu */}
           <div className={`hidden lg:flex items-center gap-4 ${isRTL ? 'flex-row-reverse' : ''}`}>

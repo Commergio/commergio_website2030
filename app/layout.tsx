@@ -33,6 +33,11 @@ const notoSansArabic = Noto_Sans_Arabic({
 export const metadata: Metadata = {
   viewport: 'width=device-width, initial-scale=1, maximum-scale=5',
   metadataBase: new URL('https://commergio.com'),
+  icons: {
+    icon: '/favicon.png',
+    shortcut: '/favicon.png',
+    apple: '/apple-touch-icon.png',
+  },
   title: {
     default: 'Commergio | كوميرجيو — Technology & Business Solutions',
     template: '%s | Commergio',
