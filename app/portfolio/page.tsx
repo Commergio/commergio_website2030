@@ -1,121 +1,40 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { useI18n } from '@/lib/i18n-context';
-
-const projects = [
-  {
-    title: 'E-Commerce Platform Transformation',
-    titleAr: 'تحويل منصة التجارة الإلكترونية',
-    client: 'Retail Enterprise Group',
-    clientAr: 'مجموعة تجزئة مؤسسية',
-    category: 'E-commerce',
-    categoryAr: 'التجارة الإلكترونية',
-    description: 'Complete digital commerce transformation on Salla — custom theme, inventory management, multi-payment gateway integration, and conversion optimization. Achieved 4x revenue growth in 6 months.',
-    descriptionAr: 'تحويل رقمي شامل لمنصة سلة — قالب مخصص وإدارة المخزون وتكامل بوابات دفع متعددة وتحسين التحويل. تحقيق نمو 4 أضعاف في الإيرادات خلال 6 أشهر.',
-    tech: ['Salla', 'React', 'Node.js', 'Mada', 'Tabby'],
-    metric: '4x Revenue in 6mo',
-    metricAr: '4 أضعاف الإيرادات في 6 أشهر',
-    image: 'https://images.pexels.com/photos/5632399/pexels-photo-5632399.jpeg?auto=compress&cs=tinysrgb&w=800',
-    color: '#f5a623',
-    featured: true,
-  },
-  {
-    title: 'Healthcare Management Platform',
-    titleAr: 'منصة إدارة الرعاية الصحية',
-    client: 'Multi-Branch Medical Group',
-    clientAr: 'مجموعة طبية متعددة الفروع',
-    category: 'Business Systems',
-    categoryAr: 'أنظمة الأعمال',
-    description: 'Custom ERP for a multi-branch medical group — patient management, appointment scheduling, billing, lab integration, and comprehensive reporting.',
-    descriptionAr: 'نظام ERP مخصص لمجموعة طبية متعددة الفروع — إدارة المرضى وجدولة المواعيد والفواتير وتكامل المختبر والتقارير الشاملة.',
-    tech: ['Next.js', 'PostgreSQL', 'Prisma', 'AWS', 'Docker'],
-    metric: '60% Operational Efficiency',
-    metricAr: '60% كفاءة تشغيلية',
-    image: 'https://images.pexels.com/photos/4386467/pexels-photo-4386467.jpeg?auto=compress&cs=tinysrgb&w=800',
-    color: '#10b981',
-    featured: true,
-  },
-  {
-    title: 'Real Estate Digital Platform',
-    titleAr: 'منصة عقارية رقمية',
-    client: 'Riyadh Property Developer',
-    clientAr: 'مطور عقاري في الرياض',
-    category: 'Web Development',
-    categoryAr: 'تطوير الويب',
-    description: 'Interactive property listing platform with 3D virtual tours, CRM integration, automated lead nurturing, and multilingual support.',
-    descriptionAr: 'منصة قوائم عقارية تفاعلية مع جولات افتراضية ثلاثية الأبعاد وتكامل CRM ورعاية العملاء المحتملين الآلية ودعم متعدد اللغات.',
-    tech: ['React', 'Three.js', 'Supabase', 'Stripe', 'Arabic i18n'],
-    metric: '500+ Qualified Leads Q1',
-    metricAr: '+500 عميل محتمل في الربع الأول',
-    image: 'https://images.pexels.com/photos/1396122/pexels-photo-1396122.jpeg?auto=compress&cs=tinysrgb&w=800',
-    color: '#3b82f6',
-    featured: true,
-  },
-  {
-    title: 'Restaurant Chain Mobile App',
-    titleAr: 'تطبيق جوال لسلسلة مطاعم',
-    client: 'F&B Group',
-    clientAr: 'مجموعة أغذية ومشروبات',
-    category: 'Mobile App',
-    categoryAr: 'تطبيقات الجوال',
-    description: 'Cross-platform mobile ordering app for a 12-branch restaurant chain — loyalty program, table reservations, delivery tracking, and integrated POS.',
-    descriptionAr: 'تطبيق طلب متعدد المنصات لسلسلة مطاعم من 12 فرعاً — برنامج ولاء وحجز طاولات وتتبع التوصيل ونقطة بيع متكاملة.',
-    tech: ['React Native', 'Node.js', 'Firebase', 'Stripe'],
-    metric: '25K Downloads Month 1',
-    metricAr: '25 ألف تنزيل في الشهر الأول',
-    image: 'https://images.pexels.com/photos/262978/pexels-photo-262978.jpeg?auto=compress&cs=tinysrgb&w=800',
-    color: '#ec4899',
-    featured: false,
-  },
-  {
-    title: 'AI-Powered Customer Service Bot',
-    titleAr: 'روبوت خدمة عملاء بالذكاء الاصطناعي',
-    client: 'Telecom Company',
-    clientAr: 'شركة اتصالات',
-    category: 'AI Solutions',
-    categoryAr: 'حلول الذكاء الاصطناعي',
-    description: 'Arabic-first intelligent chatbot handling 80% of customer queries autonomously. Integrated with CRM, ticketing, and live agent escalation.',
-    descriptionAr: 'روبوت محادثة ذكي عربي يُعالج 80% من استفسارات العملاء بشكل مستقل. متكامل مع CRM وإدارة التذاكر وتصعيد الوكيل المباشر.',
-    tech: ['GPT-4', 'Next.js', 'Supabase', 'Arabic NLP'],
-    metric: '80% Query Automation',
-    metricAr: '80% أتمتة الاستفسارات',
-    image: 'https://images.pexels.com/photos/8386440/pexels-photo-8386440.jpeg?auto=compress&cs=tinysrgb&w=800',
-    color: '#f43f5e',
-    featured: false,
-  },
-  {
-    title: 'Corporate Website & SEO',
-    titleAr: 'موقع مؤسسي وتحسين محركات البحث',
-    client: 'Financial Services Firm',
-    clientAr: 'شركة خدمات مالية',
-    category: 'Web Development',
-    categoryAr: 'تطوير الويب',
-    description: 'Premium bilingual corporate website with full SEO optimization achieving first-page Google rankings for 40+ target keywords within 3 months.',
-    descriptionAr: 'موقع مؤسسي ثنائي اللغة مميز مع تحسين SEO كامل حقق تصنيفات الصفحة الأولى في جوجل لأكثر من 40 كلمة مفتاحية مستهدفة خلال 3 أشهر.',
-    tech: ['Next.js', 'Tailwind CSS', 'SEO', 'Analytics'],
-    metric: '300% Organic Traffic',
-    metricAr: '300% زيادة في الزيارات العضوية',
-    image: 'https://images.pexels.com/photos/3184433/pexels-photo-3184433.jpeg?auto=compress&cs=tinysrgb&w=800',
-    color: '#84cc16',
-    featured: false,
-  },
-];
-
-const categoryKeys = ['Web Development', 'Mobile App', 'E-commerce', 'AI Solutions', 'Business Systems'];
+import { supabase } from '@/lib/supabase';
+import type { PortfolioProject } from '@/lib/types';
 
 export default function PortfolioPage() {
   const { t, locale } = useI18n();
   const isAR = locale === 'ar';
 
-  const [activeIdx, setActiveIdx] = useState(0);
+  const [projects, setProjects] = useState<PortfolioProject[]>([]);
+  const [activeCategory, setActiveCategory] = useState('All');
+  const [loading, setLoading] = useState(true);
 
-  const categories = t.portfolio.categories;
-  const activeCategory = activeIdx === 0 ? 'All' : categoryKeys[activeIdx - 1];
+  useEffect(() => {
+    const fetchProjects = async () => {
+      const { data } = await supabase
+        .from('portfolio_projects')
+        .select('*')
+        .order('display_order', { ascending: true })
+        .order('created_at', { ascending: false });
 
-  const filtered = activeCategory === 'All' ? projects : projects.filter((p) => p.category === activeCategory);
+      setProjects(data || []);
+      setLoading(false);
+    };
+
+    fetchProjects();
+  }, []);
+
+  const categories = ['All', ...Array.from(new Set(projects.map((p) => p.category).filter(Boolean)))];
+  const filtered =
+    activeCategory === 'All'
+      ? projects
+      : projects.filter((p) => p.category === activeCategory);
 
   return (
     <div className="min-h-screen bg-navy-950">
@@ -138,34 +57,39 @@ export default function PortfolioPage() {
         <div className="flex flex-wrap gap-2 mb-8 justify-center">
           {categories.map((cat, i) => (
             <button
-              key={i}
-              onClick={() => setActiveIdx(i)}
+              key={cat}
+              onClick={() => setActiveCategory(cat)}
               className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
-                activeIdx === i
+                activeCategory === cat
                   ? 'bg-brand-orange text-navy-950 shadow-orange-glow'
                   : 'glass-card text-slate-400 hover:text-white hover:border-brand-orange/30'
               }`}
             >
-              {cat}
+              {cat === 'All' ? (isAR ? 'الكل' : 'All') : cat}
             </button>
           ))}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filtered.map((project, i) => (
+        {loading ? (
+          <div className="text-center text-slate-400 py-10">{isAR ? 'جارٍ تحميل المشاريع...' : 'Loading projects...'}</div>
+        ) : filtered.length === 0 ? (
+          <div className="text-center text-slate-400 py-10">{isAR ? 'لا توجد مشاريع حالياً.' : 'No projects found.'}</div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filtered.map((project) => (
             <div
-              key={i}
-              className={`glass-card-hover overflow-hidden group ${project.featured ? 'ring-1 ring-brand-orange/20' : ''}`}
+              key={project.id}
+              className={`glass-card-hover overflow-hidden group ${project.is_featured ? 'ring-1 ring-brand-orange/20' : ''}`}
             >
-              {project.featured && (
+              {project.is_featured && (
                 <div className="px-4 py-1.5 bg-brand-orange/10 border-b border-brand-orange/20">
                   <span className="text-xs font-semibold text-brand-orange">{t.portfolio.featuredBadge}</span>
                 </div>
               )}
               <div className="h-48 overflow-hidden bg-white/95 p-3">
                 <img
-                  src={project.image}
-                  alt={isAR ? project.titleAr : project.title}
+                  src={project.images?.[0] || 'https://images.pexels.com/photos/5632399/pexels-photo-5632399.jpeg?auto=compress&cs=tinysrgb&w=800'}
+                  alt={isAR ? (project.title_ar || project.title) : project.title}
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
               </div>
@@ -175,26 +99,26 @@ export default function PortfolioPage() {
                     className="text-xs font-medium px-2.5 py-1 rounded-full"
                     style={{ background: `${project.color}15`, color: project.color, border: `1px solid ${project.color}25` }}
                   >
-                    {isAR ? project.categoryAr : project.category}
+                    {project.category}
                   </span>
                   <span
                     className="text-xs font-bold px-2.5 py-1 rounded-full"
                     style={{ background: `${project.color}20`, color: project.color }}
                   >
-                    {isAR ? project.metricAr : project.metric}
+                    {project.metric}
                   </span>
                 </div>
                 <p className="text-slate-500 text-xs mb-1">
-                  {isAR ? project.clientAr : project.client}
+                  {isAR ? (project.client_name_ar || project.client_name) : project.client_name}
                 </p>
                 <h3 className="text-white font-bold text-lg mb-3">
-                  {isAR ? project.titleAr : project.title}
+                  {isAR ? (project.title_ar || project.title) : project.title}
                 </h3>
                 <p className="text-slate-400 text-sm leading-relaxed mb-4">
-                  {isAR ? project.descriptionAr : project.description}
+                  {isAR ? (project.description_ar || project.description) : project.description}
                 </p>
                 <div className="flex flex-wrap gap-1.5">
-                  {project.tech.map((tech) => (
+                  {(project.tech_stack || []).map((tech) => (
                     <span key={tech} className="text-xs px-2 py-0.5 rounded-md bg-white/5 border border-white/10 text-slate-400">
                       {tech}
                     </span>
@@ -204,6 +128,7 @@ export default function PortfolioPage() {
             </div>
           ))}
         </div>
+        )}
 
         <div className="mt-16 glass-card p-10 text-center border-brand-orange/15">
           <h2 className="heading-md text-white mb-4">{t.portfolio.ctaTitle}</h2>
