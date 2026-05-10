@@ -32,6 +32,14 @@ const emptyForm = (): ProjectForm => ({
 
 const COLOR_OPTIONS = ['#f5a623', '#10b981', '#3b82f6', '#ec4899', '#f43f5e', '#8b5cf6', '#06b6d4'];
 
+const normalizeExternalUrl = (value: string) => {
+  const raw = value.trim();
+  if (!raw) return '';
+  const noLeadingSlashes = raw.replace(/^\/+/, '');
+  if (/^https?:\/\//i.test(noLeadingSlashes)) return noLeadingSlashes;
+  return `https://${noLeadingSlashes}`;
+};
+
 export default function PortfolioAdminTab() {
   const { t, locale } = useAdminI18n();
   const isAR = locale === 'ar';
@@ -82,6 +90,18 @@ export default function PortfolioAdminTab() {
   const handleSave = async () => {
     setSaving(true);
     setSaveError('');
+    const normalizedProjectUrl = normalizeExternalUrl(form.project_url);
+
+    if (normalizedProjectUrl) {
+      try {
+        new URL(normalizedProjectUrl);
+      } catch {
+        setSaving(false);
+        setSaveError(isAR ? 'رابط المشروع غير صالح. أدخل رابطًا صحيحًا مثل https://example.com' : 'Invalid project URL. Please use a valid URL like https://example.com');
+        return;
+      }
+    }
+
     const payload = {
       title: form.title,
       title_ar: form.title_ar,
@@ -90,7 +110,7 @@ export default function PortfolioAdminTab() {
       client_name: form.client_name,
       client_name_ar: form.client_name_ar,
       images: form.images,
-      project_url: form.project_url,
+      project_url: normalizedProjectUrl,
       tech_stack: form.tech_stack_str.split(',').map((s) => s.trim()).filter(Boolean),
       category: form.category,
       metric: form.metric,
