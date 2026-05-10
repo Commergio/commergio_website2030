@@ -46,19 +46,22 @@ export default function ProductsTab() {
   const [editing, setEditing] = useState<Product | null>(null);
   const [form, setForm] = useState<ProductForm>(emptyForm());
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState('');
   const [deleting, setDeleting] = useState<string | null>(null);
 
   const fetchProducts = async () => {
     setLoading(true);
-    const { data } = await supabase.from('products').select('*').order('display_order', { ascending: true });
+    const { data, error } = await supabase.from('products').select('*').order('display_order', { ascending: true });
+    if (error) console.error('products fetch:', error.message);
     setProducts(data || []);
     setLoading(false);
   };
 
   useEffect(() => { fetchProducts(); }, []);
 
-  const openAdd = () => { setForm(emptyForm()); setEditing(null); setModal('add'); };
+  const openAdd = () => { setSaveError(''); setForm(emptyForm()); setEditing(null); setModal('add'); };
   const openEdit = (p: Product) => {
+    setSaveError('');
     setForm({
       product_name: p.product_name,
       product_name_ar: p.product_name_ar || '',
@@ -75,16 +78,25 @@ export default function ProductsTab() {
     setEditing(p);
     setModal('edit');
   };
-  const closeModal = () => { setModal(null); setEditing(null); };
+  const closeModal = () => { setModal(null); setEditing(null); setSaveError(''); };
 
   const handleSave = async () => {
     setSaving(true);
+    setSaveError('');
+    let err = null;
     if (modal === 'add') {
-      await supabase.from('products').insert([form]);
+      const { error } = await supabase.from('products').insert([form]);
+      err = error;
     } else if (editing) {
-      await supabase.from('products').update(form).eq('id', editing.id);
+      const { error } = await supabase.from('products').update(form).eq('id', editing.id);
+      err = error;
     }
     setSaving(false);
+    if (err) {
+      setSaveError(err.message);
+      console.error('products save:', err);
+      return;
+    }
     closeModal();
     fetchProducts();
   };
@@ -180,6 +192,7 @@ export default function ProductsTab() {
           onSave={handleSave}
           onClose={closeModal}
           saving={saving}
+          saveError={saveError}
           isEdit={modal === 'edit'}
         />
       )}
@@ -187,12 +200,13 @@ export default function ProductsTab() {
   );
 }
 
-function ProductModal({ form, setForm, onSave, onClose, saving, isEdit }: {
+function ProductModal({ form, setForm, onSave, onClose, saving, saveError, isEdit }: {
   form: ProductForm;
   setForm: (f: ProductForm) => void;
   onSave: () => void;
   onClose: () => void;
   saving: boolean;
+  saveError: string;
   isEdit: boolean;
 }) {
   const { t } = useAdminI18n();
@@ -291,6 +305,12 @@ function ProductModal({ form, setForm, onSave, onClose, saving, isEdit }: {
             </div>
           </div>
         </div>
+
+        {saveError && (
+          <div className="mt-4 px-3.5 py-3 rounded-xl bg-red-500/10 border border-red-500/25">
+            <p className="text-red-600 text-xs leading-relaxed">{saveError}</p>
+          </div>
+        )}
 
         <div className="flex gap-3 mt-6">
           <button onClick={onClose} className="btn-secondary flex-1">{t.cancel}</button>

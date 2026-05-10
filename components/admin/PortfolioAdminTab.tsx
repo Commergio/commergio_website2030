@@ -41,19 +41,22 @@ export default function PortfolioAdminTab() {
   const [editing, setEditing] = useState<PortfolioProject | null>(null);
   const [form, setForm] = useState<ProjectForm>(emptyForm());
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState('');
   const [deleting, setDeleting] = useState<string | null>(null);
 
   const fetchProjects = async () => {
     setLoading(true);
-    const { data } = await supabase.from('portfolio_projects').select('*').order('display_order', { ascending: true });
+    const { data, error } = await supabase.from('portfolio_projects').select('*').order('display_order', { ascending: true });
+    if (error) console.error('portfolio fetch:', error.message);
     setProjects(data || []);
     setLoading(false);
   };
 
   useEffect(() => { fetchProjects(); }, []);
 
-  const openAdd = () => { setForm(emptyForm()); setEditing(null); setModal('add'); };
+  const openAdd = () => { setSaveError(''); setForm(emptyForm()); setEditing(null); setModal('add'); };
   const openEdit = (p: PortfolioProject) => {
+    setSaveError('');
     setForm({
       title: p.title,
       title_ar: p.title_ar || '',
@@ -74,10 +77,11 @@ export default function PortfolioAdminTab() {
     setEditing(p);
     setModal('edit');
   };
-  const closeModal = () => { setModal(null); setEditing(null); };
+  const closeModal = () => { setModal(null); setEditing(null); setSaveError(''); };
 
   const handleSave = async () => {
     setSaving(true);
+    setSaveError('');
     const payload = {
       title: form.title,
       title_ar: form.title_ar,
@@ -94,12 +98,20 @@ export default function PortfolioAdminTab() {
       is_featured: form.is_featured,
       display_order: form.display_order,
     };
+    let err = null;
     if (modal === 'add') {
-      await supabase.from('portfolio_projects').insert([payload]);
+      const { error } = await supabase.from('portfolio_projects').insert([payload]);
+      err = error;
     } else if (editing) {
-      await supabase.from('portfolio_projects').update(payload).eq('id', editing.id);
+      const { error } = await supabase.from('portfolio_projects').update(payload).eq('id', editing.id);
+      err = error;
     }
     setSaving(false);
+    if (err) {
+      setSaveError(err.message);
+      console.error('portfolio save:', err);
+      return;
+    }
     closeModal();
     fetchProjects();
   };
@@ -204,6 +216,7 @@ export default function PortfolioAdminTab() {
           onSave={handleSave}
           onClose={closeModal}
           saving={saving}
+          saveError={saveError}
           isEdit={modal === 'edit'}
         />
       )}
@@ -211,12 +224,13 @@ export default function PortfolioAdminTab() {
   );
 }
 
-function ProjectModal({ form, setForm, onSave, onClose, saving, isEdit }: {
+function ProjectModal({ form, setForm, onSave, onClose, saving, saveError, isEdit }: {
   form: ProjectForm;
   setForm: (f: ProjectForm) => void;
   onSave: () => void;
   onClose: () => void;
   saving: boolean;
+  saveError: string;
   isEdit: boolean;
 }) {
   const { t } = useAdminI18n();
@@ -337,6 +351,12 @@ function ProjectModal({ form, setForm, onSave, onClose, saving, isEdit }: {
             </div>
           </div>
         </div>
+
+        {saveError && (
+          <div className="mt-4 px-3.5 py-3 rounded-xl bg-red-500/10 border border-red-500/25">
+            <p className="text-red-600 text-xs leading-relaxed">{saveError}</p>
+          </div>
+        )}
 
         <div className="flex gap-3 mt-6">
           <button onClick={onClose} className="btn-secondary flex-1">{t.cancel}</button>

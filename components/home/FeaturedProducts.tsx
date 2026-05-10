@@ -72,18 +72,28 @@ export default function FeaturedProducts() {
 
   useEffect(() => {
     setMounted(true);
-    supabase
-      .from('products')
-      .select('*')
-      .eq('is_featured', true)
-      .order('display_order', { ascending: true })
-      .then(({ data, error }) => {
-        if (!error && data && data.length > 0) {
-          setProducts(data);
-        } else {
-          setProducts(FALLBACK_PRODUCTS);
-        }
-      });
+    const load = async () => {
+      const { data: featured, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('is_featured', true)
+        .order('display_order', { ascending: true });
+      if (!error && featured && featured.length > 0) {
+        setProducts(featured);
+        return;
+      }
+      const { data: anyProducts } = await supabase
+        .from('products')
+        .select('*')
+        .order('display_order', { ascending: true })
+        .limit(6);
+      if (anyProducts && anyProducts.length > 0) {
+        setProducts(anyProducts);
+      } else {
+        setProducts(FALLBACK_PRODUCTS);
+      }
+    };
+    load();
   }, []);
 
   if (!mounted) return null;

@@ -14,12 +14,24 @@ export default function PartnersSection() {
 
   useEffect(() => {
     setMounted(true);
-    supabase
-      .from('partners')
-      .select('*')
-      .eq('is_featured', true)
-      .order('display_order', { ascending: true })
-      .then(({ data }) => setPartners(data || []));
+    const load = async () => {
+      const { data: featured } = await supabase
+        .from('partners')
+        .select('*')
+        .eq('is_featured', true)
+        .order('display_order', { ascending: true });
+      if (featured && featured.length > 0) {
+        setPartners(featured);
+        return;
+      }
+      const { data: all } = await supabase
+        .from('partners')
+        .select('*')
+        .order('display_order', { ascending: true })
+        .limit(24);
+      setPartners(all || []);
+    };
+    load();
   }, []);
 
   return (

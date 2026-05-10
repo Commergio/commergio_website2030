@@ -32,19 +32,22 @@ export default function PartnersTab() {
   const [editing, setEditing] = useState<Partner | null>(null);
   const [form, setForm] = useState<PartnerForm>(emptyForm());
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState('');
   const [deleting, setDeleting] = useState<string | null>(null);
 
   const fetchPartners = async () => {
     setLoading(true);
-    const { data } = await supabase.from('partners').select('*').order('display_order', { ascending: true });
+    const { data, error } = await supabase.from('partners').select('*').order('display_order', { ascending: true });
+    if (error) console.error('partners fetch:', error.message);
     setPartners(data || []);
     setLoading(false);
   };
 
   useEffect(() => { fetchPartners(); }, []);
 
-  const openAdd = () => { setForm(emptyForm()); setEditing(null); setModal('add'); };
+  const openAdd = () => { setSaveError(''); setForm(emptyForm()); setEditing(null); setModal('add'); };
   const openEdit = (p: Partner) => {
+    setSaveError('');
     setForm({
       name: p.name,
       name_ar: p.name_ar || '',
@@ -58,16 +61,25 @@ export default function PartnersTab() {
     setEditing(p);
     setModal('edit');
   };
-  const closeModal = () => { setModal(null); setEditing(null); };
+  const closeModal = () => { setModal(null); setEditing(null); setSaveError(''); };
 
   const handleSave = async () => {
     setSaving(true);
+    setSaveError('');
+    let err = null;
     if (modal === 'add') {
-      await supabase.from('partners').insert([form]);
+      const { error } = await supabase.from('partners').insert([form]);
+      err = error;
     } else if (editing) {
-      await supabase.from('partners').update(form).eq('id', editing.id);
+      const { error } = await supabase.from('partners').update(form).eq('id', editing.id);
+      err = error;
     }
     setSaving(false);
+    if (err) {
+      setSaveError(err.message);
+      console.error('partners save:', err);
+      return;
+    }
     closeModal();
     fetchPartners();
   };
@@ -162,6 +174,7 @@ export default function PartnersTab() {
           onSave={handleSave}
           onClose={closeModal}
           saving={saving}
+          saveError={saveError}
           isEdit={modal === 'edit'}
         />
       )}
@@ -169,12 +182,13 @@ export default function PartnersTab() {
   );
 }
 
-function PartnerModal({ form, setForm, onSave, onClose, saving, isEdit }: {
+function PartnerModal({ form, setForm, onSave, onClose, saving, saveError, isEdit }: {
   form: PartnerForm;
   setForm: (f: PartnerForm) => void;
   onSave: () => void;
   onClose: () => void;
   saving: boolean;
+  saveError: string;
   isEdit: boolean;
 }) {
   const { t } = useAdminI18n();
@@ -252,6 +266,12 @@ function PartnerModal({ form, setForm, onSave, onClose, saving, isEdit }: {
             </div>
           </div>
         </div>
+
+        {saveError && (
+          <div className="mt-4 px-3.5 py-3 rounded-xl bg-red-500/10 border border-red-500/25">
+            <p className="text-red-600 text-xs leading-relaxed">{saveError}</p>
+          </div>
+        )}
 
         <div className="flex gap-3 mt-6">
           <button onClick={onClose} className="btn-secondary flex-1">{t.cancel}</button>

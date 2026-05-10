@@ -93,7 +93,7 @@ function AdminDashboardInner() {
   const fetchStats = async () => {
     const [{ count: messagesCount }, { count: productsCount }, { count: partnersCount }, { count: invoicesCount }] =
       await Promise.all([
-        supabase.from('contact_messages').select('*', { count: 'exact', head: true }),
+        supabase.from('messages').select('*', { count: 'exact', head: true }),
         supabase.from('products').select('*', { count: 'exact', head: true }),
         supabase.from('partners').select('*', { count: 'exact', head: true }),
         supabase.from('invoices').select('*', { count: 'exact', head: true }),

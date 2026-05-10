@@ -14,11 +14,13 @@ interface ImageUploadProps {
 export default function ImageUpload({ bucket, currentUrl, onUpload, label = 'Upload Image' }: ImageUploadProps) {
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState<string>(currentUrl || '');
+  const [uploadError, setUploadError] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleFile = async (file: File) => {
     if (!file) return;
     setUploading(true);
+    setUploadError('');
     const ext = file.name.split('.').pop();
     const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
     const { error } = await supabase.storage.from(bucket).upload(path, file, { upsert: true });
@@ -26,6 +28,9 @@ export default function ImageUpload({ bucket, currentUrl, onUpload, label = 'Upl
       const { data } = supabase.storage.from(bucket).getPublicUrl(path);
       setPreview(data.publicUrl);
       onUpload(data.publicUrl);
+    } else {
+      setUploadError(error.message);
+      console.error('Storage upload failed:', bucket, error);
     }
     setUploading(false);
   };
@@ -75,6 +80,9 @@ export default function ImageUpload({ bucket, currentUrl, onUpload, label = 'Upl
           </div>
         )}
       </div>
+      {uploadError && (
+        <p className="text-red-500 text-xs mt-2 leading-relaxed">{uploadError}</p>
+      )}
       <input
         ref={inputRef}
         type="file"
@@ -96,11 +104,14 @@ interface MultiImageUploadProps {
 export function MultiImageUpload({ bucket, currentUrls = [], onUpload, label = 'Upload Images' }: MultiImageUploadProps) {
   const [uploading, setUploading] = useState(false);
   const [previews, setPreviews] = useState<string[]>(currentUrls);
+  const [uploadError, setUploadError] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleFiles = async (files: FileList) => {
     setUploading(true);
+    setUploadError('');
     const newUrls: string[] = [];
+    let lastMsg = '';
     for (const file of Array.from(files)) {
       const ext = file.name.split('.').pop();
       const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
@@ -108,7 +119,15 @@ export function MultiImageUpload({ bucket, currentUrls = [], onUpload, label = '
       if (!error) {
         const { data } = supabase.storage.from(bucket).getPublicUrl(path);
         newUrls.push(data.publicUrl);
+      } else {
+        lastMsg = error.message;
+        console.error('Storage upload failed:', bucket, error);
       }
+    }
+    if (lastMsg && newUrls.length === 0) {
+      setUploadError(lastMsg);
+    } else if (lastMsg) {
+      setUploadError(`Some files failed: ${lastMsg}`);
     }
     const updated = [...previews, ...newUrls];
     setPreviews(updated);
@@ -152,6 +171,9 @@ export function MultiImageUpload({ bucket, currentUrls = [], onUpload, label = '
           )}
         </div>
       </div>
+      {uploadError && (
+        <p className="text-red-500 text-xs mt-2 leading-relaxed">{uploadError}</p>
+      )}
       <input
         ref={inputRef}
         type="file"

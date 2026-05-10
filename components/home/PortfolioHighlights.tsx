@@ -71,15 +71,25 @@ export default function PortfolioHighlights() {
   const [projects, setProjects] = useState<PortfolioProject[]>(FALLBACK_PROJECTS);
 
   useEffect(() => {
-    supabase
-      .from('portfolio_projects')
-      .select('*')
-      .eq('is_featured', true)
-      .order('display_order', { ascending: true })
-      .limit(3)
-      .then(({ data }) => {
-        if (data && data.length > 0) setProjects(data);
-      });
+    const load = async () => {
+      const { data: featured } = await supabase
+        .from('portfolio_projects')
+        .select('*')
+        .eq('is_featured', true)
+        .order('display_order', { ascending: true })
+        .limit(3);
+      if (featured && featured.length > 0) {
+        setProjects(featured);
+        return;
+      }
+      const { data: anyRows } = await supabase
+        .from('portfolio_projects')
+        .select('*')
+        .order('display_order', { ascending: true })
+        .limit(3);
+      if (anyRows && anyRows.length > 0) setProjects(anyRows);
+    };
+    load();
   }, []);
 
   return (
