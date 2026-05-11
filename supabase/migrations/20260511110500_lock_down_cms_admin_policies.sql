@@ -1,17 +1,13 @@
 /*
-  # CMS public reads and admin-only writes
+  # Lock down CMS/admin policies
 
-  The Next.js app uses the Supabase anon key in the browser. Row Level Security
-  must allow anonymous visitors to read public CMS content and submit public
-  contact forms. Admin-only data and all CMS mutations require the configured
-  Supabase admin account.
-
-  Requires tables: products, partners, portfolio_projects, messages, invoices
+  The 20260509180000 migration temporarily allowed the browser anon key to read
+  private admin data and mutate CMS/storage rows. This migration removes those
+  broad policies from databases that already applied it, while keeping public
+  reads and public form submissions working.
 */
 
 -- ---------- PRODUCTS ----------
-ALTER TABLE public.products ENABLE ROW LEVEL SECURITY;
-
 DROP POLICY IF EXISTS "cms_products_select" ON public.products;
 DROP POLICY IF EXISTS "cms_products_insert" ON public.products;
 DROP POLICY IF EXISTS "cms_products_update" ON public.products;
@@ -39,8 +35,6 @@ CREATE POLICY "cms_products_delete"
   USING (lower(auth.jwt() ->> 'email') = 'info@commergio.com');
 
 -- ---------- PARTNERS ----------
-ALTER TABLE public.partners ENABLE ROW LEVEL SECURITY;
-
 DROP POLICY IF EXISTS "cms_partners_select" ON public.partners;
 DROP POLICY IF EXISTS "cms_partners_insert" ON public.partners;
 DROP POLICY IF EXISTS "cms_partners_update" ON public.partners;
@@ -68,8 +62,6 @@ CREATE POLICY "cms_partners_delete"
   USING (lower(auth.jwt() ->> 'email') = 'info@commergio.com');
 
 -- ---------- PORTFOLIO ----------
-ALTER TABLE public.portfolio_projects ENABLE ROW LEVEL SECURITY;
-
 DROP POLICY IF EXISTS "cms_portfolio_select" ON public.portfolio_projects;
 DROP POLICY IF EXISTS "cms_portfolio_insert" ON public.portfolio_projects;
 DROP POLICY IF EXISTS "cms_portfolio_update" ON public.portfolio_projects;
@@ -97,8 +89,6 @@ CREATE POLICY "cms_portfolio_delete"
   USING (lower(auth.jwt() ->> 'email') = 'info@commergio.com');
 
 -- ---------- CONTACT MESSAGES ----------
-ALTER TABLE public.messages ENABLE ROW LEVEL SECURITY;
-
 DROP POLICY IF EXISTS "cms_messages_select" ON public.messages;
 DROP POLICY IF EXISTS "cms_messages_insert" ON public.messages;
 DROP POLICY IF EXISTS "cms_messages_update" ON public.messages;
@@ -126,8 +116,6 @@ CREATE POLICY "cms_messages_delete"
   USING (lower(auth.jwt() ->> 'email') = 'info@commergio.com');
 
 -- ---------- INVOICES ----------
-ALTER TABLE public.invoices ENABLE ROW LEVEL SECURITY;
-
 DROP POLICY IF EXISTS "cms_invoices_select" ON public.invoices;
 DROP POLICY IF EXISTS "cms_invoices_insert" ON public.invoices;
 DROP POLICY IF EXISTS "cms_invoices_update" ON public.invoices;
@@ -154,9 +142,7 @@ CREATE POLICY "cms_invoices_delete"
   TO authenticated
   USING (lower(auth.jwt() ->> 'email') = 'info@commergio.com');
 
--- ---------- PROJECT LEADS (public insert, admin-only reads/updates) ----------
-ALTER TABLE public.project_leads ENABLE ROW LEVEL SECURITY;
-
+-- ---------- PROJECT LEADS ----------
 DROP POLICY IF EXISTS "cms_project_leads_select" ON public.project_leads;
 DROP POLICY IF EXISTS "cms_project_leads_update" ON public.project_leads;
 DROP POLICY IF EXISTS "cms_project_leads_delete" ON public.project_leads;
@@ -180,14 +166,7 @@ CREATE POLICY "cms_project_leads_delete"
   TO authenticated
   USING (lower(auth.jwt() ->> 'email') = 'info@commergio.com');
 
--- ---------- STORAGE: buckets + object policies ----------
-INSERT INTO storage.buckets (id, name, public)
-VALUES
-  ('portfolio-images', 'portfolio-images', true),
-  ('product-images', 'product-images', true),
-  ('partner-logos', 'partner-logos', true)
-ON CONFLICT (id) DO UPDATE SET public = EXCLUDED.public;
-
+-- ---------- STORAGE ----------
 DROP POLICY IF EXISTS "cms_storage_select" ON storage.objects;
 DROP POLICY IF EXISTS "cms_storage_insert" ON storage.objects;
 DROP POLICY IF EXISTS "cms_storage_update" ON storage.objects;
