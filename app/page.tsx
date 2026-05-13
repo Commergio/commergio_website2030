@@ -33,9 +33,9 @@ export default function HomePage() {
       <StatsSection />
       <ServicesEcosystem />
       <MiniCTA
-        heading="Ready to get started? We have 3 slots open this month."
-        sub="Fixed price. Fixed timeline. No surprises."
-        primaryLabel="View Pricing"
+        heading="جاهز للبدء؟ لدينا 3 مقاعد متاحة هذا الشهر."
+        sub="سعر ثابت. مدة تنفيذ واضحة. بدون مفاجآت."
+        primaryLabel="عرض الأسعار"
         primaryHref="/pricing"
         source="services-cta"
       />
@@ -48,7 +48,8 @@ export default function HomePage() {
       />
       <WhyCommergio />
       <TeamCTA />
-      <PortfolioHighlights />
+      {/* Portfolio section temporarily hidden — re-enable when ready */}
+      {/* <PortfolioHighlights /> */}
       <Testimonials />
       <PartnersSection />
       <BlogPreview />
