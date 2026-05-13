@@ -140,7 +140,6 @@ function EcosystemSVG({
   const centerX = 400;
   const centerY = 400;
   const orbitRadius = 280;
-  const centerRadius = 80;
   const nodeRadius = 44;
 
   const nodes = serviceNodes.map((s) => {
@@ -161,10 +160,6 @@ function EcosystemSVG({
       <defs>
         <radialGradient id="orbitGlow" cx="50%" cy="50%" r="50%">
           <stop offset="0%" stopColor="rgba(245,166,35,0.08)" />
-          <stop offset="100%" stopColor="rgba(245,166,35,0)" />
-        </radialGradient>
-        <radialGradient id="centerGlow" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="rgba(245,166,35,0.25)" />
           <stop offset="100%" stopColor="rgba(245,166,35,0)" />
         </radialGradient>
         {serviceNodes.map((s) => (
@@ -202,24 +197,6 @@ function EcosystemSVG({
           />
         );
       })}
-
-      <circle cx={centerX} cy={centerY} r={centerRadius + 20} fill="url(#centerGlow)" />
-      <circle
-        cx={centerX}
-        cy={centerY}
-        r={centerRadius}
-        fill="rgba(245,166,35,0.08)"
-        stroke="rgba(245,166,35,0.35)"
-        strokeWidth="1.5"
-      />
-      <circle
-        cx={centerX}
-        cy={centerY}
-        r={centerRadius - 12}
-        fill="rgba(12,17,29,0.9)"
-        stroke="rgba(245,166,35,0.2)"
-        strokeWidth="1"
-      />
 
       {nodes.map((node) => {
         const isActive = activeId === node.id;
