@@ -1,11 +1,9 @@
 /*
-  # CMS public read access and admin-only writes
+  # Lock down CMS/admin policies
 
-  The Next.js app uses the Supabase anon key in the browser. Row Level Security
-  must allow public reads for site content and public inserts for contact forms,
-  while CMS/private reads and all mutations are limited to the admin account.
-
-  Requires tables: products, partners, portfolio_projects, messages, invoices
+  Repairs the previously-applied public CMS policy migration. Public visitors can
+  still read site CMS content and submit forms, but private data and all writes
+  are limited to the admin Supabase account.
 */
 
 -- ---------- PRODUCTS ----------
@@ -156,12 +154,21 @@ CREATE POLICY "cms_invoices_delete"
 -- ---------- PROJECT LEADS ----------
 ALTER TABLE public.project_leads ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Anyone can submit a lead" ON public.project_leads;
 DROP POLICY IF EXISTS "Authenticated users can view leads" ON public.project_leads;
 DROP POLICY IF EXISTS "Authenticated users can update leads" ON public.project_leads;
 DROP POLICY IF EXISTS "Authenticated users can delete leads" ON public.project_leads;
+DROP POLICY IF EXISTS "Admin can view leads" ON public.project_leads;
+DROP POLICY IF EXISTS "Admin can update leads" ON public.project_leads;
+DROP POLICY IF EXISTS "Admin can delete leads" ON public.project_leads;
 DROP POLICY IF EXISTS "cms_project_leads_select" ON public.project_leads;
 DROP POLICY IF EXISTS "cms_project_leads_update" ON public.project_leads;
 DROP POLICY IF EXISTS "cms_project_leads_delete" ON public.project_leads;
+
+CREATE POLICY "Anyone can submit a lead"
+  ON public.project_leads FOR INSERT
+  TO anon, authenticated
+  WITH CHECK (true);
 
 CREATE POLICY "cms_project_leads_select"
   ON public.project_leads FOR SELECT
@@ -179,7 +186,7 @@ CREATE POLICY "cms_project_leads_delete"
   TO authenticated
   USING (lower(auth.jwt() ->> 'email') = 'info@commergio.com');
 
--- ---------- STORAGE: buckets + object policies ----------
+-- ---------- STORAGE: public reads, admin-only writes ----------
 INSERT INTO storage.buckets (id, name, public)
 VALUES
   ('portfolio-images', 'portfolio-images', true),

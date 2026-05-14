@@ -18,7 +18,7 @@ import PortfolioAdminTab from '@/components/admin/PortfolioAdminTab';
 type Tab = 'overview' | 'messages' | 'invoices' | 'blog' | 'portfolio' | 'partners' | 'products';
 
 const ADMIN_EMAIL = 'info@commergio.com';
-const TEMP_BYPASS_ADMIN_AUTH = true;
+const TEMP_BYPASS_ADMIN_AUTH = false;
 
 export default function AdminDashboard() {
   const [authed, setAuthed] = useState(false);
