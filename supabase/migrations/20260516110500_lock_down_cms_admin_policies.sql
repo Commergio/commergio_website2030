@@ -1,11 +1,9 @@
 /*
-  # CMS public reads and admin writes
+  # Lock down CMS/admin RLS policies
 
-  The Next.js app uses the Supabase anon key in the browser. Row Level Security
-  must allow public visitors to read site content and submit forms. Admin-only
-  reads/writes are restricted to the authorized Supabase account.
-
-  Requires tables: products, partners, portfolio_projects, messages, invoices
+  Remediates the earlier CMS public-access migration for databases where it was
+  already applied. Public visitors can still read website content and submit
+  forms, but private records and all admin mutations require the admin account.
 */
 
 -- ---------- PRODUCTS ----------
@@ -156,6 +154,7 @@ CREATE POLICY "cms_invoices_delete"
 -- ---------- PROJECT LEADS ----------
 ALTER TABLE public.project_leads ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Anyone can submit a lead" ON public.project_leads;
 DROP POLICY IF EXISTS "Authenticated users can view leads" ON public.project_leads;
 DROP POLICY IF EXISTS "Authenticated users can update leads" ON public.project_leads;
 DROP POLICY IF EXISTS "Authenticated users can delete leads" ON public.project_leads;
@@ -164,6 +163,11 @@ DROP POLICY IF EXISTS "Admin can update leads" ON public.project_leads;
 DROP POLICY IF EXISTS "Admin can delete leads" ON public.project_leads;
 DROP POLICY IF EXISTS "cms_project_leads_select" ON public.project_leads;
 DROP POLICY IF EXISTS "cms_project_leads_update" ON public.project_leads;
+
+CREATE POLICY "Anyone can submit a lead"
+  ON public.project_leads FOR INSERT
+  TO anon, authenticated
+  WITH CHECK (true);
 
 CREATE POLICY "Admin can view leads"
   ON public.project_leads FOR SELECT
@@ -181,14 +185,7 @@ CREATE POLICY "Admin can delete leads"
   TO authenticated
   USING (lower(auth.jwt() ->> 'email') = 'info@commergio.com');
 
--- ---------- STORAGE: buckets + object policies ----------
-INSERT INTO storage.buckets (id, name, public)
-VALUES
-  ('portfolio-images', 'portfolio-images', true),
-  ('product-images', 'product-images', true),
-  ('partner-logos', 'partner-logos', true)
-ON CONFLICT (id) DO UPDATE SET public = EXCLUDED.public;
-
+-- ---------- STORAGE ----------
 DROP POLICY IF EXISTS "cms_storage_select" ON storage.objects;
 DROP POLICY IF EXISTS "cms_storage_insert" ON storage.objects;
 DROP POLICY IF EXISTS "cms_storage_update" ON storage.objects;
