@@ -1,11 +1,10 @@
 /*
-  # CMS public reads and authenticated admin writes
+  # Lock down CMS/admin policies
 
-  The Next.js app uses the Supabase anon key in the browser. Row Level Security
-  must allow anon to read public content and submit public forms. Admin-only
-  mutations require an authenticated Supabase session for info@commergio.com.
-
-  Requires tables: products, partners, portfolio_projects, messages, invoices
+  A previous migration allowed the browser anon key to read and mutate private
+  admin data so the admin UI could run without a Supabase session. The admin UI
+  now requires the configured admin Supabase user, and these policies restrict
+  private reads and all admin mutations to info@commergio.com.
 */
 
 -- ---------- PRODUCTS ----------
@@ -156,8 +155,12 @@ CREATE POLICY "cms_invoices_delete"
 -- ---------- PROJECT LEADS ----------
 ALTER TABLE public.project_leads ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Authenticated users can view leads" ON public.project_leads;
+DROP POLICY IF EXISTS "Authenticated users can update leads" ON public.project_leads;
+DROP POLICY IF EXISTS "Authenticated users can delete leads" ON public.project_leads;
 DROP POLICY IF EXISTS "cms_project_leads_select" ON public.project_leads;
 DROP POLICY IF EXISTS "cms_project_leads_update" ON public.project_leads;
+DROP POLICY IF EXISTS "cms_project_leads_delete" ON public.project_leads;
 
 CREATE POLICY "cms_project_leads_select"
   ON public.project_leads FOR SELECT
@@ -170,14 +173,12 @@ CREATE POLICY "cms_project_leads_update"
   USING (lower(auth.jwt() ->> 'email') = 'info@commergio.com')
   WITH CHECK (lower(auth.jwt() ->> 'email') = 'info@commergio.com');
 
--- ---------- STORAGE: buckets + object policies ----------
-INSERT INTO storage.buckets (id, name, public)
-VALUES
-  ('portfolio-images', 'portfolio-images', true),
-  ('product-images', 'product-images', true),
-  ('partner-logos', 'partner-logos', true)
-ON CONFLICT (id) DO UPDATE SET public = EXCLUDED.public;
+CREATE POLICY "cms_project_leads_delete"
+  ON public.project_leads FOR DELETE
+  TO authenticated
+  USING (lower(auth.jwt() ->> 'email') = 'info@commergio.com');
 
+-- ---------- STORAGE ----------
 DROP POLICY IF EXISTS "cms_storage_select" ON storage.objects;
 DROP POLICY IF EXISTS "cms_storage_insert" ON storage.objects;
 DROP POLICY IF EXISTS "cms_storage_update" ON storage.objects;
