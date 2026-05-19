@@ -1,11 +1,9 @@
 /*
-  # CMS RLS and storage access
+  # Lock down CMS/admin policies
 
-  The Next.js app uses the Supabase anon key in the browser. Row Level Security
-  must allow anon to read public site content and submit forms. Admin reads and
-  mutations are limited to the authorized Supabase account.
-
-  Requires tables: products, partners, portfolio_projects, messages, invoices
+  Remediates the previously-applied CMS policy migration that allowed any client
+  using the public anon key to read private admin data and mutate CMS rows,
+  invoices, leads, and storage objects.
 */
 
 -- ---------- PRODUCTS ----------
@@ -166,30 +164,23 @@ DROP POLICY IF EXISTS "cms_project_leads_select" ON public.project_leads;
 DROP POLICY IF EXISTS "cms_project_leads_update" ON public.project_leads;
 DROP POLICY IF EXISTS "cms_project_leads_delete" ON public.project_leads;
 
-CREATE POLICY "cms_project_leads_select"
+CREATE POLICY "Admin can view leads"
   ON public.project_leads FOR SELECT
   TO authenticated
   USING (lower(coalesce(auth.jwt() ->> 'email', '')) = 'info@commergio.com');
 
-CREATE POLICY "cms_project_leads_update"
+CREATE POLICY "Admin can update leads"
   ON public.project_leads FOR UPDATE
   TO authenticated
   USING (lower(coalesce(auth.jwt() ->> 'email', '')) = 'info@commergio.com')
   WITH CHECK (lower(coalesce(auth.jwt() ->> 'email', '')) = 'info@commergio.com');
 
-CREATE POLICY "cms_project_leads_delete"
+CREATE POLICY "Admin can delete leads"
   ON public.project_leads FOR DELETE
   TO authenticated
   USING (lower(coalesce(auth.jwt() ->> 'email', '')) = 'info@commergio.com');
 
--- ---------- STORAGE: buckets + object policies ----------
-INSERT INTO storage.buckets (id, name, public)
-VALUES
-  ('portfolio-images', 'portfolio-images', true),
-  ('product-images', 'product-images', true),
-  ('partner-logos', 'partner-logos', true)
-ON CONFLICT (id) DO UPDATE SET public = EXCLUDED.public;
-
+-- ---------- STORAGE ----------
 DROP POLICY IF EXISTS "cms_storage_select" ON storage.objects;
 DROP POLICY IF EXISTS "cms_storage_insert" ON storage.objects;
 DROP POLICY IF EXISTS "cms_storage_update" ON storage.objects;
