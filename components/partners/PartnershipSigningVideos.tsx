@@ -2,13 +2,13 @@
 
 import { useState, useEffect, useRef, useCallback, type ReactNode } from 'react';
 import Link from 'next/link';
-import { Film, Play, Calendar, ArrowRight } from 'lucide-react';
+import { Film, Play, Calendar, ArrowRight, Sparkles } from 'lucide-react';
 import { useI18n } from '@/lib/i18n-context';
 import { supabase } from '@/lib/supabase';
 import type { PartnershipSigningVideo } from '@/lib/types';
 
 type PartnershipSigningVideosProps = {
-  /** Full-width dark homepage band */
+  /** Homepage: light elevated section matching site style */
   prominent?: boolean;
   /** Max videos to show (homepage uses 2 for speed) */
   limit?: number;
@@ -77,8 +77,8 @@ export default function PartnershipSigningVideos({
       {[1, 2].map((i) => (
         <div
           key={i}
-          className="glass-card aspect-video animate-pulse"
-          style={{ background: 'rgba(255,255,255,0.03)' }}
+          className="rounded-2xl aspect-video animate-pulse border border-slate-200/80"
+          style={{ background: 'rgba(15, 23, 42, 0.04)' }}
         />
       ))}
     </div>
@@ -94,11 +94,11 @@ export default function PartnershipSigningVideos({
       fetchError.includes('relation') ||
       fetchError.includes('schema cache');
     const errorBlock = (
-      <div className="glass-card p-8 text-center border-amber-500/20">
-        <p className="text-white font-semibold mb-2">
+      <div className="glass-card p-8 text-center border-amber-200/60">
+        <p className="text-slate-900 font-semibold mb-2">
           {isAR ? 'تعذر تحميل فيديوهات التوقيع' : 'Could not load signing videos'}
         </p>
-        <p className="text-slate-500 text-sm mb-4">
+        <p className="text-slate-600 text-sm mb-4">
           {misconfigured
             ? isAR
               ? 'نفّذ ملف SQL في Supabase (جدول partnership_signing_videos) ثم أعد المحاولة.'
@@ -121,18 +121,37 @@ export default function PartnershipSigningVideos({
   const inner = (
     <>
       <div className={`text-center ${prominent ? 'mb-12 md:mb-14' : 'mb-10'}`}>
-        <span className="section-label mb-4 inline-flex">{t.partners.signingVideosLabel}</span>
+        {prominent ? (
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-5 border border-amber-200/70 bg-amber-50/80 text-amber-800 text-xs font-semibold tracking-wide">
+            <Sparkles size={14} className="text-brand-orange" />
+            {t.partners.signingVideosLabel}
+          </div>
+        ) : (
+          <span className="section-label mb-4 inline-flex">{t.partners.signingVideosLabel}</span>
+        )}
         <h2
-          className={`text-white mb-3 ${
-            prominent ? 'heading-lg md:text-5xl' : 'heading-md'
+          className={`mb-4 ${
+            prominent
+              ? 'heading-lg text-slate-900 md:text-[2.75rem] leading-tight'
+              : 'heading-md text-white'
           }`}
         >
           {t.partners.signingVideosTitle1}{' '}
           <span className="orange-gradient-text">{t.partners.signingVideosTitle2}</span>
         </h2>
+        {prominent && (
+          <div
+            className="w-20 h-0.5 mx-auto mb-5 rounded-full"
+            style={{
+              background: 'linear-gradient(90deg, transparent, #f5a623, transparent)',
+            }}
+          />
+        )}
         <p
-          className={`text-slate-400 max-w-2xl mx-auto ${
-            prominent ? 'text-base md:text-lg' : 'text-sm md:text-base'
+          className={`max-w-2xl mx-auto leading-relaxed ${
+            prominent
+              ? 'text-slate-600 text-base md:text-lg'
+              : 'text-slate-400 text-sm md:text-base'
           }`}
         >
           {t.partners.signingVideosSub}
@@ -156,6 +175,7 @@ export default function PartnershipSigningVideos({
             locale={locale}
             isActive={activeId === video.id}
             featured={prominent && displayed.length === 1}
+            elevated={prominent}
             onActivate={() => {
               setActiveId(video.id);
               pauseOthers(video.id);
@@ -186,25 +206,31 @@ function wrapSection(content: ReactNode, prominent: boolean) {
     return (
       <section
         id="signing-videos-home"
-        className="section-padding relative overflow-hidden scroll-mt-24"
-        style={{ background: '#040c18' }}
+        className="section-padding relative overflow-hidden scroll-mt-24 bg-[#f8fafc]"
       >
-        <div className="absolute inset-0 bg-hero-gradient opacity-90" />
-        <div className="absolute inset-0 grid-pattern opacity-25" />
-        <div
-          className="absolute top-0 left-0 right-0 h-px"
-          style={{
-            background:
-              'linear-gradient(90deg, transparent, rgba(245,166,35,0.6) 50%, transparent)',
-          }}
-        />
-        <div
-          className="absolute -top-32 left-1/2 -translate-x-1/2 w-[min(100%,720px)] h-64 rounded-full pointer-events-none opacity-40"
-          style={{
-            background: 'radial-gradient(ellipse, rgba(245,166,35,0.25) 0%, transparent 70%)',
-          }}
-        />
-        <div className="container-max relative z-10">{content}</div>
+        <div className="absolute inset-0 grid-pattern opacity-30" />
+        <div className="divider-gradient absolute top-0 left-0 right-0" />
+        <div className="absolute -top-24 end-0 w-80 h-80 rounded-full bg-amber-400/[0.07] blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 start-0 w-64 h-64 rounded-full bg-slate-300/20 blur-3xl pointer-events-none" />
+
+        <div className="container-max relative z-10">
+          <div
+            className="relative rounded-[1.75rem] border border-slate-200/70 bg-white/75 backdrop-blur-md px-5 py-10 md:px-10 md:py-14 shadow-[0_4px_24px_rgba(15,23,42,0.05),0_24px_64px_rgba(245,166,35,0.06)]"
+            style={{
+              boxShadow:
+                '0 1px 0 rgba(255,255,255,0.9) inset, 0 12px 48px rgba(15,23,42,0.06), 0 0 0 1px rgba(245,166,35,0.08)',
+            }}
+          >
+            <div
+              className="absolute top-0 inset-x-8 h-px hidden md:block"
+              style={{
+                background:
+                  'linear-gradient(90deg, transparent, rgba(245,166,35,0.45) 20%, rgba(245,166,35,0.45) 80%, transparent)',
+              }}
+            />
+            {content}
+          </div>
+        </div>
       </section>
     );
   }
@@ -222,6 +248,7 @@ function SigningVideoCard({
   locale,
   isActive,
   featured = false,
+  elevated = false,
   onActivate,
 }: {
   video: PartnershipSigningVideo;
@@ -229,6 +256,8 @@ function SigningVideoCard({
   locale: string;
   isActive: boolean;
   featured?: boolean;
+  /** Homepage: refined shadow and hover lift */
+  elevated?: boolean;
   onActivate: () => void;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -263,14 +292,32 @@ function SigningVideoCard({
     videoRef.current?.play();
   };
 
+  const cardClass = `glass-card-hover overflow-hidden flex flex-col rounded-2xl ${
+    elevated
+      ? `transition-all duration-300 hover:-translate-y-1 ${
+          featured
+            ? 'ring-2 ring-amber-300/50 shadow-[0_20px_50px_rgba(15,23,42,0.1)]'
+            : 'shadow-[0_8px_30px_rgba(15,23,42,0.07)]'
+        }`
+      : featured
+        ? 'ring-2 ring-brand-orange/30 shadow-[0_20px_60px_rgba(245,166,35,0.12)]'
+        : ''
+  }`;
+
   return (
-    <article
-      ref={containerRef}
-      className={`glass-card-hover overflow-hidden flex flex-col ${
-        featured ? 'ring-2 ring-brand-orange/30 shadow-[0_20px_60px_rgba(245,166,35,0.12)]' : ''
-      }`}
-    >
-      <div className={`relative bg-navy-900 group ${featured ? 'aspect-[16/9] md:aspect-[2/1]' : 'aspect-video'}`}>
+    <article ref={containerRef} className={cardClass}>
+      <div
+        className={`relative bg-slate-900 group overflow-hidden ${
+          featured ? 'aspect-[16/9] md:aspect-[2/1]' : 'aspect-video'
+        }`}
+      >
+        <div
+          className="absolute inset-0 z-[1] pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+          style={{
+            background:
+              'linear-gradient(180deg, transparent 50%, rgba(15,23,42,0.35) 100%)',
+          }}
+        />
         {inView && started && video.video_url ? (
           <video
             ref={videoRef}
@@ -328,17 +375,23 @@ function SigningVideoCard({
         )}
       </div>
 
-      <div className="p-5 md:p-6 flex flex-col gap-2 flex-1">
-        <p className="text-brand-orange text-xs font-semibold uppercase tracking-wide">
+      <div
+        className={`p-5 md:p-6 flex flex-col gap-2 flex-1 bg-white border-t border-slate-100/90`}
+      >
+        <p className="text-xs font-semibold uppercase tracking-wider text-amber-700">
           {partnerName}
         </p>
-        {title && <h3 className="text-white font-bold text-lg leading-snug">{title}</h3>}
+        {title && (
+          <h3 className="font-bold leading-snug text-slate-900 text-lg md:text-xl">
+            {title}
+          </h3>
+        )}
         {description && (
-          <p className="text-slate-400 text-sm leading-relaxed line-clamp-3">{description}</p>
+          <p className="text-slate-600 text-sm leading-relaxed line-clamp-3">{description}</p>
         )}
         {dateLabel && (
           <p className="text-slate-500 text-xs flex items-center gap-1.5 mt-auto pt-2">
-            <Calendar size={12} />
+            <Calendar size={12} className="text-amber-600/80 shrink-0" />
             {dateLabel}
           </p>
         )}
