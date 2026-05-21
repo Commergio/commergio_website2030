@@ -27,20 +27,30 @@ export default function PartnershipSigningVideos() {
   const isAR = locale === 'ar';
   const [videos, setVideos] = useState<PartnershipSigningVideo[]>([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState('');
   const [activeId, setActiveId] = useState<string | null>(null);
 
-  useEffect(() => {
-    const load = async () => {
-      const { data, error } = await supabase
-        .from('partnership_signing_videos')
-        .select(VIDEO_FIELDS)
-        .eq('is_published', true)
-        .order('display_order', { ascending: true });
-      if (!error && data) setVideos(data as PartnershipSigningVideo[]);
-      setLoading(false);
-    };
-    load();
+  const load = useCallback(async () => {
+    setLoading(true);
+    setFetchError('');
+    const { data, error } = await supabase
+      .from('partnership_signing_videos')
+      .select(VIDEO_FIELDS)
+      .eq('is_published', true)
+      .order('display_order', { ascending: true });
+    if (error) {
+      console.error('signing videos fetch:', error.message);
+      setFetchError(error.message);
+      setVideos([]);
+    } else {
+      setVideos((data as PartnershipSigningVideo[]) || []);
+    }
+    setLoading(false);
   }, []);
+
+  useEffect(() => {
+    load();
+  }, [load]);
 
   const pauseOthers = useCallback((exceptId: string) => {
     document.querySelectorAll<HTMLVideoElement>('video[data-signing-video]').forEach((el) => {
@@ -59,6 +69,32 @@ export default function PartnershipSigningVideos() {
               style={{ background: 'rgba(255,255,255,0.03)' }}
             />
           ))}
+        </div>
+      </section>
+    );
+  }
+
+  if (fetchError) {
+    const misconfigured =
+      fetchError.includes('does not exist') ||
+      fetchError.includes('relation') ||
+      fetchError.includes('schema cache');
+    return (
+      <section className="py-4">
+        <div className="glass-card p-8 text-center border-amber-500/20">
+          <p className="text-white font-semibold mb-2">
+            {isAR ? 'تعذر تحميل فيديوهات التوقيع' : 'Could not load signing videos'}
+          </p>
+          <p className="text-slate-500 text-sm mb-4">
+            {misconfigured
+              ? isAR
+                ? 'نفّذ ملف SQL في Supabase (جدول partnership_signing_videos) ثم أعد المحاولة.'
+                : 'Run the Supabase SQL migration for partnership_signing_videos, then retry.'
+              : fetchError}
+          </p>
+          <button type="button" onClick={load} className="btn-secondary text-sm">
+            {isAR ? 'إعادة المحاولة' : 'Retry'}
+          </button>
         </div>
       </section>
     );

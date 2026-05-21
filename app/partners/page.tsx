@@ -5,7 +5,22 @@ import { Handshake, ArrowRight, CircleCheck as CheckCircle2 } from 'lucide-react
 
 const PartnershipSigningVideos = dynamic(
   () => import('@/components/partners/PartnershipSigningVideos'),
-  { ssr: false, loading: () => null }
+  {
+    ssr: false,
+    loading: () => (
+      <section className="py-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {[1, 2].map((i) => (
+            <div
+              key={i}
+              className="glass-card aspect-video animate-pulse"
+              style={{ background: 'rgba(255,255,255,0.03)' }}
+            />
+          ))}
+        </div>
+      </section>
+    ),
+  }
 );
 
 export const metadata: Metadata = {

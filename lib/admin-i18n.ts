@@ -139,6 +139,7 @@ export const adminTranslations = {
     signingTitleArPlaceholder: 'مثال: توقيع اتفاقية الشراكة',
     recordedAt: 'Ceremony Date',
     publishOnSite: 'Publish on partners page',
+    publishRequiredHint: 'video will NOT appear on the site',
 
     // Portfolio
     portfolioTitle: 'Portfolio Projects',
@@ -319,6 +320,7 @@ export const adminTranslations = {
     signingTitleArPlaceholder: 'مثال: توقيع اتفاقية الشراكة',
     recordedAt: 'تاريخ التوقيع',
     publishOnSite: 'نشر في صفحة الشركاء',
+    publishRequiredHint: 'لن يظهر الفيديو على الموقع',
 
     // Portfolio
     portfolioTitle: 'مشاريع الأعمال',

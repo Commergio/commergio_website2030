@@ -27,7 +27,7 @@ const emptyForm = (): VideoForm => ({
   video_url: '',
   thumbnail_url: '',
   recorded_at: null,
-  is_published: false,
+  is_published: true,
   display_order: 0,
 });
 
@@ -425,27 +425,38 @@ function VideoModal({
             </div>
           </div>
 
-          <label className="flex items-center gap-2.5 cursor-pointer select-none">
-            <div
-              className="w-10 h-6 rounded-full relative transition-all duration-200 flex-shrink-0"
-              style={{
-                background: form.is_published
-                  ? 'rgba(16,185,129,0.5)'
-                  : 'rgba(255,255,255,0.08)',
-                border: `1px solid ${form.is_published ? 'rgba(16,185,129,0.5)' : 'rgba(255,255,255,0.12)'}`,
-              }}
-              onClick={() => set('is_published', !form.is_published)}
-            >
+          <div
+            className="rounded-xl px-3.5 py-3"
+            style={{
+              background: form.is_published ? 'rgba(16,185,129,0.08)' : 'rgba(239,68,68,0.08)',
+              border: `1px solid ${form.is_published ? 'rgba(16,185,129,0.25)' : 'rgba(239,68,68,0.25)'}`,
+            }}
+          >
+            <label className="flex items-center gap-2.5 cursor-pointer select-none">
               <div
-                className="absolute top-0.5 w-5 h-5 rounded-full transition-all duration-200"
+                className="w-10 h-6 rounded-full relative transition-all duration-200 flex-shrink-0"
                 style={{
-                  background: form.is_published ? '#10b981' : 'rgba(255,255,255,0.3)',
-                  left: form.is_published ? '19px' : '1px',
+                  background: form.is_published
+                    ? 'rgba(16,185,129,0.5)'
+                    : 'rgba(239,68,68,0.35)',
+                  border: `1px solid ${form.is_published ? 'rgba(16,185,129,0.5)' : 'rgba(239,68,68,0.4)'}`,
                 }}
-              />
-            </div>
-            <span className="text-xs text-slate-400">{t.publishOnSite}</span>
-          </label>
+                onClick={() => set('is_published', !form.is_published)}
+              >
+                <div
+                  className="absolute top-0.5 w-5 h-5 rounded-full transition-all duration-200"
+                  style={{
+                    background: form.is_published ? '#10b981' : '#ef4444',
+                    left: form.is_published ? '19px' : '1px',
+                  }}
+                />
+              </div>
+              <span className={`text-xs font-medium ${form.is_published ? 'text-emerald-700' : 'text-red-600'}`}>
+                {t.publishOnSite}
+                {!form.is_published && ` — ${t.publishRequiredHint}`}
+              </span>
+            </label>
+          </div>
         </div>
 
         {saveError && (
