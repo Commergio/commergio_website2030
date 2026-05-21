@@ -17,8 +17,8 @@
 
   2. Security
     - Enable RLS
-    - Anon users can INSERT (to submit leads)
-    - Authenticated users can SELECT/UPDATE/DELETE (admin access)
+    - Public users can INSERT (to submit leads)
+    - Only the Commergio admin account can SELECT/UPDATE/DELETE leads
 */
 
 CREATE TABLE IF NOT EXISTS project_leads (
@@ -40,24 +40,24 @@ ALTER TABLE project_leads ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Anyone can submit a lead"
   ON project_leads
   FOR INSERT
-  TO anon
+  TO anon, authenticated
   WITH CHECK (true);
 
 CREATE POLICY "Authenticated users can view leads"
   ON project_leads
   FOR SELECT
   TO authenticated
-  USING (true);
+  USING (lower(auth.jwt() ->> 'email') = 'info@commergio.com');
 
 CREATE POLICY "Authenticated users can update leads"
   ON project_leads
   FOR UPDATE
   TO authenticated
-  USING (true)
-  WITH CHECK (true);
+  USING (lower(auth.jwt() ->> 'email') = 'info@commergio.com')
+  WITH CHECK (lower(auth.jwt() ->> 'email') = 'info@commergio.com');
 
 CREATE POLICY "Authenticated users can delete leads"
   ON project_leads
   FOR DELETE
   TO authenticated
-  USING (true);
+  USING (lower(auth.jwt() ->> 'email') = 'info@commergio.com');
