@@ -126,6 +126,7 @@ export const translations = {
       signingVideosTitle2: 'Ceremonies',
       signingVideosSub:
         'Highlights from our partnership and contract signing events with strategic allies.',
+      viewAllSigningVideos: 'View All Signing Ceremonies',
     },
     blog: {
       label: 'Insights',
@@ -354,6 +355,7 @@ export const translations = {
       signingVideosTitle2: 'التوقيع',
       signingVideosSub:
         'مقتطفات من حفلات توقيع الشراكات والعقود مع شركائنا الاستراتيجيين.',
+      viewAllSigningVideos: 'عرض كل حفلات التوقيع',
     },
     blog: {
       label: 'رؤى وأفكار',

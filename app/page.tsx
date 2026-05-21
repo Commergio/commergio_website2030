@@ -24,6 +24,10 @@ const FeaturedProducts = dynamic(() => import('@/components/home/FeaturedProduct
 const WhyCommergio = dynamic(() => import('@/components/home/WhyCommergio'), { ssr: false });
 const PortfolioHighlights = dynamic(() => import('@/components/home/PortfolioHighlights'), { ssr: false });
 const PartnersSection = dynamic(() => import('@/components/home/PartnersSection'), { ssr: false });
+const PartnershipSigningVideosSection = dynamic(
+  () => import('@/components/home/PartnershipSigningVideosSection'),
+  { ssr: false }
+);
 const TeamCTA = dynamic(() => import('@/components/home/TeamCTA'), { ssr: false });
 
 export default function HomePage() {
@@ -51,6 +55,7 @@ export default function HomePage() {
       {/* Portfolio section temporarily hidden — re-enable when ready */}
       {/* <PortfolioHighlights /> */}
       <Testimonials />
+      <PartnershipSigningVideosSection />
       <PartnersSection />
       <BlogPreview />
       <ContactCTA />

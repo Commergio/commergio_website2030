@@ -85,14 +85,9 @@ export default function PartnersSection() {
           <p className="text-slate-600 mb-6 max-w-md mx-auto">
             {t.partners.becomePartnerSub}
           </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            <a href="/partners#signing-videos" className="btn-secondary text-sm">
-              {isAR ? 'حفلات توقيع الشراكات' : 'Partnership Signing Videos'}
-            </a>
-            <a href="mailto:info@commergio.com" className="btn-primary">
-              {isAR ? 'شاركنا' : 'Partner With Us'}
-            </a>
-          </div>
+          <a href="mailto:info@commergio.com" className="btn-primary">
+            {isAR ? 'شاركنا' : 'Partner With Us'}
+          </a>
         </div>
       </div>
     </section>
