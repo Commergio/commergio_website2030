@@ -25,30 +25,37 @@ CREATE INDEX IF NOT EXISTS partnership_signing_videos_published_order_idx
 ALTER TABLE public.partnership_signing_videos ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "cms_signing_videos_select" ON public.partnership_signing_videos;
+DROP POLICY IF EXISTS "cms_signing_videos_public_select" ON public.partnership_signing_videos;
+DROP POLICY IF EXISTS "cms_signing_videos_admin_select" ON public.partnership_signing_videos;
 DROP POLICY IF EXISTS "cms_signing_videos_insert" ON public.partnership_signing_videos;
 DROP POLICY IF EXISTS "cms_signing_videos_update" ON public.partnership_signing_videos;
 DROP POLICY IF EXISTS "cms_signing_videos_delete" ON public.partnership_signing_videos;
 
-CREATE POLICY "cms_signing_videos_select"
+CREATE POLICY "cms_signing_videos_public_select"
   ON public.partnership_signing_videos FOR SELECT
   TO anon, authenticated
-  USING (true);
+  USING (is_published = true);
+
+CREATE POLICY "cms_signing_videos_admin_select"
+  ON public.partnership_signing_videos FOR SELECT
+  TO authenticated
+  USING (lower(auth.jwt() ->> 'email') = 'info@commergio.com');
 
 CREATE POLICY "cms_signing_videos_insert"
   ON public.partnership_signing_videos FOR INSERT
-  TO anon, authenticated
-  WITH CHECK (true);
+  TO authenticated
+  WITH CHECK (lower(auth.jwt() ->> 'email') = 'info@commergio.com');
 
 CREATE POLICY "cms_signing_videos_update"
   ON public.partnership_signing_videos FOR UPDATE
-  TO anon, authenticated
-  USING (true)
-  WITH CHECK (true);
+  TO authenticated
+  USING (lower(auth.jwt() ->> 'email') = 'info@commergio.com')
+  WITH CHECK (lower(auth.jwt() ->> 'email') = 'info@commergio.com');
 
 CREATE POLICY "cms_signing_videos_delete"
   ON public.partnership_signing_videos FOR DELETE
-  TO anon, authenticated
-  USING (true);
+  TO authenticated
+  USING (lower(auth.jwt() ->> 'email') = 'info@commergio.com');
 
 INSERT INTO storage.buckets (id, name, public)
 VALUES
@@ -71,28 +78,28 @@ CREATE POLICY "cms_storage_select"
 
 CREATE POLICY "cms_storage_insert"
   ON storage.objects FOR INSERT
-  TO anon, authenticated
+  TO authenticated
   WITH CHECK (bucket_id IN (
     'portfolio-images', 'product-images', 'partner-logos',
     'partnership-videos', 'partnership-thumbnails'
-  ));
+  ) AND lower(auth.jwt() ->> 'email') = 'info@commergio.com');
 
 CREATE POLICY "cms_storage_update"
   ON storage.objects FOR UPDATE
-  TO anon, authenticated
+  TO authenticated
   USING (bucket_id IN (
     'portfolio-images', 'product-images', 'partner-logos',
     'partnership-videos', 'partnership-thumbnails'
-  ))
+  ) AND lower(auth.jwt() ->> 'email') = 'info@commergio.com')
   WITH CHECK (bucket_id IN (
     'portfolio-images', 'product-images', 'partner-logos',
     'partnership-videos', 'partnership-thumbnails'
-  ));
+  ) AND lower(auth.jwt() ->> 'email') = 'info@commergio.com');
 
 CREATE POLICY "cms_storage_delete"
   ON storage.objects FOR DELETE
-  TO anon, authenticated
+  TO authenticated
   USING (bucket_id IN (
     'portfolio-images', 'product-images', 'partner-logos',
     'partnership-videos', 'partnership-thumbnails'
-  ));
+  ) AND lower(auth.jwt() ->> 'email') = 'info@commergio.com');
