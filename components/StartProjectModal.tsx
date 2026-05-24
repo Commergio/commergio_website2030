@@ -74,15 +74,28 @@ export default function StartProjectModal({ onClose, defaultService = '', source
     if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) { setFormError(isAR ? 'يرجى إدخال بريد إلكتروني صالح.' : 'Please enter a valid email address.'); return; }
     if (form.message && form.message.length > 4000) { setFormError(isAR ? 'الرسالة طويلة جدًا (الحد 4000 حرف).' : 'Message is too long (max 4000 characters).'); return; }
     setSaving(true);
-    await supabase.from('project_leads').insert([{
-      ...form,
-      name: form.name.trim(),
-      email: form.email.trim().toLowerCase(),
-      message: form.message.trim(),
-      source,
-    }]);
-    setSaving(false);
-    setDone(true);
+    try {
+      const { error } = await supabase.from('project_leads').insert([{
+        ...form,
+        name: form.name.trim(),
+        email: form.email.trim().toLowerCase(),
+        message: form.message.trim(),
+        source,
+      }]);
+
+      if (error) {
+        console.error('Project lead submission error:', error.message);
+        setFormError(isAR ? 'تعذر إرسال الطلب. يرجى المحاولة مرة أخرى.' : 'We could not submit your brief. Please try again.');
+        return;
+      }
+
+      setDone(true);
+    } catch (error) {
+      console.error('Project lead submission failed:', error);
+      setFormError(isAR ? 'تعذر إرسال الطلب. يرجى المحاولة مرة أخرى.' : 'We could not submit your brief. Please try again.');
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
