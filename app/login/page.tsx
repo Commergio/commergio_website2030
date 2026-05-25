@@ -17,9 +17,8 @@ const IS_SUPABASE_CONFIGURED =
 export default function LoginPage() {
   const router = useRouter();
   const { theme } = useTheme();
-  const { locale } = useI18n();
+  const { pick, isRTL } = useI18n();
   const isLight = theme === 'light';
-  const isAR = locale === 'ar';
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -33,17 +32,18 @@ const handleLogin = async (e: React.FormEvent) => {
 
   if (!IS_SUPABASE_CONFIGURED) {
     setError(
-      isAR
-        ? 'إعدادات Supabase غير مكتملة. أضف NEXT_PUBLIC_SUPABASE_URL و NEXT_PUBLIC_SUPABASE_ANON_KEY في ملف .env.local.'
-        : 'Supabase is not configured. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to .env.local.'
+      pick(
+        'Supabase is not configured. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to .env.local.',
+        'إعدادات Supabase غير مكتملة. أضف NEXT_PUBLIC_SUPABASE_URL و NEXT_PUBLIC_SUPABASE_ANON_KEY في ملف .env.local.'
+      )
     );
     return;
   }
 
-  if (!email.trim()) { setError(isAR ? 'البريد الإلكتروني مطلوب.' : 'Email is required.'); return; }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setError(isAR ? 'أدخل بريدًا إلكترونيًا صالحًا.' : 'Enter a valid email address.'); return; }
-  if (!password) { setError(isAR ? 'كلمة المرور مطلوبة.' : 'Password is required.'); return; }
-  if (password.length < 6) { setError(isAR ? 'يجب أن تكون كلمة المرور 6 أحرف على الأقل.' : 'Password must be at least 6 characters.'); return; }
+  if (!email.trim()) { setError(pick('Email is required.', 'البريد الإلكتروني مطلوب.')); return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setError(pick('Enter a valid email address.', 'أدخل بريدًا إلكترونيًا صالحًا.')); return; }
+  if (!password) { setError(pick('Password is required.', 'كلمة المرور مطلوبة.')); return; }
+  if (password.length < 6) { setError(pick('Password must be at least 6 characters.', 'يجب أن تكون كلمة المرور 6 أحرف على الأقل.')); return; }
 
   setLoading(true);
 
@@ -62,7 +62,7 @@ const handleLogin = async (e: React.FormEvent) => {
   const userEmail = data?.user?.email?.toLowerCase() ?? '';
   if (userEmail !== ADMIN_EMAIL.toLowerCase()) {
     await supabase.auth.signOut();
-    setError(isAR ? 'غير مصرح لك بدخول لوحة التحكم.' : 'You are not authorized to access the admin panel.');
+    setError(pick('You are not authorized to access the admin panel.', 'غير مصرح لك بدخول لوحة التحكم.'));
     return;
   }
 
@@ -103,10 +103,10 @@ const handleLogin = async (e: React.FormEvent) => {
         >
           <div className="mb-7">
             <h1 className={`text-2xl font-bold mb-1 ${isLight ? 'text-gray-900' : 'text-white'}`} style={{ letterSpacing: '-0.02em' }}>
-              {isAR ? 'تسجيل دخول الإدارة' : 'Admin Sign In'}
+              {pick('Admin Sign In', 'تسجيل دخول الإدارة')}
             </h1>
             <p className={`text-sm ${isLight ? 'text-gray-500' : 'text-slate-400'}`}>
-              {isAR ? 'للمخولين فقط.' : 'Authorized personnel only.'}
+              {pick('Authorized personnel only.', 'للمخولين فقط.')}
             </p>
           </div>
 
@@ -114,7 +114,7 @@ const handleLogin = async (e: React.FormEvent) => {
             {/* Email */}
             <div>
               <label className={`block text-xs font-medium mb-1.5 ${isLight ? 'text-gray-600' : 'text-slate-400'}`}>
-                {isAR ? 'البريد الإلكتروني' : 'Email address'}
+                {pick('Email address', 'البريد الإلكتروني')}
               </label>
               <div className="relative">
                 <Mail size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -122,7 +122,7 @@ const handleLogin = async (e: React.FormEvent) => {
                   type="email"
                   value={email}
                   onChange={e => { setEmail(e.target.value); setError(''); }}
-                  placeholder={isAR ? 'you@example.com' : 'you@commergio.com'}
+                  placeholder={pick('you@commergio.com', 'you@example.com')}
                   className={inputCls}
                   autoComplete="email"
                   autoFocus
@@ -133,7 +133,7 @@ const handleLogin = async (e: React.FormEvent) => {
             {/* Password */}
             <div>
               <label className={`block text-xs font-medium mb-1.5 ${isLight ? 'text-gray-600' : 'text-slate-400'}`}>
-                {isAR ? 'كلمة المرور' : 'Password'}
+                {pick('Password', 'كلمة المرور')}
               </label>
               <div className="relative">
                 <Lock size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -171,7 +171,7 @@ const handleLogin = async (e: React.FormEvent) => {
               className="btn-primary w-full py-3 mt-2 justify-center"
             >
               {loading ? <Loader size={15} className="animate-spin" /> : null}
-              {loading ? (isAR ? 'جارٍ تسجيل الدخول…' : 'Signing in…') : (isAR ? 'تسجيل الدخول' : 'Sign In')}
+              {loading ? pick('Signing in…', 'جارٍ تسجيل الدخول…') : pick('Sign In', 'تسجيل الدخول')}
             </button>
           </form>
         </div>
@@ -179,7 +179,7 @@ const handleLogin = async (e: React.FormEvent) => {
         {/* Back link */}
         <p className={`text-center text-xs mt-6 ${isLight ? 'text-gray-400' : 'text-slate-500'}`}>
           <Link href="/" className="hover:text-brand-orange transition-colors">
-            {isAR ? 'العودة للموقع ←' : '← Back to website'}
+            {pick('← Back to website', 'العودة للموقع ←')}
           </Link>
         </p>
       </div>

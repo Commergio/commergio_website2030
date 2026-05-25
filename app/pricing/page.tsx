@@ -6,6 +6,8 @@ import { Check, ArrowRight, Zap, Star, Clock, Shield, MessageSquare } from 'luci
 import Link from 'next/link';
 import StartProjectModal from '@/components/StartProjectModal';
 import { useI18n } from '@/lib/i18n-context';
+import { pickList } from '@/lib/locale-text';
+import type { Locale } from '@/lib/i18n';
 
 const WHATSAPP_URL = 'https://wa.me/966562270319?text=Hello%2C%20I%20want%20to%20start%20a%20project%20with%20Commergio';
 
@@ -440,8 +442,7 @@ const specialOfferWhyUs = {
 };
 
 export default function PricingPage() {
-  const { locale, isRTL } = useI18n();
-  const isAR = locale === 'ar';
+  const { pick, isRTL, locale } = useI18n();
   const [active, setActive] = useState<PricingCategory>('website');
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState('');
@@ -470,24 +471,25 @@ export default function PricingPage() {
             >
               <span className="section-label mb-5 inline-flex">
                 <Zap size={12} className="mr-1" />
-                {isAR ? 'أسعار واضحة' : 'Transparent Pricing'}
+                {pick('Transparent Pricing', 'أسعار واضحة')}
               </span>
               <h1 className="heading-xl text-slate-900 mb-5 leading-tight">
-                {isAR ? 'باقات واضحة، ' : 'Clear Packages, '}
-                <span className="orange-gradient-text">{isAR ? 'نتائج حقيقية' : 'Real Results'}</span>
+                {pick('Clear Packages, ', 'باقات واضحة، ')}
+                <span className="orange-gradient-text">{pick('Real Results', 'نتائج حقيقية')}</span>
               </h1>
               <p className="text-slate-600 max-w-2xl mx-auto text-lg leading-relaxed mb-8">
-                {isAR
-                  ? 'بدون رسوم مخفية وبدون مفاجآت. نطاق عمل واضح وجدول زمني محدد حتى تعرف بالضبط ماذا ستحصل عليه قبل البدء.'
-                  : 'No hidden fees. No surprises. Fixed-scope projects with defined timelines so you know exactly what you\'re getting before you sign.'}
+                {pick(
+                  "No hidden fees. No surprises. Fixed-scope projects with defined timelines so you know exactly what you're getting before you sign.",
+                  'بدون رسوم مخفية وبدون مفاجآت. نطاق عمل واضح وجدول زمني محدد حتى تعرف بالضبط ماذا ستحصل عليه قبل البدء.'
+                )}
               </p>
 
               {/* Trust signals */}
               <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-slate-600">
                 {[
-                  { icon: Shield, text: isAR ? 'نطاق ثابت بدون فواتير مفاجئة' : 'Fixed scope, no surprise billing' },
-                  { icon: Clock, text: isAR ? 'جدول تسليم مضمون' : 'Guaranteed delivery timelines' },
-                  { icon: Star, text: isAR ? 'نسبة رضا عملاء 98%' : '98% client satisfaction rate' },
+                  { icon: Shield, text: pick('Fixed scope, no surprise billing', 'نطاق ثابت بدون فواتير مفاجئة') },
+                  { icon: Clock, text: pick('Guaranteed delivery timelines', 'جدول تسليم مضمون') },
+                  { icon: Star, text: pick('98% client satisfaction rate', 'نسبة رضا عملاء 98%') },
                 ].map(({ icon: Icon, text }) => (
                   <div key={text} className="flex items-center gap-2">
                     <Icon size={15} className="text-brand-orange" />
@@ -516,34 +518,33 @@ export default function PricingPage() {
               <div className="relative z-10">
                 <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-amber-300 bg-amber-50 px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-amber-700">
                   <Star size={13} />
-                  {isAR ? 'عرض خاص من الشركة' : 'Special Company Offer'}
+                  {pick('Special Company Offer', 'عرض خاص من الشركة')}
                 </div>
 
                 <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900 leading-tight mb-2">
-                  {isAR
-                    ? 'باقة التحول الرقمي الاحترافية'
-                    : 'Professional Digital Transformation Package'}
+                  {pick('Professional Digital Transformation Package', 'باقة التحول الرقمي الاحترافية')}
                 </h2>
                 <p className="text-slate-600 text-sm md:text-base mb-4">
-                  {isAR
-                    ? 'نحن متحمسون لتقديم باقة مميزة تساعدك على إطلاق حضورك الرقمي بشكل احترافي وسريع.'
-                    : 'We are excited to offer you a special package to launch your online presence professionally and quickly.'}
+                  {pick(
+                    'We are excited to offer you a special package to launch your online presence professionally and quickly.',
+                    'نحن متحمسون لتقديم باقة مميزة تساعدك على إطلاق حضورك الرقمي بشكل احترافي وسريع.'
+                  )}
                 </p>
 
                 <div className="mb-6">
-                  <span className="text-sm text-slate-500">{isAR ? 'السعر الخاص:' : 'Special Price:'}</span>
+                  <span className="text-sm text-slate-500">{pick('Special Price:', 'السعر الخاص:')}</span>
                   <p className="text-3xl md:text-4xl font-black text-brand-orange leading-tight">
-                    {isAR ? '1,870 ر.س فقط' : 'Only 1870 SAR!'}
+                    {pick('Only 1870 SAR!', '1,870 ر.س فقط')}
                   </p>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   <div className="rounded-xl border border-slate-200 bg-slate-50 p-5">
                     <h3 className="text-slate-900 font-bold mb-3">
-                      {isAR ? 'الباقة تشمل:' : 'The Package Includes:'}
+                      {pick('The Package Includes:', 'الباقة تشمل:')}
                     </h3>
                     <ul className="space-y-2.5">
-                      {(isAR ? specialOfferFeatures.ar : specialOfferFeatures.en).map((item, idx) => (
+                      {pickList(locale, specialOfferFeatures.en, specialOfferFeatures.ar).map((item, idx) => (
                         <li key={`${item}-${idx}`} className="flex items-start gap-2.5 text-sm text-slate-700 leading-relaxed">
                           <Check size={14} className="text-brand-orange mt-0.5 flex-shrink-0" />
                           <span>{item}</span>
@@ -554,10 +555,10 @@ export default function PricingPage() {
 
                   <div className="rounded-xl border border-slate-200 bg-slate-50 p-5">
                     <h3 className="text-slate-900 font-bold mb-3">
-                      {isAR ? 'لماذا تختارنا؟' : 'Why Choose Us?'}
+                      {pick('Why Choose Us?', 'لماذا تختارنا؟')}
                     </h3>
                     <ul className="space-y-2.5 mb-6">
-                      {(isAR ? specialOfferWhyUs.ar : specialOfferWhyUs.en).map((item, idx) => (
+                      {pickList(locale, specialOfferWhyUs.en, specialOfferWhyUs.ar).map((item, idx) => (
                         <li key={`${item}-${idx}`} className="flex items-start gap-2.5 text-sm text-slate-700 leading-relaxed">
                           <Check size={14} className="text-brand-orange mt-0.5 flex-shrink-0" />
                           <span>{item}</span>
@@ -566,12 +567,12 @@ export default function PricingPage() {
                     </ul>
 
                     <p className="text-sm font-semibold text-slate-800 mb-4">
-                      {isAR ? 'أطلق حضورك الرقمي اليوم!' : 'Launch your digital presence today!'}
+                      {pick('Launch your digital presence today!', 'أطلق حضورك الرقمي اليوم!')}
                     </p>
                     <div className="flex flex-wrap gap-3">
-                      <button onClick={() => openModal(isAR ? 'باقة التحول الرقمي الاحترافية' : 'Professional Digital Transformation Package')}
+                      <button onClick={() => openModal(pick('Professional Digital Transformation Package', 'باقة التحول الرقمي الاحترافية'))}
                         className="btn-primary px-5 py-3 text-sm">
-                        {isAR ? 'احجز العرض الآن' : 'Book This Offer'}
+                        {pick('Book This Offer', 'احجز العرض الآن')}
                       </button>
                       <a
                         href="https://commergio.com"
@@ -579,7 +580,7 @@ export default function PricingPage() {
                         rel="noopener noreferrer"
                         className="btn-secondary px-5 py-3 text-sm"
                       >
-                        {isAR ? 'زيارة الموقع' : 'Visit Website'}
+                        {pick('Visit Website', 'زيارة الموقع')}
                       </a>
                     </div>
                   </div>
@@ -591,14 +592,15 @@ export default function PricingPage() {
 
         {/* Urgency bar */}
         <div className="py-3 px-4 text-center text-sm font-semibold" style={{ background: 'rgba(245,166,35,0.08)', borderTop: '1px solid rgba(245,166,35,0.18)', borderBottom: '1px solid rgba(245,166,35,0.18)' }}>
-          <span className="text-brand-orange">{isAR ? 'عدد المقاعد محدود —' : 'Limited availability —'}</span>
+          <span className="text-brand-orange">{pick('Limited availability —', 'عدد المقاعد محدود —')}</span>
           <span className="text-slate-700 ml-2">
-            {isAR
-              ? 'نضم كحد أقصى 5 عملاء جدد شهريًا للحفاظ على الجودة.'
-              : 'We onboard a maximum of 5 new clients per month to maintain quality.'}
+            {pick(
+              'We onboard a maximum of 5 new clients per month to maintain quality.',
+              'نضم كحد أقصى 5 عملاء جدد شهريًا للحفاظ على الجودة.'
+            )}
           </span>
           <a href="#packages" className="text-brand-orange font-bold hover:underline ml-1">
-            {isAR ? 'احجز مقعدك الآن ←' : 'Secure your slot →'}
+            {pick('Secure your slot →', 'احجز مقعدك الآن ←')}
           </a>
         </div>
 
@@ -616,7 +618,7 @@ export default function PricingPage() {
                       : 'btn-secondary'
                   }`}
                 >
-                  {isAR ? cat.labelAr : cat.label}
+                  {pick(cat.label, cat.labelAr)}
                 </button>
               ))}
             </div>
@@ -634,17 +636,20 @@ export default function PricingPage() {
                   key={plan.name}
                   plan={plan}
                   index={i}
-                  isAR={isAR}
-                  onSelect={() => openModal(`${isAR ? plan.nameAr : plan.name} — ${isAR ? categories.find(c => c.id === active)?.labelAr : categories.find(c => c.id === active)?.label}`)}
+                  locale={locale}
+                  onSelect={() => {
+                    const cat = categories.find((c) => c.id === active);
+                    openModal(`${pick(plan.name, plan.nameAr)} — ${cat ? pick(cat.label, cat.labelAr) : ''}`);
+                  }}
                 />
               ))}
             </motion.div>
 
             {/* Bottom note */}
             <div className="text-center mt-12 text-slate-500 text-sm">
-              {isAR ? 'جميع الأسعار غير شاملة ضريبة القيمة المضافة (15%). لديك متطلبات خاصة؟ ' : 'All prices are exclusive of VAT (15%). Custom requirements? '}
+              {pick('All prices are exclusive of VAT (15%). Custom requirements? ', 'جميع الأسعار غير شاملة ضريبة القيمة المضافة (15%). لديك متطلبات خاصة؟ ')}
               <a href="/contact" className="text-brand-orange hover:underline">
-                {isAR ? 'تواصل معنا لعرض سعر مخصص.' : 'Contact us for a tailored quote.'}
+                {pick('Contact us for a tailored quote.', 'تواصل معنا لعرض سعر مخصص.')}
               </a>
             </div>
           </div>
@@ -655,10 +660,10 @@ export default function PricingPage() {
           <div className="divider-gradient mb-16" />
           <div className="container-max">
             <div className="text-center mb-14">
-              <span className="section-label mb-4 inline-flex">{isAR ? 'آلية العمل' : 'How It Works'}</span>
+              <span className="section-label mb-4 inline-flex">{pick('How It Works', 'آلية العمل')}</span>
               <h2 className="heading-lg text-slate-900 mb-4">
-                {isAR ? 'من الطلب إلى ' : 'From Inquiry to '}
-                <span className="orange-gradient-text">{isAR ? 'الإطلاق خلال 3 خطوات' : 'Launch in 3 Steps'}</span>
+                {pick('From Inquiry to ', 'من الطلب إلى ')}
+                <span className="orange-gradient-text">{pick('Launch in 3 Steps', 'الإطلاق خلال 3 خطوات')}</span>
               </h2>
             </div>
 
@@ -666,22 +671,22 @@ export default function PricingPage() {
               {[
                 {
                   step: '01',
-                  title: isAR ? 'أرسل متطلباتك' : 'Submit Your Brief',
-                  desc: isAR ? 'أخبرنا عن مشروعك وأهدافك وميزانيتك. نعود لك خلال 24 ساعة بعرض مناسب.' : 'Tell us about your project, goals, and budget. We respond within 24 hours with a tailored proposal.',
+                  title: pick('Submit Your Brief', 'أرسل متطلباتك'),
+                  desc: pick('Tell us about your project, goals, and budget. We respond within 24 hours with a tailored proposal.', 'أخبرنا عن مشروعك وأهدافك وميزانيتك. نعود لك خلال 24 ساعة بعرض مناسب.'),
                   icon: MessageSquare,
                   color: '#f5a623',
                 },
                 {
                   step: '02',
-                  title: isAR ? 'نحلل ونخطط' : 'We Scope & Plan',
-                  desc: isAR ? 'فريقنا يضع خطة تنفيذ دقيقة بنطاق واضح وسعر ثابت وجدول زمني ثابت — بدون مفاجآت.' : 'Our senior team designs a precise execution plan. Fixed scope, fixed price, fixed timeline — no surprises.',
+                  title: pick('We Scope & Plan', 'نحلل ونخطط'),
+                  desc: pick('Our senior team designs a precise execution plan. Fixed scope, fixed price, fixed timeline — no surprises.', 'فريقنا يضع خطة تنفيذ دقيقة بنطاق واضح وسعر ثابت وجدول زمني ثابت — بدون مفاجآت.'),
                   icon: Shield,
                   color: '#3b82f6',
                 },
                 {
                   step: '03',
-                  title: isAR ? 'ننّفذ ونسلّم' : 'We Build & Deliver',
-                  desc: isAR ? 'تطوير سريع مع تحديثات مستمرة. تحصل على منتج جاهز للإطلاق مع دعم بعد التسليم.' : 'Rapid development with daily updates. You get a production-ready product, with post-launch support included.',
+                  title: pick('We Build & Deliver', 'ننّفذ ونسلّم'),
+                  desc: pick('Rapid development with daily updates. You get a production-ready product, with post-launch support included.', 'تطوير سريع مع تحديثات مستمرة. تحصل على منتج جاهز للإطلاق مع دعم بعد التسليم.'),
                   icon: Zap,
                   color: '#10b981',
                 },
@@ -728,26 +733,27 @@ export default function PricingPage() {
                 style={{ background: 'radial-gradient(ellipse 60% 60% at 50% 50%, rgba(245,166,35,0.05) 0%, transparent 70%)' }}
               />
               <div className="relative z-10">
-                <span className="section-label mb-5 inline-flex">{isAR ? 'جاهز للانطلاق؟' : 'Ready to Start?'}</span>
+                <span className="section-label mb-5 inline-flex">{pick('Ready to Start?', 'جاهز للانطلاق؟')}</span>
                 <h2 className="heading-lg text-slate-900 mb-4">
-                  {isAR ? 'مشروعك يبدأ ' : 'Your Project Starts '}
-                  <span className="orange-gradient-text">{isAR ? 'اليوم' : 'Today'}</span>
+                  {pick('Your Project Starts ', 'مشروعك يبدأ ')}
+                  <span className="orange-gradient-text">{pick('Today', 'اليوم')}</span>
                 </h2>
                 <p className="text-slate-600 max-w-xl mx-auto mb-8 leading-relaxed">
-                  {isAR
-                    ? 'لا تترك المنافسين يسبقونك. لدينا مقاعد محدودة هذا الشهر. أرسل متطلباتك الآن وسنعود لك خلال 24 ساعة.'
-                    : 'Don\'t let your competitors get ahead. We have limited slots available this month. Submit your brief now and we\'ll get back to you within 24 hours.'}
+                  {pick(
+                    "Don't let your competitors get ahead. We have limited slots available this month. Submit your brief now and we'll get back to you within 24 hours.",
+                    'لا تترك المنافسين يسبقونك. لدينا مقاعد محدودة هذا الشهر. أرسل متطلباتك الآن وسنعود لك خلال 24 ساعة.'
+                  )}
                 </p>
                 <div className="flex flex-wrap gap-4 justify-center">
                   <button onClick={() => openModal('')} className="btn-primary px-8 py-4 text-base">
-                    {isAR ? 'ابدأ مشروعك' : 'Start Your Project'}
+                    {pick('Start Your Project', 'ابدأ مشروعك')}
                     <ArrowRight size={16} />
                   </button>
                   <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer"
                     className="btn-secondary px-8 py-4 text-base"
                     style={{ borderColor: 'rgba(37,211,102,0.3)', color: '#25D366' }}>
                     <MessageSquare size={16} />
-                    {isAR ? 'راسلنا عبر واتساب' : 'WhatsApp Us'}
+                    {pick('WhatsApp Us', 'راسلنا عبر واتساب')}
                   </a>
                 </div>
               </div>
@@ -767,14 +773,25 @@ export default function PricingPage() {
   );
 }
 
-function PricingCard({ plan, index, onSelect, isAR }: { plan: Plan; index: number; onSelect: () => void; isAR: boolean }) {
-  const title = isAR ? plan.nameAr : plan.name;
-  const price = isAR ? plan.priceAr : plan.price;
-  const timeline = isAR ? plan.timelineAr : plan.timeline;
-  const note = isAR ? (plan.priceNoteAr || plan.priceNote) : plan.priceNote;
-  const features = isAR ? plan.featuresAr : plan.features;
-  const cta = isAR ? plan.ctaAr : plan.cta;
-  const highlight = isAR ? (plan.highlightAr || plan.highlight) : plan.highlight;
+function PricingCard({
+  plan,
+  index,
+  onSelect,
+  locale,
+}: {
+  plan: Plan;
+  index: number;
+  onSelect: () => void;
+  locale: Locale;
+}) {
+  const { pick } = useI18n();
+  const title = pick(plan.name, plan.nameAr);
+  const price = pick(plan.price, plan.priceAr);
+  const timeline = pick(plan.timeline, plan.timelineAr);
+  const note = pick(plan.priceNote ?? '', plan.priceNoteAr || plan.priceNote || '');
+  const features = pickList(locale, plan.features, plan.featuresAr);
+  const cta = pick(plan.cta, plan.ctaAr);
+  const highlight = pick(plan.highlight ?? '', plan.highlightAr ?? plan.highlight ?? '');
   return (
     <motion.div
       className={`relative flex h-full flex-col rounded-2xl overflow-hidden ${plan.popular ? 'ring-1 ring-brand-orange/40' : ''}`}

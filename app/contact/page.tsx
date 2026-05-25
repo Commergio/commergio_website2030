@@ -30,8 +30,7 @@ function validate(form: { name: string; email: string; message: string }) {
 }
 
 export default function ContactPage() {
-  const { locale } = useI18n();
-  const isAR = locale === 'ar';
+  const { t, pick } = useI18n();
   const [form, setForm] = useState({
     name: '', email: '', company: '', service: '', message: '',
   });
@@ -93,17 +92,12 @@ export default function ContactPage() {
         <div className="absolute inset-0 bg-hero-gradient" />
         <div className="absolute inset-0 grid-pattern opacity-30" />
         <div className="max-w-7xl mx-auto relative z-10 text-center">
-          <span className="section-label mb-6 inline-flex">{isAR ? 'تواصل معنا' : 'Get in Touch'}</span>
+          <span className="section-label mb-6 inline-flex">{t.contact.label}</span>
           <h1 className="heading-xl text-white mb-6">
-            {isAR ? 'ابدأ رحلة' : 'Start Your'}{' '}
-            <span className="orange-gradient-text">{isAR ? 'التحول' : 'Transformation'}</span>{' '}
-            {isAR ? 'اليوم' : 'Today'}
+            {t.contact.title1}{' '}
+            <span className="orange-gradient-text">{t.contact.title2}</span>
           </h1>
-          <p className="text-slate-400 text-lg max-w-2xl mx-auto">
-            {isAR
-              ? 'سواء كنت شركة ناشئة أو مؤسسة كبيرة — فريقنا جاهز لبناء ميزتك التنافسية القادمة.'
-              : 'Whether you&apos;re a startup or enterprise — our team is ready to architect your next competitive advantage.'}
-          </p>
+          <p className="text-slate-400 text-lg max-w-2xl mx-auto">{t.contact.sub}</p>
         </div>
       </div>
 
@@ -111,19 +105,19 @@ export default function ContactPage() {
         <div className="grid lg:grid-cols-5 gap-10">
           <div className="lg:col-span-3">
             <div className="glass-card p-8">
-              <h2 className="text-white font-bold text-xl mb-2">{isAR ? 'أرسل لنا رسالة' : 'Send Us a Message'}</h2>
-              <p className="text-slate-400 text-sm mb-8">{isAR ? 'نرد خلال ساعتين في أوقات العمل.' : 'We respond within 2 hours during business hours.'}</p>
+              <h2 className="text-white font-bold text-xl mb-2">{t.contact.formTitle}</h2>
+              <p className="text-slate-400 text-sm mb-8">{pick('We respond within 2 hours during business hours.', 'نرد خلال ساعتين في أوقات العمل.')}</p>
 
               {status === 'success' ? (
                 <div className="text-center py-12">
                   <CheckCircle2 size={56} className="text-brand-orange mx-auto mb-4" />
-                  <h3 className="text-white font-bold text-xl mb-2">{isAR ? 'تم إرسال الرسالة!' : 'Message Sent!'}</h3>
-                  <p className="text-slate-400 mb-6">{isAR ? 'شكرًا لتواصلك. سيتواصل معك فريقنا خلال ساعتين.' : 'Thank you for reaching out. Our team will contact you within 2 hours.'}</p>
+                  <h3 className="text-white font-bold text-xl mb-2">{t.contact.successTitle}</h3>
+                  <p className="text-slate-400 mb-6">{pick('Thank you for reaching out. Our team will contact you within 2 hours.', 'شكرًا لتواصلك. سيتواصل معك فريقنا خلال ساعتين.')}</p>
                   <button
                     onClick={() => setStatus('idle')}
                     className="btn-secondary text-sm"
                   >
-                    {isAR ? 'إرسال رسالة أخرى' : 'Send Another Message'}
+                    {t.contact.sendAnother}
                   </button>
                 </div>
               ) : (
@@ -135,27 +129,27 @@ export default function ContactPage() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div>
                       <label className="block text-sm font-medium text-slate-300 mb-2">
-                        {isAR ? 'الاسم الكامل' : 'Full Name'} <span className="text-brand-orange">*</span>
+                        {t.contact.name} <span className="text-brand-orange">*</span>
                       </label>
                       <input
                         type="text"
                         value={form.name}
                         onChange={update('name')}
                         required
-                        placeholder={isAR ? 'الاسم الكامل' : 'Your full name'}
+                        placeholder={pick('Your full name', 'الاسم الكامل')}
                         className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-brand-orange/50 focus:bg-white/8 transition-all duration-200 text-sm"
                       />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-slate-300 mb-2">
-                        {isAR ? 'البريد الإلكتروني' : 'Email Address'} <span className="text-brand-orange">*</span>
+                        {t.contact.email} <span className="text-brand-orange">*</span>
                       </label>
                       <input
                         type="email"
                         value={form.email}
                         onChange={update('email')}
                         required
-                        placeholder={isAR ? 'you@example.com' : 'your@email.com'}
+                        placeholder={pick('your@email.com', 'you@example.com')}
                         className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-brand-orange/50 focus:bg-white/8 transition-all duration-200 text-sm"
                       />
                     </div>
@@ -163,24 +157,24 @@ export default function ContactPage() {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div>
-                      <label className="block text-sm font-medium text-slate-300 mb-2">{isAR ? 'الشركة' : 'Company'}</label>
+                      <label className="block text-sm font-medium text-slate-300 mb-2">{t.contact.company}</label>
                       <input
                         type="text"
                         value={form.company}
                         onChange={update('company')}
-                        placeholder={isAR ? 'اسم الشركة' : 'Your company name'}
+                        placeholder={pick('Your company name', 'اسم الشركة')}
                         className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-brand-orange/50 focus:bg-white/8 transition-all duration-200 text-sm"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-slate-300 mb-2">{isAR ? 'الخدمة المطلوبة' : 'Service Interested In'}</label>
+                      <label className="block text-sm font-medium text-slate-300 mb-2">{t.contact.service}</label>
                       <select
                         value={form.service}
                         onChange={update('service')}
                         className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-brand-orange/50 focus:bg-white/8 transition-all duration-200 text-sm appearance-none"
                         style={{ background: 'rgba(255,255,255,0.05)' }}
                       >
-                        <option value="" className="bg-navy-800">{isAR ? 'اختر خدمة' : 'Select a service'}</option>
+                        <option value="" className="bg-navy-800">{t.contact.selectService}</option>
                         {services.map((s) => (
                           <option key={s} value={s} className="bg-navy-800">{s}</option>
                         ))}
@@ -190,14 +184,14 @@ export default function ContactPage() {
 
                   <div>
                     <label className="block text-sm font-medium text-slate-300 mb-2">
-                      {isAR ? 'الرسالة' : 'Message'} <span className="text-brand-orange">*</span>
+                      {t.contact.message} <span className="text-brand-orange">*</span>
                     </label>
                     <textarea
                       value={form.message}
                       onChange={update('message')}
                       required
                       rows={5}
-                      placeholder={isAR ? 'أخبرنا عن مشروعك وأهدافك والمتطلبات الخاصة...' : 'Tell us about your project, goals, and any specific requirements...'}
+                      placeholder={t.contact.messagePlaceholder}
                       className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-brand-orange/50 focus:bg-white/8 transition-all duration-200 text-sm resize-none"
                     />
                   </div>
@@ -214,12 +208,12 @@ export default function ContactPage() {
                     {status === 'loading' ? (
                       <>
                         <Loader2 size={18} className="animate-spin" />
-                        {isAR ? 'جاري الإرسال...' : 'Sending...'}
+                        {t.contact.sending}
                       </>
                     ) : (
                       <>
                         <Send size={18} />
-                        {isAR ? 'إرسال الرسالة' : 'Send Message'}
+                        {t.contact.send}
                       </>
                     )}
                   </button>
@@ -230,12 +224,12 @@ export default function ContactPage() {
 
           <div className="lg:col-span-2 space-y-5">
             <div className="glass-card p-6">
-              <h3 className="text-white font-bold mb-5">{isAR ? 'معلومات التواصل' : 'Contact Information'}</h3>
+              <h3 className="text-white font-bold mb-5">{pick('Contact Information', 'معلومات التواصل')}</h3>
               <div className="space-y-5">
                 {[
                   {
                     icon: Mail,
-                    label: isAR ? 'البريد الإلكتروني' : 'Email',
+                    label: pick('Email', 'البريد الإلكتروني'),
                     value: 'info@commergio.com',
                     href: 'mailto:info@commergio.com',
                   },
@@ -247,7 +241,7 @@ export default function ContactPage() {
                   },
                   {
                     icon: MapPin,
-                    label: isAR ? 'الموقع' : 'Location',
+                    label: pick('Location', 'الموقع'),
                     value: 'Riyadh, Saudi Arabia',
                     href: 'https://maps.app.goo.gl/nTd97fy7G81CmC1P7',
                   },
@@ -272,8 +266,8 @@ export default function ContactPage() {
             </div>
 
             <div className="glass-card p-6">
-              <h3 className="text-white font-bold mb-3">{isAR ? 'واتساب مباشر' : 'WhatsApp Direct'}</h3>
-              <p className="text-slate-400 text-sm mb-4">{isAR ? 'للحصول على مساعدة فورية، تواصل معنا عبر واتساب. متوسط وقت الرد أقل من 30 دقيقة.' : 'For immediate assistance, reach us on WhatsApp. Average response time: under 30 minutes.'}</p>
+              <h3 className="text-white font-bold mb-3">{t.contact.preferWhatsApp}</h3>
+              <p className="text-slate-400 text-sm mb-4">{t.contact.whatsAppSub}</p>
               <a
                 href="https://wa.me/966562270319"
                 target="_blank"
@@ -281,7 +275,7 @@ export default function ContactPage() {
                 className="btn-secondary w-full justify-center"
               >
                 <MessageCircle size={18} className="text-green-400" />
-                {isAR ? 'فتح محادثة واتساب' : 'Open WhatsApp Chat'}
+                {t.contact.whatsAppBtn}
               </a>
             </div>
 
@@ -300,12 +294,13 @@ export default function ContactPage() {
             <div className="glass-card p-6 border-brand-orange/15">
               <div className="flex items-center gap-2 mb-3">
                 <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-                <span className="text-white font-semibold text-sm">{isAR ? 'متاح الآن' : 'Available Now'}</span>
+                <span className="text-white font-semibold text-sm">{pick('Available Now', 'متاح الآن')}</span>
               </div>
               <p className="text-slate-400 text-xs leading-relaxed">
-                {isAR
-                  ? 'ساعات العمل: الأحد - الخميس، 9:00 ص - 6:00 م (AST). دعم طارئ 24/7 للعملاء الحاليين.'
-                  : 'Business Hours: Sun - Thu, 9:00 AM - 6:00 PM (AST). Emergency support available 24/7 for active clients.'}
+                {pick(
+                  'Business Hours: Sun - Thu, 9:00 AM - 6:00 PM (AST). Emergency support available 24/7 for active clients.',
+                  'ساعات العمل: الأحد - الخميس، 9:00 ص - 6:00 م (AST). دعم طارئ 24/7 للعملاء الحاليين.'
+                )}
               </p>
             </div>
           </div>

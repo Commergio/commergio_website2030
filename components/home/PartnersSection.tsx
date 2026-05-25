@@ -7,8 +7,7 @@ import { supabase } from '@/lib/supabase';
 import type { Partner } from '@/lib/types';
 
 export default function PartnersSection() {
-  const { t, locale } = useI18n();
-  const isAR = locale === 'ar';
+  const { t, pick } = useI18n();
   const [mounted, setMounted] = useState(false);
   const [partners, setPartners] = useState<Partner[]>([]);
 
@@ -56,7 +55,7 @@ export default function PartnersSection() {
         {mounted && partners.length > 0 ? (
           <div className={`grid grid-cols-2 sm:grid-cols-3 gap-4 mb-14 ${partners.length >= 4 ? 'md:grid-cols-4' : ''} ${partners.length >= 6 ? 'lg:grid-cols-6' : partners.length >= 4 ? 'lg:grid-cols-4' : ''}`}>
             {partners.map((partner) => (
-              <PartnerCard key={partner.id} partner={partner} isAR={isAR} />
+              <PartnerCard key={partner.id} partner={partner} pick={pick} />
             ))}
           </div>
         ) : mounted ? (
@@ -86,7 +85,7 @@ export default function PartnersSection() {
             {t.partners.becomePartnerSub}
           </p>
           <a href="mailto:info@commergio.com" className="btn-primary">
-            {isAR ? 'شاركنا' : 'Partner With Us'}
+            {pick('Partner With Us', 'شاركنا')}
           </a>
         </div>
       </div>
@@ -94,9 +93,15 @@ export default function PartnersSection() {
   );
 }
 
-function PartnerCard({ partner, isAR }: { partner: Partner; isAR: boolean }) {
-  const displayName = isAR ? (partner.name_ar || partner.name) : partner.name;
-  const displayDesc = isAR ? (partner.description_ar || partner.description) : partner.description;
+function PartnerCard({
+  partner,
+  pick,
+}: {
+  partner: Partner;
+  pick: (en: string, ar?: string) => string;
+}) {
+  const displayName = pick(partner.name, partner.name_ar);
+  const displayDesc = pick(partner.description, partner.description_ar);
   const inner = (
     <div
       className="glass-card group flex flex-col items-center gap-3 p-5 text-center transition-all duration-300 hover:-translate-y-1"

@@ -1,13 +1,16 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
-import { translations, type Locale } from './i18n';
+import { createContext, useContext, useState, useEffect, useCallback, ReactNode, useMemo } from 'react';
+import { translations, type Locale, LOCALES } from './i18n';
+import { displayText, isRtlLocale } from './locale-text';
 
 interface I18nContextValue {
   locale: Locale;
   t: typeof translations[Locale];
   setLocale: (l: Locale) => void;
   isRTL: boolean;
+  /** EN / Arabic script / Arabic in Latin letters */
+  pick: (en: string, ar?: string) => string;
 }
 
 const I18nContext = createContext<I18nContextValue>({
@@ -15,14 +18,19 @@ const I18nContext = createContext<I18nContextValue>({
   t: translations.en,
   setLocale: () => {},
   isRTL: false,
+  pick: (en) => en,
 });
+
+function isLocale(value: string | null): value is Locale {
+  return value !== null && LOCALES.includes(value as Locale);
+}
 
 export function I18nProvider({ children }: { children: ReactNode }) {
   const [locale, setLocaleState] = useState<Locale>('en');
 
   useEffect(() => {
-    const stored = localStorage.getItem('commergio-locale') as Locale | null;
-    if (stored === 'en' || stored === 'ar') {
+    const stored = localStorage.getItem('commergio-locale');
+    if (isLocale(stored)) {
       setLocaleState(stored);
     } else {
       const browserLang = navigator.language.startsWith('ar') ? 'ar' : 'en';
@@ -31,8 +39,8 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    document.documentElement.lang = locale;
-    document.documentElement.dir = locale === 'ar' ? 'rtl' : 'ltr';
+    document.documentElement.lang = locale === 'latn' ? 'ar-Latn' : locale;
+    document.documentElement.dir = isRtlLocale(locale) ? 'rtl' : 'ltr';
   }, [locale]);
 
   const setLocale = useCallback((l: Locale) => {
@@ -40,11 +48,23 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('commergio-locale', l);
   }, []);
 
-  return (
-    <I18nContext.Provider value={{ locale, t: translations[locale], setLocale, isRTL: locale === 'ar' }}>
-      {children}
-    </I18nContext.Provider>
+  const pick = useCallback(
+    (en: string, ar?: string) => displayText(locale, en, ar ?? ''),
+    [locale]
   );
+
+  const value = useMemo(
+    () => ({
+      locale,
+      t: translations[locale],
+      setLocale,
+      isRTL: isRtlLocale(locale),
+      pick,
+    }),
+    [locale, setLocale, pick]
+  );
+
+  return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
 }
 
 export function useI18n() {

@@ -66,7 +66,7 @@ const FALLBACK_PRODUCTS: Product[] = [
 ];
 
 export default function FeaturedProducts() {
-  const { t, locale } = useI18n();
+  const { t, pick } = useI18n();
   const [products, setProducts] = useState<Product[]>(FALLBACK_PRODUCTS);
   const [mounted, setMounted] = useState(false);
 
@@ -134,7 +134,7 @@ export default function FeaturedProducts() {
           {products.map((product, i) => {
             const accent = categoryColors[product.category] || '#f5a623';
             return (
-              <ProductCard key={product.id} product={product} accent={accent} index={i} isAR={locale === 'ar'} />
+              <ProductCard key={product.id} product={product} accent={accent} index={i} pick={pick} />
             );
           })}
         </div>
@@ -157,9 +157,19 @@ export default function FeaturedProducts() {
   );
 }
 
-function ProductCard({ product, accent, index, isAR }: { product: Product; accent: string; index: number; isAR: boolean }) {
-  const displayName = isAR ? (product.product_name_ar || product.product_name) : product.product_name;
-  const displayDesc = isAR ? (product.short_description_ar || product.short_description) : product.short_description;
+function ProductCard({
+  product,
+  accent,
+  index,
+  pick,
+}: {
+  product: Product;
+  accent: string;
+  index: number;
+  pick: (en: string, ar?: string) => string;
+}) {
+  const displayName = pick(product.product_name, product.product_name_ar);
+  const displayDesc = pick(product.short_description, product.short_description_ar);
   return (
     <motion.div
       className="group relative overflow-hidden rounded-2xl flex flex-col"

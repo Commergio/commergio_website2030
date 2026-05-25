@@ -5,33 +5,31 @@ import Image from 'next/image';
 import { Mail, Phone, MapPin, Linkedin, Twitter, Instagram, ArrowUpRight, ShieldCheck, ExternalLink } from 'lucide-react';
 import BrandLogo from '@/components/BrandLogo';
 import { useI18n } from '@/lib/i18n-context';
+import { isRtlLocale } from '@/lib/locale-text';
+
+const SERVICE_ITEMS = [
+  { en: 'Web Development', ar: 'تطوير المواقع' },
+  { en: 'Mobile App Development', ar: 'تطوير تطبيقات الجوال' },
+  { en: 'UI/UX Design', ar: 'تصميم واجهات المستخدم' },
+  { en: 'AI Solutions', ar: 'حلول الذكاء الاصطناعي' },
+  { en: 'E-commerce (Salla)', ar: 'متاجر إلكترونية' },
+  { en: 'SEO Optimization', ar: 'تحسين محركات البحث' },
+  { en: 'Business Consulting', ar: 'الاستشارات التجارية' },
+  { en: 'Payment Gateway Integration', ar: 'بوابات الدفع' },
+] as const;
 
 export default function Footer() {
-  const { t, locale } = useI18n();
-  const isRTL = locale === 'ar';
+  const { t, locale, pick } = useI18n();
+  const isRTL = isRtlLocale(locale);
 
-  const serviceLinks = isRTL ? [
-    'تطوير المواقع', 'تطوير تطبيقات الجوال', 'تصميم واجهات المستخدم',
-    'حلول الذكاء الاصطناعي', 'متاجر إلكترونية', 'تحسين محركات البحث',
-    'الاستشارات التجارية', 'بوابات الدفع',
-  ] : [
-    'Web Development', 'Mobile App Development', 'UI/UX Design',
-    'AI Solutions', 'E-commerce (Salla)', 'SEO Optimization',
-    'Business Consulting', 'Payment Gateway Integration',
-  ];
+  const serviceLinks = SERVICE_ITEMS.map((item) => pick(item.en, item.ar));
 
-  const footerLinks = isRTL ? [
-    { label: 'من نحن', href: '/about' },
-    { label: 'أعمالنا', href: '/portfolio' },
-    { label: 'المدونة', href: '/blog' },
-    { label: 'الشركاء', href: '/partners' },
-    { label: 'تواصل معنا', href: '/contact' },
-  ] : [
-    { label: 'About Us', href: '/about' },
-    { label: 'Portfolio', href: '/portfolio' },
-    { label: 'Blog', href: '/blog' },
-    { label: 'Partners', href: '/partners' },
-    { label: 'Contact', href: '/contact' },
+  const footerLinks = [
+    { label: pick('About Us', 'من نحن'), href: '/about' },
+    { label: pick('Portfolio', 'أعمالنا'), href: '/portfolio' },
+    { label: pick('Blog', 'المدونة'), href: '/blog' },
+    { label: pick('Partners', 'الشركاء'), href: '/partners' },
+    { label: pick('Contact', 'تواصل معنا'), href: '/contact' },
   ];
 
   return (

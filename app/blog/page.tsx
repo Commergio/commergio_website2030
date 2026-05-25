@@ -100,8 +100,7 @@ const posts = [
 ];
 
 export default function BlogPage() {
-  const { t, locale } = useI18n();
-  const isAR = locale === 'ar';
+  const { t, pick } = useI18n();
 
   const featured = posts.filter((p) => p.featured);
   const regular = posts.filter((p) => !p.featured);
@@ -130,7 +129,7 @@ export default function BlogPage() {
               <div className="h-56 overflow-hidden relative bg-white/95 p-3">
                 <img
                   src={post.image}
-                  alt={isAR ? post.titleAr : post.title}
+                  alt={pick(post.title, post.titleAr)}
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-navy-900/35 via-navy-900/15 to-transparent" />
@@ -146,19 +145,19 @@ export default function BlogPage() {
                     className="flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full"
                     style={{ background: `${post.color}15`, color: post.color, border: `1px solid ${post.color}25` }}
                   >
-                    <Tag size={10} />{isAR ? post.categoryAr : post.category}
+                    <Tag size={10} />{pick(post.category, post.categoryAr)}
                   </span>
                   <span className="flex items-center gap-1 text-xs text-slate-500">
-                    <Clock size={11} />{isAR ? post.readTimeAr : post.readTime}
+                    <Clock size={11} />{pick(post.readTime, post.readTimeAr)}
                   </span>
                 </div>
                 <h2 className="text-white font-bold text-xl mb-2 group-hover:text-brand-orange transition-colors">
-                  {isAR ? post.titleAr : post.title}
+                  {pick(post.title, post.titleAr)}
                 </h2>
                 <p className="text-slate-400 text-sm leading-relaxed mb-3 line-clamp-2">
-                  {isAR ? post.excerptAr : post.excerpt}
+                  {pick(post.excerpt, post.excerptAr)}
                 </p>
-                <p className="text-slate-500 text-xs">{isAR ? post.dateAr : post.date}</p>
+                <p className="text-slate-500 text-xs">{pick(post.date, post.dateAr)}</p>
               </div>
             </Link>
           ))}
@@ -172,7 +171,7 @@ export default function BlogPage() {
               <div className="h-36 overflow-hidden bg-white/95 p-2.5">
                 <img
                   src={post.image}
-                  alt={isAR ? post.titleAr : post.title}
+                  alt={pick(post.title, post.titleAr)}
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
               </div>
@@ -181,14 +180,14 @@ export default function BlogPage() {
                   className="text-xs font-medium px-2 py-0.5 rounded-full mb-2 inline-block"
                   style={{ background: `${post.color}15`, color: post.color }}
                 >
-                  {isAR ? post.categoryAr : post.category}
+                  {pick(post.category, post.categoryAr)}
                 </span>
                 <h3 className="text-white font-semibold text-sm mb-2 group-hover:text-brand-orange transition-colors line-clamp-2">
-                  {isAR ? post.titleAr : post.title}
+                  {pick(post.title, post.titleAr)}
                 </h3>
                 <div className="flex items-center justify-between text-xs text-slate-500">
-                  <span>{isAR ? post.dateAr : post.date}</span>
-                  <span>{isAR ? post.readTimeAr : post.readTime}</span>
+                  <span>{pick(post.date, post.dateAr)}</span>
+                  <span>{pick(post.readTime, post.readTimeAr)}</span>
                 </div>
               </div>
             </Link>

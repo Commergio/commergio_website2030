@@ -101,8 +101,7 @@ const milestonesData = [
 ];
 
 export default function AboutPage() {
-  const { t, locale } = useI18n();
-  const isAR = locale === 'ar';
+  const { t, pick } = useI18n();
 
   return (
     <div className="min-h-screen bg-navy-950">
@@ -170,10 +169,10 @@ export default function AboutPage() {
                     <Icon size={22} className="text-brand-orange" />
                   </div>
                   <h3 className="text-white font-bold mb-2">
-                    {isAR ? value.titleAr : value.titleEn}
+                    {pick(value.titleEn, value.titleAr)}
                   </h3>
                   <p className="text-slate-400 text-sm leading-relaxed">
-                    {isAR ? value.descAr : value.descEn}
+                    {pick(value.descEn, value.descAr)}
                   </p>
                 </div>
               );
@@ -220,13 +219,13 @@ export default function AboutPage() {
                     className="w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold"
                     style={{ background: `${member.accent}18`, border: `1px solid ${member.accent}35`, color: member.accent }}
                   >
-                    {(isAR ? member.nameAr : member.name).split(' ').map((n) => n[0]).join('').slice(0, 2)}
+                    {pick(member.name, member.nameAr).split(' ').map((n) => n[0]).join('').slice(0, 2)}
                   </div>
                   <div
                     className="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider"
                     style={{ background: `${member.accent}18`, border: `1px solid ${member.accent}35`, color: member.accent }}
                   >
-                    {isAR ? member.roleAr : member.role}
+                    {pick(member.role, member.roleAr)}
                   </div>
                 </div>
 
@@ -236,7 +235,7 @@ export default function AboutPage() {
                     className="font-bold text-xl mb-1 text-white"
                     style={{ letterSpacing: '-0.02em' }}
                   >
-                    {isAR ? member.nameAr : member.name}
+                    {pick(member.name, member.nameAr)}
                   </h3>
                   <div className="flex items-center gap-2 mb-4">
                     <div
@@ -244,11 +243,11 @@ export default function AboutPage() {
                       style={{ background: `linear-gradient(90deg, ${member.accent}60, transparent)` }}
                     />
                     <span className="text-xs font-semibold" style={{ color: member.accent }}>
-                      {isAR ? member.roleAr : member.role}
+                      {pick(member.role, member.roleAr)}
                     </span>
                   </div>
                   <p className="text-slate-400 text-sm leading-relaxed">
-                    {isAR ? member.bioAr : member.bio}
+                    {pick(member.bio, member.bioAr)}
                   </p>
                 </div>
               </motion.div>
@@ -274,10 +273,10 @@ export default function AboutPage() {
                     <div className="w-4 h-4 rounded-full bg-brand-orange border-2 border-navy-900" />
                   </div>
                   <h3 className="text-white font-bold mb-2">
-                    {isAR ? m.titleAr : m.titleEn}
+                    {pick(m.titleEn, m.titleAr)}
                   </h3>
                   <p className="text-slate-400 text-sm">
-                    {isAR ? m.descAr : m.descEn}
+                    {pick(m.descEn, m.descAr)}
                   </p>
                 </div>
               ))}

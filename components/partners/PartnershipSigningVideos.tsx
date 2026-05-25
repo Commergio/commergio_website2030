@@ -4,8 +4,10 @@ import { useState, useEffect, useRef, useCallback, type ReactNode } from 'react'
 import Link from 'next/link';
 import { Film, Play, Calendar, ArrowRight, Sparkles } from 'lucide-react';
 import { useI18n } from '@/lib/i18n-context';
+import { dateLocaleForUi } from '@/lib/locale-text';
 import { supabase } from '@/lib/supabase';
 import type { PartnershipSigningVideo } from '@/lib/types';
+import type { Locale } from '@/lib/i18n';
 
 type PartnershipSigningVideosProps = {
   /** Homepage: light elevated section matching site style */
@@ -19,10 +21,10 @@ type PartnershipSigningVideosProps = {
 const VIDEO_FIELDS =
   'id, partner_name, partner_name_ar, title, title_ar, description, description_ar, video_url, thumbnail_url, recorded_at, display_order';
 
-function formatDate(dateStr: string | null, locale: string) {
+function formatDate(dateStr: string | null, locale: Locale) {
   if (!dateStr) return '';
   try {
-    return new Date(dateStr).toLocaleDateString(locale === 'ar' ? 'ar-SA' : 'en-US', {
+    return new Date(dateStr).toLocaleDateString(dateLocaleForUi(locale), {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
@@ -37,8 +39,7 @@ export default function PartnershipSigningVideos({
   limit,
   showAllLink = false,
 }: PartnershipSigningVideosProps) {
-  const { t, locale } = useI18n();
-  const isAR = locale === 'ar';
+  const { t, locale, pick, isRTL } = useI18n();
   const [videos, setVideos] = useState<PartnershipSigningVideo[]>([]);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState('');
@@ -96,17 +97,18 @@ export default function PartnershipSigningVideos({
     const errorBlock = (
       <div className="glass-card p-8 text-center border-amber-200/60">
         <p className="text-slate-900 font-semibold mb-2">
-          {isAR ? 'تعذر تحميل فيديوهات التوقيع' : 'Could not load signing videos'}
+          {pick('Could not load signing videos', 'تعذر تحميل فيديوهات التوقيع')}
         </p>
         <p className="text-slate-600 text-sm mb-4">
           {misconfigured
-            ? isAR
-              ? 'نفّذ ملف SQL في Supabase (جدول partnership_signing_videos) ثم أعد المحاولة.'
-              : 'Run the Supabase SQL migration for partnership_signing_videos, then retry.'
+            ? pick(
+                'Run the Supabase SQL migration for partnership_signing_videos, then retry.',
+                'نفّذ ملف SQL في Supabase (جدول partnership_signing_videos) ثم أعد المحاولة.'
+              )
             : fetchError}
         </p>
         <button type="button" onClick={load} className="btn-secondary text-sm">
-          {isAR ? 'إعادة المحاولة' : 'Retry'}
+          {pick('Retry', 'إعادة المحاولة')}
         </button>
       </div>
     );
@@ -171,7 +173,7 @@ export default function PartnershipSigningVideos({
           <SigningVideoCard
             key={video.id}
             video={video}
-            isAR={isAR}
+            pick={pick}
             locale={locale}
             isActive={activeId === video.id}
             featured={prominent && displayed.length === 1}
@@ -191,7 +193,7 @@ export default function PartnershipSigningVideos({
             className={`btn-primary inline-flex ${prominent ? 'text-base px-8 py-3.5' : 'text-sm'}`}
           >
             {t.partners.viewAllSigningVideos}
-            <ArrowRight size={18} className={isAR ? 'rotate-180' : ''} />
+            <ArrowRight size={18} className={isRTL ? 'rotate-180' : ''} />
           </Link>
         </div>
       )}
@@ -244,7 +246,7 @@ function wrapSection(content: ReactNode, prominent: boolean) {
 
 function SigningVideoCard({
   video,
-  isAR,
+  pick,
   locale,
   isActive,
   featured = false,
@@ -252,8 +254,8 @@ function SigningVideoCard({
   onActivate,
 }: {
   video: PartnershipSigningVideo;
-  isAR: boolean;
-  locale: string;
+  pick: (en: string, ar?: string) => string;
+  locale: Locale;
   isActive: boolean;
   featured?: boolean;
   /** Homepage: refined shadow and hover lift */
@@ -265,9 +267,9 @@ function SigningVideoCard({
   const [inView, setInView] = useState(false);
   const [started, setStarted] = useState(false);
 
-  const partnerName = isAR ? video.partner_name_ar || video.partner_name : video.partner_name;
-  const title = isAR ? video.title_ar || video.title : video.title;
-  const description = isAR ? video.description_ar || video.description : video.description;
+  const partnerName = pick(video.partner_name, video.partner_name_ar);
+  const title = pick(video.title, video.title_ar);
+  const description = pick(video.description, video.description_ar);
   const dateLabel = formatDate(video.recorded_at, locale);
 
   useEffect(() => {
@@ -370,7 +372,7 @@ function SigningVideoCard({
         )}
         {isActive && (
           <span className="absolute top-3 left-3 text-xs px-2 py-0.5 rounded-md font-medium bg-black/50 text-white border border-white/10">
-            {isAR ? 'قيد التشغيل' : 'Playing'}
+            {pick('Playing', 'قيد التشغيل')}
           </span>
         )}
       </div>

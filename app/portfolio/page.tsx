@@ -8,8 +8,7 @@ import { supabase } from '@/lib/supabase';
 import type { PortfolioProject } from '@/lib/types';
 
 export default function PortfolioPage() {
-  const { t, locale } = useI18n();
-  const isAR = locale === 'ar';
+  const { t, pick } = useI18n();
 
   const [projects, setProjects] = useState<PortfolioProject[]>([]);
   const [activeCategory, setActiveCategory] = useState('All');
@@ -65,15 +64,15 @@ export default function PortfolioPage() {
                   : 'glass-card text-slate-400 hover:text-white hover:border-brand-orange/30'
               }`}
             >
-              {cat === 'All' ? (isAR ? 'الكل' : 'All') : cat}
+              {cat === 'All' ? pick('All', 'الكل') : cat}
             </button>
           ))}
         </div>
 
         {loading ? (
-          <div className="text-center text-slate-400 py-10">{isAR ? 'جارٍ تحميل المشاريع...' : 'Loading projects...'}</div>
+          <div className="text-center text-slate-400 py-10">{pick('Loading projects...', 'جارٍ تحميل المشاريع...')}</div>
         ) : filtered.length === 0 ? (
-          <div className="text-center text-slate-400 py-10">{isAR ? 'لا توجد مشاريع حالياً.' : 'No projects found.'}</div>
+          <div className="text-center text-slate-400 py-10">{pick('No projects found.', 'لا توجد مشاريع حالياً.')}</div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filtered.map((project) => (
@@ -89,7 +88,7 @@ export default function PortfolioPage() {
               <div className="h-48 overflow-hidden bg-white/95 p-3">
                 <img
                   src={project.images?.[0] || 'https://images.pexels.com/photos/5632399/pexels-photo-5632399.jpeg?auto=compress&cs=tinysrgb&w=800'}
-                  alt={isAR ? (project.title_ar || project.title) : project.title}
+                  alt={pick(project.title, project.title_ar)}
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
               </div>
@@ -109,13 +108,13 @@ export default function PortfolioPage() {
                   </span>
                 </div>
                 <p className="text-slate-500 text-xs mb-1">
-                  {isAR ? (project.client_name_ar || project.client_name) : project.client_name}
+                  {pick(project.client_name, project.client_name_ar)}
                 </p>
                 <h3 className="text-white font-bold text-lg mb-3">
-                  {isAR ? (project.title_ar || project.title) : project.title}
+                  {pick(project.title, project.title_ar)}
                 </h3>
                 <p className="text-slate-400 text-sm leading-relaxed mb-4">
-                  {isAR ? (project.description_ar || project.description) : project.description}
+                  {pick(project.description, project.description_ar)}
                 </p>
                 <div className="flex flex-wrap gap-1.5">
                   {(project.tech_stack || []).map((tech) => (

@@ -69,8 +69,7 @@ const blogData: Record<string, {
 };
 
 export default function BlogPostPage({ params }: { params: { slug: string } }) {
-  const { t, locale } = useI18n();
-  const isAR = locale === 'ar';
+  const { t, pick, locale } = useI18n();
   const post = blogData[params.slug];
 
   if (!post) {
@@ -104,30 +103,30 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
                 className="flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full section-label"
                 style={{ background: `${post.color}15`, color: post.color, border: `1px solid ${post.color}25` }}
               >
-                <Tag size={10} />{isAR ? post.categoryAr : post.category}
+                <Tag size={10} />{pick(post.category, post.categoryAr)}
               </span>
               <span className="flex items-center gap-1 text-xs text-slate-500">
-                <Clock size={12} /> {isAR ? post.readTimeAr : post.readTime}
+                <Clock size={12} /> {pick(post.readTime, post.readTimeAr)}
               </span>
             </div>
 
             <h1 className="heading-lg text-white mb-4">
-              {isAR ? post.titleAr : post.title}
+              {pick(post.title, post.titleAr)}
             </h1>
             <p className="text-slate-400 mb-8">
-              {isAR ? `نشر ${post.dateAr} · ${t.blog.publishedBy}` : `Published ${post.date} · ${t.blog.publishedBy}`}
+              {pick(`Published ${post.date} · ${t.blog.publishedBy}`, `نشر ${post.dateAr} · ${t.blog.publishedBy}`)}
             </p>
 
             <div className="h-64 rounded-2xl overflow-hidden mb-8 bg-white/95 p-3">
               <img
                 src={post.image}
-                alt={isAR ? post.titleAr : post.title}
+                alt={pick(post.title, post.titleAr)}
                 className="w-full h-full object-cover"
               />
             </div>
 
             <div className="prose prose-invert max-w-none text-slate-300 leading-relaxed">
-              {isAR ? post.contentAr : post.content}
+              {locale === 'en' ? post.content : post.contentAr}
             </div>
 
             <div className="divider-gradient my-8" />

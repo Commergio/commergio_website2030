@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { Globe, Smartphone, Settings, Palette, TrendingUp, CreditCard, Briefcase, ShoppingBag, Search, Brain, ArrowRight, CircleCheck as CheckCircle2, ChevronRight } from 'lucide-react';
 import { useI18n } from '@/lib/i18n-context';
+import { pickList } from '@/lib/locale-text';
 
 const services = [
   {
@@ -148,8 +149,7 @@ const services = [
 ];
 
 export default function ServicesPage() {
-  const { t, locale } = useI18n();
-  const isAR = locale === 'ar';
+  const { t, pick, locale } = useI18n();
 
   return (
     <div className="min-h-screen bg-navy-950">
@@ -191,23 +191,23 @@ export default function ServicesPage() {
                       className="text-xs font-medium px-2.5 py-1 rounded-full mb-2 inline-block"
                       style={{ background: `${service.color}15`, color: service.color, border: `1px solid ${service.color}25` }}
                     >
-                      {isAR ? service.categoryAr : service.category}
+                      {pick(service.category, service.categoryAr)}
                     </span>
                     <h2 className="text-white font-bold text-xl mb-1">
-                      {isAR ? service.titleAr : service.title}
+                      {pick(service.title, service.titleAr)}
                     </h2>
                   </div>
                 </div>
 
                 <p className="text-slate-300 leading-relaxed mb-6">
-                  {isAR ? service.descriptionAr : service.description}
+                  {pick(service.description, service.descriptionAr)}
                 </p>
 
                 <div className="grid grid-cols-2 gap-6 mb-6">
                   <div>
                     <p className="text-white font-semibold text-sm mb-3">{t.services.keyBenefits}</p>
                     <ul className="space-y-2">
-                      {(isAR ? service.benefitsAr : service.benefits).map((benefit, j) => (
+                      {pickList(locale, service.benefits, service.benefitsAr).map((benefit, j) => (
                         <li key={j} className="flex items-start gap-2">
                           <CheckCircle2 size={14} className="flex-shrink-0 mt-0.5" style={{ color: service.color }} />
                           <span className="text-slate-400 text-xs">{benefit}</span>
@@ -219,7 +219,7 @@ export default function ServicesPage() {
                   <div>
                     <p className="text-white font-semibold text-sm mb-3">{t.services.ourProcess}</p>
                     <ol className="space-y-2">
-                      {(isAR ? service.processAr : service.process).map((step, j) => (
+                      {pickList(locale, service.process, service.processAr).map((step, j) => (
                         <li key={j} className="flex items-center gap-2">
                           <span
                             className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
@@ -239,7 +239,7 @@ export default function ServicesPage() {
                   className="flex items-center gap-2 text-sm font-semibold transition-colors duration-200"
                   style={{ color: service.color }}
                 >
-                  {t.services.getStartedWith} {isAR ? service.titleAr : service.title}
+                  {t.services.getStartedWith} {pick(service.title, service.titleAr)}
                   <ChevronRight size={16} />
                 </Link>
               </div>

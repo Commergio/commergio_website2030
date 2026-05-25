@@ -20,7 +20,7 @@ const categoryColors: Record<string, string> = {
 
 export default function ProductDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const { t } = useI18n();
+  const { t, pick } = useI18n();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -115,11 +115,11 @@ export default function ProductDetailPage() {
                 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-[1.05]"
                 style={{ letterSpacing: '-0.03em' }}
               >
-                {product.product_name}
+                {pick(product.product_name, product.product_name_ar)}
               </h1>
 
               <p className="text-slate-300 text-lg leading-relaxed mb-8 max-w-lg">
-                {product.short_description}
+                {pick(product.short_description, product.short_description_ar)}
               </p>
 
               <div className="flex flex-wrap gap-3">
@@ -160,7 +160,7 @@ export default function ProductDetailPage() {
                 {product.product_image_url ? (
                   <img
                     src={product.product_image_url}
-                    alt={product.product_name}
+                    alt={pick(product.product_name, product.product_name_ar)}
                     className="w-full aspect-video object-cover"
                   />
                 ) : (
@@ -200,7 +200,7 @@ export default function ProductDetailPage() {
                     {t.products.fullDescription}
                   </h2>
                   <div className="text-slate-300 leading-relaxed whitespace-pre-line">
-                    {product.full_description}
+                    {pick(product.full_description, product.full_description_ar)}
                   </div>
                 </div>
               )}

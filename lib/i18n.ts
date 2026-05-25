@@ -1,10 +1,12 @@
 'use client';
 
-export type Locale = 'en' | 'ar';
+import { transliterateDeep } from './arabic-translit';
 
-export const LOCALES: Locale[] = ['en', 'ar'];
+export type Locale = 'en' | 'ar' | 'latn';
 
-export const translations = {
+export const LOCALES: Locale[] = ['en', 'ar', 'latn'];
+
+const baseTranslations = {
   en: {
     nav: {
       home: 'Home',
@@ -13,6 +15,7 @@ export const translations = {
       portfolio: 'Portfolio',
       blog: 'Blog',
       partners: 'Partners',
+      pricing: 'Pricing',
       contact: 'Contact',
       startProject: 'Start Your Project',
     },
@@ -231,6 +234,7 @@ export const translations = {
     lang: {
       en: 'English',
       ar: 'العربية',
+      latn: 'Arabic (Latin)',
     },
   },
 
@@ -242,6 +246,7 @@ export const translations = {
       portfolio: 'أعمالنا',
       blog: 'المدونة',
       partners: 'الشركاء',
+      pricing: 'الأسعار',
       contact: 'تواصل معنا',
       startProject: 'ابدأ مشروعك الآن',
     },
@@ -460,8 +465,15 @@ export const translations = {
     lang: {
       en: 'English',
       ar: 'العربية',
+      latn: 'العربية بحروف لاتينية',
     },
   },
 } as const;
 
-export type TranslationKeys = typeof translations.en;
+export const translations = {
+  en: baseTranslations.en,
+  ar: baseTranslations.ar,
+  latn: transliterateDeep(baseTranslations.ar),
+};
+
+export type TranslationKeys = typeof baseTranslations.en;

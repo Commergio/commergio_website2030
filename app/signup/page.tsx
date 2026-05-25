@@ -12,9 +12,8 @@ import { useI18n } from '@/lib/i18n-context';
 export default function SignupPage() {
   const router = useRouter();
   const { theme } = useTheme();
-  const { locale } = useI18n();
+  const { pick, isRTL } = useI18n();
   const isLight = theme === 'light';
-  const isAR = locale === 'ar';
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -26,12 +25,12 @@ export default function SignupPage() {
   const [done, setDone] = useState(false);
 
   const validate = () => {
-    if (!email.trim()) return isAR ? 'البريد الإلكتروني مطلوب.' : 'Email is required.';
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return isAR ? 'أدخل بريدًا إلكترونيًا صالحًا.' : 'Enter a valid email address.';
-    if (!password) return isAR ? 'كلمة المرور مطلوبة.' : 'Password is required.';
-    if (password.length < 8) return isAR ? 'يجب أن تكون كلمة المرور 8 أحرف على الأقل.' : 'Password must be at least 8 characters.';
-    if (!/[A-Za-z]/.test(password) || !/[0-9]/.test(password)) return isAR ? 'يجب أن تحتوي كلمة المرور على أحرف وأرقام.' : 'Password must contain letters and numbers.';
-    if (password !== confirm) return isAR ? 'كلمتا المرور غير متطابقتين.' : 'Passwords do not match.';
+    if (!email.trim()) return pick('Email is required.', 'البريد الإلكتروني مطلوب.');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return pick('Enter a valid email address.', 'أدخل بريدًا إلكترونيًا صالحًا.');
+    if (!password) return pick('Password is required.', 'كلمة المرور مطلوبة.');
+    if (password.length < 8) return pick('Password must be at least 8 characters.', 'يجب أن تكون كلمة المرور 8 أحرف على الأقل.');
+    if (!/[A-Za-z]/.test(password) || !/[0-9]/.test(password)) return pick('Password must contain letters and numbers.', 'يجب أن تحتوي كلمة المرور على أحرف وأرقام.');
+    if (password !== confirm) return pick('Passwords do not match.', 'كلمتا المرور غير متطابقتين.');
     return null;
   };
 
@@ -68,9 +67,10 @@ export default function SignupPage() {
     : password.length < 12 && (!/[A-Za-z]/.test(password) || !/[0-9]/.test(password)) ? 2
     : password.length >= 12 ? 4 : 3;
 
-  const strengthLabel = isAR
-    ? ['', 'قصيرة جدًا', 'ضعيفة', 'متوسطة', 'قوية'][pwStrength]
-    : ['', 'Too short', 'Weak', 'Fair', 'Strong'][pwStrength];
+  const strengthLabel = pick(
+    ['', 'Too short', 'Weak', 'Fair', 'Strong'][pwStrength],
+    ['', 'قصيرة جدًا', 'ضعيفة', 'متوسطة', 'قوية'][pwStrength]
+  );
   const strengthColor = ['', '#ef4444', '#f97316', '#eab308', '#22c55e'][pwStrength];
 
   return (
@@ -99,24 +99,24 @@ export default function SignupPage() {
               <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mx-auto mb-5">
                 <CircleCheck size={28} className="text-emerald-400" />
               </div>
-              <h2 className={`text-xl font-bold mb-2 ${isLight ? 'text-gray-900' : 'text-white'}`}>{isAR ? 'تم إنشاء الحساب' : 'Account Created'}</h2>
+              <h2 className={`text-xl font-bold mb-2 ${isLight ? 'text-gray-900' : 'text-white'}`}>{pick('Account Created', 'تم إنشاء الحساب')}</h2>
               <p className={`text-sm mb-6 ${isLight ? 'text-gray-500' : 'text-slate-400'}`}>
-                {isAR ? 'تحقق من بريدك الإلكتروني لتأكيد الحساب ثم سجّل الدخول.' : 'Check your email to confirm your account, then sign in.'}
+                {pick('Check your email to confirm your account, then sign in.', 'تحقق من بريدك الإلكتروني لتأكيد الحساب ثم سجّل الدخول.')}
               </p>
               <Link href="/login" className="btn-primary w-full justify-center">
-                {isAR ? 'الذهاب لتسجيل الدخول' : 'Go to Sign In'}
+                {pick('Go to Sign In', 'الذهاب لتسجيل الدخول')}
               </Link>
             </div>
           ) : (
             <>
               <div className="mb-7">
                 <h1 className={`text-2xl font-bold mb-1 ${isLight ? 'text-gray-900' : 'text-white'}`} style={{ letterSpacing: '-0.02em' }}>
-                  {isAR ? 'إنشاء حساب' : 'Create Account'}
+                  {pick('Create Account', 'إنشاء حساب')}
                 </h1>
                 <p className={`text-sm ${isLight ? 'text-gray-500' : 'text-slate-400'}`}>
-                  {isAR ? 'لديك حساب بالفعل؟ ' : 'Already have an account? '}
+                  {pick('Already have an account? ', 'لديك حساب بالفعل؟ ')}
                   <Link href="/login" className="text-brand-orange hover:text-brand-orange/80 font-medium transition-colors">
-                    {isAR ? 'تسجيل الدخول' : 'Sign in'}
+                    {pick('Sign in', 'تسجيل الدخول')}
                   </Link>
                 </p>
               </div>
@@ -125,7 +125,7 @@ export default function SignupPage() {
                 {/* Email */}
                 <div>
                   <label className={`block text-xs font-medium mb-1.5 ${isLight ? 'text-gray-600' : 'text-slate-400'}`}>
-                    {isAR ? 'البريد الإلكتروني' : 'Email address'}
+                    {pick('Email address', 'البريد الإلكتروني')}
                   </label>
                   <div className="relative">
                     <Mail size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -133,7 +133,7 @@ export default function SignupPage() {
                       type="email"
                       value={email}
                       onChange={e => { setEmail(e.target.value); setError(''); }}
-                      placeholder={isAR ? 'you@example.com' : 'you@company.com'}
+                      placeholder={pick('you@company.com', 'you@example.com')}
                       className={inputCls}
                       autoComplete="email"
                       autoFocus
@@ -144,7 +144,7 @@ export default function SignupPage() {
                 {/* Password */}
                 <div>
                   <label className={`block text-xs font-medium mb-1.5 ${isLight ? 'text-gray-600' : 'text-slate-400'}`}>
-                    {isAR ? 'كلمة المرور' : 'Password'}
+                    {pick('Password', 'كلمة المرور')}
                   </label>
                   <div className="relative">
                     <Lock size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -152,7 +152,7 @@ export default function SignupPage() {
                       type={showPw ? 'text' : 'password'}
                       value={password}
                       onChange={e => { setPassword(e.target.value); setError(''); }}
-                      placeholder={isAR ? '8 أحرف على الأقل' : 'Min. 8 characters'}
+                      placeholder={pick('Min. 8 characters', '8 أحرف على الأقل')}
                       className={`${inputCls} pr-10`}
                       autoComplete="new-password"
                     />
@@ -186,7 +186,7 @@ export default function SignupPage() {
                 {/* Confirm password */}
                 <div>
                   <label className={`block text-xs font-medium mb-1.5 ${isLight ? 'text-gray-600' : 'text-slate-400'}`}>
-                    {isAR ? 'تأكيد كلمة المرور' : 'Confirm password'}
+                    {pick('Confirm password', 'تأكيد كلمة المرور')}
                   </label>
                   <div className="relative">
                     <Lock size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -194,7 +194,7 @@ export default function SignupPage() {
                       type={showConfirm ? 'text' : 'password'}
                       value={confirm}
                       onChange={e => { setConfirm(e.target.value); setError(''); }}
-                      placeholder={isAR ? 'أعد كتابة كلمة المرور' : 'Repeat your password'}
+                      placeholder={pick('Repeat your password', 'أعد كتابة كلمة المرور')}
                       className={`${inputCls} pr-10`}
                       autoComplete="new-password"
                     />
@@ -223,7 +223,7 @@ export default function SignupPage() {
                   className="btn-primary w-full py-3 mt-1 justify-center"
                 >
                   {loading ? <Loader size={15} className="animate-spin" /> : null}
-                  {loading ? (isAR ? 'جارٍ إنشاء الحساب…' : 'Creating account…') : (isAR ? 'إنشاء الحساب' : 'Create Account')}
+                  {loading ? (pick('Creating account…', 'جارٍ إنشاء الحساب…')) : (pick('Create Account', 'إنشاء الحساب'))}
                 </button>
               </form>
             </>
@@ -232,7 +232,7 @@ export default function SignupPage() {
 
         <p className={`text-center text-xs mt-6 ${isLight ? 'text-gray-400' : 'text-slate-500'}`}>
           <Link href="/" className="hover:text-brand-orange transition-colors">
-            {isAR ? 'العودة للموقع ←' : '← Back to website'}
+            {pick('← Back to website', 'العودة للموقع ←')}
           </Link>
         </p>
       </div>
