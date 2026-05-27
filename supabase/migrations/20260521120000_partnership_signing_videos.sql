@@ -32,23 +32,26 @@ DROP POLICY IF EXISTS "cms_signing_videos_delete" ON public.partnership_signing_
 CREATE POLICY "cms_signing_videos_select"
   ON public.partnership_signing_videos FOR SELECT
   TO anon, authenticated
-  USING (true);
+  USING (
+    is_published
+    OR lower(coalesce(auth.jwt() ->> 'email', '')) = 'info@commergio.com'
+  );
 
 CREATE POLICY "cms_signing_videos_insert"
   ON public.partnership_signing_videos FOR INSERT
-  TO anon, authenticated
-  WITH CHECK (true);
+  TO authenticated
+  WITH CHECK (lower(coalesce(auth.jwt() ->> 'email', '')) = 'info@commergio.com');
 
 CREATE POLICY "cms_signing_videos_update"
   ON public.partnership_signing_videos FOR UPDATE
-  TO anon, authenticated
-  USING (true)
-  WITH CHECK (true);
+  TO authenticated
+  USING (lower(coalesce(auth.jwt() ->> 'email', '')) = 'info@commergio.com')
+  WITH CHECK (lower(coalesce(auth.jwt() ->> 'email', '')) = 'info@commergio.com');
 
 CREATE POLICY "cms_signing_videos_delete"
   ON public.partnership_signing_videos FOR DELETE
-  TO anon, authenticated
-  USING (true);
+  TO authenticated
+  USING (lower(coalesce(auth.jwt() ->> 'email', '')) = 'info@commergio.com');
 
 INSERT INTO storage.buckets (id, name, public)
 VALUES
@@ -71,28 +74,28 @@ CREATE POLICY "cms_storage_select"
 
 CREATE POLICY "cms_storage_insert"
   ON storage.objects FOR INSERT
-  TO anon, authenticated
+  TO authenticated
   WITH CHECK (bucket_id IN (
     'portfolio-images', 'product-images', 'partner-logos',
     'partnership-videos', 'partnership-thumbnails'
-  ));
+  ) AND lower(coalesce(auth.jwt() ->> 'email', '')) = 'info@commergio.com');
 
 CREATE POLICY "cms_storage_update"
   ON storage.objects FOR UPDATE
-  TO anon, authenticated
+  TO authenticated
   USING (bucket_id IN (
     'portfolio-images', 'product-images', 'partner-logos',
     'partnership-videos', 'partnership-thumbnails'
-  ))
+  ) AND lower(coalesce(auth.jwt() ->> 'email', '')) = 'info@commergio.com')
   WITH CHECK (bucket_id IN (
     'portfolio-images', 'product-images', 'partner-logos',
     'partnership-videos', 'partnership-thumbnails'
-  ));
+  ) AND lower(coalesce(auth.jwt() ->> 'email', '')) = 'info@commergio.com');
 
 CREATE POLICY "cms_storage_delete"
   ON storage.objects FOR DELETE
-  TO anon, authenticated
+  TO authenticated
   USING (bucket_id IN (
     'portfolio-images', 'product-images', 'partner-logos',
     'partnership-videos', 'partnership-thumbnails'
-  ));
+  ) AND lower(coalesce(auth.jwt() ->> 'email', '')) = 'info@commergio.com');
