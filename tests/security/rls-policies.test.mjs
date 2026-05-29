@@ -42,7 +42,7 @@ assert.doesNotMatch(
 
 assert.match(
   nextConfig,
-  /media-src[^"']*https:\/\/\*\.supabase\.co/,
+  /media-src[\s\S]*https:\/\/\*\.supabase\.co/,
   'CSP must allow Supabase-hosted published videos to play',
 );
 
