@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { ArrowRight, MessageCircle } from 'lucide-react';
 import StartProjectModal from '@/components/StartProjectModal';
+import { useI18n } from '@/lib/i18n-context';
 
 const WA_URL = 'https://wa.me/966562270319?text=Hello%2C%20I%20want%20to%20start%20a%20project%20with%20Commergio';
 
@@ -17,6 +18,7 @@ interface MiniCTAProps {
 }
 
 export default function MiniCTA({ heading, sub, primaryLabel = 'Start Your Project', primaryHref, source = 'homepage' }: MiniCTAProps) {
+  const { t } = useI18n();
   const [modalOpen, setModalOpen] = useState(false);
 
   return (
@@ -58,7 +60,7 @@ export default function MiniCTA({ heading, sub, primaryLabel = 'Start Your Proje
               rel="noopener noreferrer"
               className="w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-200 hover:-translate-y-0.5"
               style={{ background: 'rgba(37,211,102,0.12)', border: '1px solid rgba(37,211,102,0.25)', color: '#25D366' }}
-              title="Chat on WhatsApp"
+              title={t.home.whatsapp}
             >
               <MessageCircle size={18} />
             </a>

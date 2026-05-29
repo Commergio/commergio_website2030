@@ -66,8 +66,7 @@ const FALLBACK_PROJECTS: PortfolioProject[] = [
 ];
 
 export default function PortfolioHighlights() {
-  const { t, locale } = useI18n();
-  const isAR = locale === 'ar';
+  const { t, pick } = useI18n();
   const [projects, setProjects] = useState<PortfolioProject[]>(FALLBACK_PROJECTS);
 
   useEffect(() => {
@@ -167,9 +166,9 @@ export default function PortfolioHighlights() {
               </div>
 
               <div className="p-5">
-                <p className="text-slate-500 text-xs mb-1">{isAR ? (project.client_name_ar || project.client_name) : project.client_name}</p>
-                <h3 className="text-slate-900 font-bold text-lg mb-2">{isAR ? (project.title_ar || project.title) : project.title}</h3>
-                <p className="text-slate-600 text-sm leading-relaxed mb-4">{isAR ? (project.description_ar || project.description) : project.description}</p>
+                <p className="text-slate-500 text-xs mb-1">{pick(project.client_name, project.client_name_ar || '')}</p>
+                <h3 className="text-slate-900 font-bold text-lg mb-2">{pick(project.title, project.title_ar || '')}</h3>
+                <p className="text-slate-600 text-sm leading-relaxed mb-4">{pick(project.description, project.description_ar || '')}</p>
 
                 {project.tech_stack && project.tech_stack.length > 0 && (
                   <div className="flex flex-wrap gap-1.5 mb-4">

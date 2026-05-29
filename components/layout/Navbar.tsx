@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import BrandLogo from '@/components/BrandLogo';
 import { Menu, X, Globe } from 'lucide-react';
 import { useI18n } from '@/lib/i18n-context';
-import { nextLocale, localeMenuLabel, localeShortLabel } from '@/lib/locale-cycle';
+import type { Locale } from '@/lib/i18n';
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -37,7 +37,8 @@ export default function Navbar() {
   const isActive = (href: string) =>
     href === '/' ? pathname === '/' : pathname.startsWith(href);
 
-  const switchLocale = () => setLocale(nextLocale(locale));
+  const nextLocale: Locale = locale === 'en' ? 'ar' : 'en';
+  const switchLocale = () => setLocale(nextLocale);
 
   return (
     <nav
@@ -79,7 +80,7 @@ export default function Navbar() {
               className="flex items-center gap-1 px-3 py-2 text-sm border border-amber-900/10 rounded-xl text-slate-700 hover:bg-amber-50 transition"
             >
               <Globe size={14} />
-              {localeMenuLabel(locale, t)}
+              {locale === 'en' ? t.lang.ar : t.lang.en}
             </button>
 
             {/* CTA */}
@@ -96,7 +97,7 @@ export default function Navbar() {
               onClick={switchLocale}
               className="w-9 h-9 flex items-center justify-center border border-amber-900/10 rounded-xl text-xs text-slate-700 bg-white"
             >
-              {localeShortLabel(nextLocale(locale))}
+              {nextLocale === 'ar' ? 'ع' : 'EN'}
             </button>
 
             <button

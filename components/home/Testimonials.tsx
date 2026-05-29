@@ -47,8 +47,7 @@ const testimonials = [
 export default function Testimonials() {
   const [active, setActive] = useState(0);
   const [dir, setDir] = useState(1);
-  const { t, locale } = useI18n();
-  const isRTL = locale === 'ar';
+  const { t, pick, isRTL } = useI18n();
 
   const go = (idx: number) => {
     setDir(idx > active ? 1 : -1);
@@ -99,7 +98,7 @@ export default function Testimonials() {
                 </div>
 
                 <p className="text-slate-800 text-base md:text-lg leading-relaxed mb-8 font-normal">
-                  &ldquo;{isRTL ? current.contentAr : current.content}&rdquo;
+                  &ldquo;{pick(current.content, current.contentAr)}&rdquo;
                 </p>
 
                 <div className="flex items-center gap-4">

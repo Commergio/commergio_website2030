@@ -9,7 +9,6 @@ interface I18nContextValue {
   t: typeof translations[Locale];
   setLocale: (l: Locale) => void;
   isRTL: boolean;
-  /** EN / Arabic script / Arabic in Latin letters */
   pick: (en: string, ar?: string) => string;
 }
 
@@ -25,13 +24,21 @@ function isLocale(value: string | null): value is Locale {
   return value !== null && LOCALES.includes(value as Locale);
 }
 
+function normalizeStoredLocale(value: string | null): Locale | null {
+  if (value === 'latn') return 'ar';
+  return isLocale(value) ? value : null;
+}
+
 export function I18nProvider({ children }: { children: ReactNode }) {
   const [locale, setLocaleState] = useState<Locale>('en');
 
   useEffect(() => {
-    const stored = localStorage.getItem('commergio-locale');
-    if (isLocale(stored)) {
+    const stored = normalizeStoredLocale(localStorage.getItem('commergio-locale'));
+    if (stored) {
       setLocaleState(stored);
+      if (localStorage.getItem('commergio-locale') === 'latn') {
+        localStorage.setItem('commergio-locale', 'ar');
+      }
     } else {
       const browserLang = navigator.language.startsWith('ar') ? 'ar' : 'en';
       setLocaleState(browserLang);
@@ -39,7 +46,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    document.documentElement.lang = locale === 'latn' ? 'ar-Latn' : locale;
+    document.documentElement.lang = locale;
     document.documentElement.dir = isRtlLocale(locale) ? 'rtl' : 'ltr';
   }, [locale]);
 

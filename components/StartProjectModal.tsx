@@ -7,27 +7,6 @@ import { supabase } from '@/lib/supabase';
 import { useTheme } from '@/lib/theme-context';
 import { useI18n } from '@/lib/i18n-context';
 
-const SERVICES = [
-  'Website Development',
-  'E-commerce (Salla)',
-  'SEO Services',
-  'Systems & Automation',
-  'Mobile App',
-  'UI/UX Design',
-  'AI Solutions',
-  'Business Consulting',
-  'Other',
-];
-
-const BUDGETS = [
-  'Under SAR 5,000',
-  'SAR 5,000 – 15,000',
-  'SAR 15,000 – 30,000',
-  'SAR 30,000 – 60,000',
-  'SAR 60,000+',
-  'Not sure yet',
-];
-
 interface Props {
   onClose: () => void;
   defaultService?: string;
@@ -38,9 +17,9 @@ const inputCls = 'w-full px-4 py-3 rounded-xl text-sm focus:outline-none transit
 
 export default function StartProjectModal({ onClose, defaultService = '', source = 'website' }: Props) {
   const { theme } = useTheme();
-  const { locale } = useI18n();
+  const { t } = useI18n();
+  const m = t.startProject;
   const isLight = theme === 'light';
-  const isAR = locale === 'ar';
   const [form, setForm] = useState({
     name: '',
     company: '',
@@ -56,7 +35,10 @@ export default function StartProjectModal({ onClose, defaultService = '', source
   const [honeypot, setHoneypot] = useState('');
   const [formError, setFormError] = useState('');
 
-  const set = (k: string, v: string) => { setForm(f => ({ ...f, [k]: v })); setFormError(''); };
+  const set = (k: string, v: string) => {
+    setForm((f) => ({ ...f, [k]: v }));
+    setFormError('');
+  };
 
   const inputStyle = isLight
     ? { background: 'rgba(255,255,255,0.92)', border: '1px solid rgba(0,0,0,0.1)', color: '#0c1628' }
@@ -70,17 +52,28 @@ export default function StartProjectModal({ onClose, defaultService = '', source
 
   const handleSubmit = async () => {
     if (honeypot) return;
-    if (!form.name.trim() || form.name.trim().length < 2) { setFormError(isAR ? 'يرجى إدخال الاسم الكامل.' : 'Please enter your full name.'); return; }
-    if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) { setFormError(isAR ? 'يرجى إدخال بريد إلكتروني صالح.' : 'Please enter a valid email address.'); return; }
-    if (form.message && form.message.length > 4000) { setFormError(isAR ? 'الرسالة طويلة جدًا (الحد 4000 حرف).' : 'Message is too long (max 4000 characters).'); return; }
+    if (!form.name.trim() || form.name.trim().length < 2) {
+      setFormError(m.errName);
+      return;
+    }
+    if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+      setFormError(m.errEmail);
+      return;
+    }
+    if (form.message && form.message.length > 4000) {
+      setFormError(m.errMessage);
+      return;
+    }
     setSaving(true);
-    await supabase.from('project_leads').insert([{
-      ...form,
-      name: form.name.trim(),
-      email: form.email.trim().toLowerCase(),
-      message: form.message.trim(),
-      source,
-    }]);
+    await supabase.from('project_leads').insert([
+      {
+        ...form,
+        name: form.name.trim(),
+        email: form.email.trim().toLowerCase(),
+        message: form.message.trim(),
+        source,
+      },
+    ]);
     setSaving(false);
     setDone(true);
   };
@@ -111,13 +104,15 @@ export default function StartProjectModal({ onClose, defaultService = '', source
         >
           {!done ? (
             <div className="p-7">
-              {/* Header */}
               <div className="flex items-start justify-between mb-7">
                 <div>
-                  <h2 className={`font-black text-2xl mb-1 ${isLight ? 'text-slate-900' : 'text-white'}`} style={{ letterSpacing: '-0.03em' }}>
-                    {isAR ? 'ابدأ مشروعك' : 'Start Your Project'}
+                  <h2
+                    className={`font-black text-2xl mb-1 ${isLight ? 'text-slate-900' : 'text-white'}`}
+                    style={{ letterSpacing: '-0.03em' }}
+                  >
+                    {m.title}
                   </h2>
-                  <p className={`text-sm ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>{isAR ? 'املأ البيانات وسنعود إليك خلال 24 ساعة.' : 'Fill in the details and we&apos;ll get back to you within 24 hours.'}</p>
+                  <p className={`text-sm ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>{m.sub}</p>
                 </div>
                 <button
                   onClick={onClose}
@@ -128,33 +123,31 @@ export default function StartProjectModal({ onClose, defaultService = '', source
                 </button>
               </div>
 
-              {/* Form */}
               <div className="space-y-4">
-                {/* Honeypot */}
                 <div aria-hidden="true" style={{ position: 'absolute', left: '-9999px', opacity: 0, pointerEvents: 'none' }}>
-                  <input tabIndex={-1} type="text" value={honeypot} onChange={e => setHoneypot(e.target.value)} autoComplete="off" />
+                  <input tabIndex={-1} type="text" value={honeypot} onChange={(e) => setHoneypot(e.target.value)} autoComplete="off" />
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs text-slate-500 mb-1.5">{isAR ? 'الاسم *' : 'Your Name *'}</label>
+                    <label className="block text-xs text-slate-500 mb-1.5">{m.nameLabel}</label>
                     <input
                       className={inputCls}
                       style={getInputStyle('name')}
-                      placeholder={isAR ? 'الاسم الكامل' : 'Full name'}
+                      placeholder={m.namePlaceholder}
                       value={form.name}
-                      onChange={e => set('name', e.target.value)}
+                      onChange={(e) => set('name', e.target.value)}
                       onFocus={() => setFocusedField('name')}
                       onBlur={() => setFocusedField(null)}
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-slate-500 mb-1.5">{isAR ? 'الشركة' : 'Company'}</label>
+                    <label className="block text-xs text-slate-500 mb-1.5">{m.companyLabel}</label>
                     <input
                       className={inputCls}
                       style={getInputStyle('company')}
-                      placeholder={isAR ? 'اسم الشركة' : 'Company name'}
+                      placeholder={m.companyPlaceholder}
                       value={form.company}
-                      onChange={e => set('company', e.target.value)}
+                      onChange={(e) => set('company', e.target.value)}
                       onFocus={() => setFocusedField('company')}
                       onBlur={() => setFocusedField(null)}
                     />
@@ -163,26 +156,26 @@ export default function StartProjectModal({ onClose, defaultService = '', source
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs text-slate-500 mb-1.5">{isAR ? 'البريد الإلكتروني' : 'Email'}</label>
+                    <label className="block text-xs text-slate-500 mb-1.5">{m.emailLabel}</label>
                     <input
                       className={inputCls}
                       style={getInputStyle('email')}
-                      placeholder={isAR ? 'you@example.com' : 'you@company.com'}
+                      placeholder={m.emailPlaceholder}
                       type="email"
                       value={form.email}
-                      onChange={e => set('email', e.target.value)}
+                      onChange={(e) => set('email', e.target.value)}
                       onFocus={() => setFocusedField('email')}
                       onBlur={() => setFocusedField(null)}
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-slate-500 mb-1.5">{isAR ? 'الهاتف / واتساب' : 'Phone / WhatsApp'}</label>
+                    <label className="block text-xs text-slate-500 mb-1.5">{m.phoneLabel}</label>
                     <input
                       className={inputCls}
                       style={getInputStyle('phone')}
                       placeholder="+966 5XX XXX XXX"
                       value={form.phone}
-                      onChange={e => set('phone', e.target.value)}
+                      onChange={(e) => set('phone', e.target.value)}
                       onFocus={() => setFocusedField('phone')}
                       onBlur={() => setFocusedField(null)}
                     />
@@ -190,69 +183,73 @@ export default function StartProjectModal({ onClose, defaultService = '', source
                 </div>
 
                 <div>
-                  <label className="block text-xs text-slate-500 mb-1.5">{isAR ? 'الخدمة / المنتج' : 'Service / Product'}</label>
+                  <label className="block text-xs text-slate-500 mb-1.5">{m.serviceLabel}</label>
                   <select
                     className={inputCls}
                     style={getInputStyle('service')}
                     value={form.service}
-                    onChange={e => set('service', e.target.value)}
+                    onChange={(e) => set('service', e.target.value)}
                     onFocus={() => setFocusedField('service')}
                     onBlur={() => setFocusedField(null)}
                   >
-                    <option value="" style={{ background: '#050d1a' }}>{isAR ? 'اختر خدمة' : 'Select a service'}</option>
-                    {SERVICES.map(s => (
-                      <option key={s} value={s} style={{ background: '#050d1a' }}>{s}</option>
+                    <option value="" style={{ background: '#050d1a' }}>
+                      {m.selectService}
+                    </option>
+                    {m.services.map((s) => (
+                      <option key={s} value={s} style={{ background: '#050d1a' }}>
+                        {s}
+                      </option>
                     ))}
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-xs text-slate-500 mb-1.5">{isAR ? 'نطاق الميزانية' : 'Budget Range'}</label>
+                  <label className="block text-xs text-slate-500 mb-1.5">{m.budgetLabel}</label>
                   <select
                     className={inputCls}
                     style={getInputStyle('budget')}
                     value={form.budget_range}
-                    onChange={e => set('budget_range', e.target.value)}
+                    onChange={(e) => set('budget_range', e.target.value)}
                     onFocus={() => setFocusedField('budget')}
                     onBlur={() => setFocusedField(null)}
                   >
-                    <option value="" style={{ background: '#050d1a' }}>{isAR ? 'اختر نطاق الميزانية' : 'Select budget range'}</option>
-                    {BUDGETS.map(b => (
-                      <option key={b} value={b} style={{ background: '#050d1a' }}>{b}</option>
+                    <option value="" style={{ background: '#050d1a' }}>
+                      {m.selectBudget}
+                    </option>
+                    {m.budgets.map((b) => (
+                      <option key={b} value={b} style={{ background: '#050d1a' }}>
+                        {b}
+                      </option>
                     ))}
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-xs text-slate-500 mb-1.5">{isAR ? 'وصف المشروع' : 'Project Description'}</label>
+                  <label className="block text-xs text-slate-500 mb-1.5">{m.messageLabel}</label>
                   <textarea
                     className={inputCls}
                     style={getInputStyle('message')}
                     rows={3}
-                    placeholder={isAR ? 'أخبرنا عن أهداف المشروع والجدول الزمني والمتطلبات الخاصة...' : 'Tell us about your project goals, timeline, and any specific requirements...'}
+                    placeholder={m.messagePlaceholder}
                     value={form.message}
-                    onChange={e => set('message', e.target.value)}
+                    onChange={(e) => set('message', e.target.value)}
                     onFocus={() => setFocusedField('message')}
                     onBlur={() => setFocusedField(null)}
                   />
                 </div>
               </div>
 
-              {/* Urgency note */}
               <div
                 className="flex items-center gap-2.5 px-4 py-3 rounded-xl mt-5 mb-5"
                 style={{ background: 'rgba(245,166,35,0.06)', border: '1px solid rgba(245,166,35,0.15)' }}
               >
                 <div className="w-2 h-2 rounded-full bg-brand-orange animate-pulse flex-shrink-0" />
                 <p className="text-slate-400 text-xs">
-                  <span className="text-brand-orange font-semibold">{isAR ? 'المقاعد محدودة.' : 'Limited slots available.'}</span>
-                  {' '}{isAR ? 'نستقبل بحد أقصى 5 عملاء جدد شهريًا. الرد خلال 24 ساعة.' : 'We onboard max 5 new clients per month. Respond within 24h.'}
+                  <span className="text-brand-orange font-semibold">{m.urgencyBold}</span> {m.urgencyRest}
                 </p>
               </div>
 
-              {formError && (
-                <p className="text-red-400 text-xs px-1">{formError}</p>
-              )}
+              {formError && <p className="text-red-400 text-xs px-1">{formError}</p>}
 
               <button
                 onClick={handleSubmit}
@@ -260,7 +257,7 @@ export default function StartProjectModal({ onClose, defaultService = '', source
                 className="btn-primary w-full py-4 text-base justify-center"
               >
                 {saving ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
-                {saving ? (isAR ? 'جارٍ الإرسال…' : 'Sending…') : (isAR ? 'إرسال ملخص المشروع' : 'Send Project Brief')}
+                {saving ? m.sending : m.submit}
               </button>
             </div>
           ) : (
@@ -278,12 +275,15 @@ export default function StartProjectModal({ onClose, defaultService = '', source
                 </div>
               </motion.div>
               <h3 className={`font-black text-2xl mb-3 ${isLight ? 'text-slate-900' : 'text-white'}`} style={{ letterSpacing: '-0.03em' }}>
-                {isAR ? 'تم استلام الطلب!' : 'Brief Received!'}
+                {m.successTitle}
               </h3>
               <p className={`mb-2 leading-relaxed ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>
-                {isAR ? 'شكرًا لك، ' : 'Thank you, '}<span className={`font-semibold ${isLight ? 'text-slate-900' : 'text-white'}`}>{form.name}</span>{isAR ? '. تم استلام ملخص المشروع وسيتواصل فريقنا خلال ' : '. We&apos;ve received your project brief and our team will reach out within '}<span className="text-brand-orange font-semibold">24 {isAR ? 'ساعة' : 'hours'}</span>.
+                {m.successThanks}
+                <span className={`font-semibold ${isLight ? 'text-slate-900' : 'text-white'}`}>{form.name}</span>
+                {m.successBody}
+                <span className="text-brand-orange font-semibold">24 {m.successHours}</span>.
               </p>
-              <p className="text-slate-500 text-sm mb-8">{isAR ? 'يمكنك استكشاف أعمالنا أو التواصل عبر واتساب للحصول على رد أسرع.' : 'Meanwhile, feel free to explore our work or reach us on WhatsApp for faster response.'}</p>
+              <p className="text-slate-500 text-sm mb-8">{m.successFoot}</p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <a
                   href="https://wa.me/966562270319?text=Hello%2C%20I%20just%20submitted%20a%20project%20brief%20on%20Commergio"
@@ -292,9 +292,11 @@ export default function StartProjectModal({ onClose, defaultService = '', source
                   className="btn-primary"
                   style={{ background: '#25D366', boxShadow: '0 4px 16px rgba(37,211,102,0.25)' }}
                 >
-                  {isAR ? 'متابعة عبر واتساب' : 'Follow Up on WhatsApp'}
+                  {m.whatsappFollow}
                 </a>
-                <button onClick={onClose} className="btn-secondary">{isAR ? 'إغلاق' : 'Close'}</button>
+                <button onClick={onClose} className="btn-secondary">
+                  {m.close}
+                </button>
               </div>
             </div>
           )}

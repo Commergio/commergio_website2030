@@ -17,7 +17,7 @@ import StatsSection from '@/components/home/StatsSection';
 import Testimonials from '@/components/home/Testimonials';
 import BlogPreview from '@/components/home/BlogPreview';
 import ContactCTA from '@/components/home/ContactCTA';
-import MiniCTA from '@/components/home/MiniCTA';
+import HomeMiniCTAs from '@/components/home/HomeMiniCTAs';
 
 const ServicesEcosystem = dynamic(() => import('@/components/home/ServicesEcosystem'), { ssr: false });
 const FeaturedProducts = dynamic(() => import('@/components/home/FeaturedProducts'), { ssr: false });
@@ -36,20 +36,8 @@ export default function HomePage() {
       <Hero />
       <StatsSection />
       <ServicesEcosystem />
-      <MiniCTA
-        heading="جاهز للبدء؟ لدينا 3 مقاعد متاحة هذا الشهر."
-        sub="سعر ثابت. مدة تنفيذ واضحة. بدون مفاجآت."
-        primaryLabel="عرض الأسعار"
-        primaryHref="/pricing"
-        source="services-cta"
-      />
+      <HomeMiniCTAs />
       <FeaturedProducts />
-      <MiniCTA
-        heading="هل أنت مهتم بأحد منتجاتنا؟"
-        sub="اطلب عرضا تجريبيا وشاهده يعمل مباشرة داخل بيئة عملك."
-        primaryLabel="اطلب عرضا تجريبيا"
-        source="products-cta"
-      />
       <WhyCommergio />
       <TeamCTA />
       {/* Portfolio section temporarily hidden — re-enable when ready */}
