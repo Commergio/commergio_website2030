@@ -16,7 +16,7 @@ assert.doesNotMatch(
 const nextConfig = read('next.config.js');
 assert.match(
   nextConfig,
-  /media-src[^"']*https:\/\/\*\.supabase\.co/,
+  /media-src[^"]*https:\/\/\*\.supabase\.co/,
   'CSP media-src must allow Supabase-hosted signing videos'
 );
 
