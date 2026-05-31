@@ -1,3 +1,5 @@
+import { BRAND_LOGO_URL } from '@/lib/brand';
+
 export default function SchemaOrg() {
   const schema = {
     '@context': 'https://schema.org',
@@ -10,7 +12,7 @@ export default function SchemaOrg() {
         url: 'https://commergio.com',
         logo: {
           '@type': 'ImageObject',
-          url: 'https://commergio.com/شعار_كوميرجيو.jpeg',
+          url: BRAND_LOGO_URL,
         },
         contactPoint: [
           {
@@ -42,7 +44,7 @@ export default function SchemaOrg() {
         '@type': 'ProfessionalService',
         '@id': 'https://commergio.com/#service',
         name: 'Commergio Technology Solutions',
-        image: 'https://commergio.com/شعار_كوميرجيو.jpeg',
+        image: BRAND_LOGO_URL,
         url: 'https://commergio.com',
         telephone: '+966562270319',
         priceRange: '$$',

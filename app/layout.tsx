@@ -8,6 +8,7 @@ import { I18nProvider } from '@/lib/i18n-context';
 import SchemaOrg from '@/components/SchemaOrg';
 import StickyMobileCTA from '@/components/layout/StickyMobileCTA';
 import FloatingWhatsApp from '@/components/FloatingWhatsApp';
+import { BRAND_LOGO_URL } from '@/lib/brand';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -54,6 +55,7 @@ export const metadata: Metadata = {
     title: 'Commergio | Technology & Business Solutions',
     description: 'Enterprise-grade digital transformation and technology solutions from Saudi Arabia.',
     siteName: 'Commergio',
+    images: [{ url: BRAND_LOGO_URL, width: 1200, height: 630, alt: 'Commergio' }],
   },
   twitter: {
     card: 'summary_large_image',

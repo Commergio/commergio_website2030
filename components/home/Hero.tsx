@@ -4,6 +4,8 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { ArrowRight, ChevronLeft } from 'lucide-react';
 import { useI18n } from '@/lib/i18n-context';
+import { BRAND_LOGO_PATH } from '@/lib/brand';
+import Image from 'next/image';
 
 export default function Hero() {
   const { t, isRTL } = useI18n();
@@ -63,11 +65,13 @@ export default function Hero() {
           transition={{ duration: 0.8 }}
           className="w-full rounded-2xl shadow-lg bg-white p-4"
         >
-          <img
-            src="/كوميرجيو copy.png"
+          <Image
+            src={BRAND_LOGO_PATH}
             alt="Commergio"
-            className="w-full h-auto rounded-lg"
-            loading="eager"
+            width={640}
+            height={560}
+            className="w-full h-auto rounded-lg object-contain"
+            priority
           />
         </motion.div>
 

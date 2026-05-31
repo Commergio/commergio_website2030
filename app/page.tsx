@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import dynamic from 'next/dynamic';
 import Hero from '@/components/home/Hero';
+import { BRAND_LOGO_URL } from '@/lib/brand';
 
 export const metadata: Metadata = {
   title: 'Commergio | Technology & Business Solutions — Saudi Arabia',
@@ -9,7 +10,7 @@ export const metadata: Metadata = {
     title: 'Commergio | Technology & Business Solutions — Saudi Arabia',
     description: 'From idea to scalable digital business. Your strategic tech partner in the Kingdom.',
     url: 'https://commergio.com',
-    images: [{ url: 'https://commergio.com/كوميرجيو copy.png', width: 1200, height: 630 }],
+    images: [{ url: BRAND_LOGO_URL, width: 1200, height: 630, alt: 'Commergio' }],
   },
   alternates: { canonical: 'https://commergio.com' },
 };
