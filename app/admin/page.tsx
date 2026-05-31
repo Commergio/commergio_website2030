@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import BrandLogo from '@/components/BrandLogo';
+import { BRAND_LOGO_HEIGHT } from '@/lib/brand';
 import {
   LayoutDashboard, MessageSquare, FileText, Briefcase, Receipt,
   Plus, CircleCheck as CheckCircle2, TrendingUp, Mail, Loader as Loader2,
@@ -188,7 +189,7 @@ const markMessageRead = async (id: string) => {
         <div className="max-w-7xl mx-auto px-4 md:px-8 py-5">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-4">
-              <BrandLogo size={40} />
+              <BrandLogo size={BRAND_LOGO_HEIGHT.admin} />
               <div>
                 <h1 className="text-xl font-bold text-white" style={{ letterSpacing: '-0.02em' }}>{t.controlPanel}</h1>
                 <p className="text-slate-500 text-xs mt-0.5">Commergio · كوميرجيو</p>

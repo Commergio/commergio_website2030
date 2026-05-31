@@ -2,36 +2,39 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { BRAND_LOGO_PATH } from '@/lib/brand';
+import { BRAND_LOGO_PATH, BRAND_LOGO_HEIGHT, brandLogoDimensions } from '@/lib/brand';
 
 interface BrandLogoProps {
-  /** Show text next to icon. Default: false — logo image includes wordmark. */
   showText?: boolean;
-  /** Height of the logo image in px. Default: 52 */
+  /** Logo height in px; defaults to largest standard size for context. */
   size?: number;
-  /** Make logo image take full parent height (navbar). */
+  /** Navbar: use maximum height within the header bar. */
   fillHeight?: boolean;
 }
 
-export default function BrandLogo({ showText = false, size = 52, fillHeight = false }: BrandLogoProps) {
-  const imageHeight = fillHeight ? 56 : size;
-  const imageWidth = Math.round(imageHeight * 1.15);
+export default function BrandLogo({
+  showText = false,
+  size,
+  fillHeight = false,
+}: BrandLogoProps) {
+  const imageHeight = size ?? (fillHeight ? BRAND_LOGO_HEIGHT.navbar : BRAND_LOGO_HEIGHT.default);
+  const { width: imageWidth, height: boxHeight } = brandLogoDimensions(imageHeight);
 
   return (
     <Link
       href="/"
-      className={`flex items-center gap-3 group flex-shrink-0 ${fillHeight ? 'h-full py-1' : ''}`}
+      className={`flex items-center gap-3 group flex-shrink-0 min-w-0 ${fillHeight ? 'h-full' : ''}`}
       aria-label="Commergio — الرئيسية"
     >
       <div
-        className="relative flex-shrink-0 transition-transform duration-300 group-hover:scale-105"
-        style={{ width: imageWidth, height: imageHeight }}
+        className="relative flex-shrink-0 transition-transform duration-300 group-hover:scale-[1.02]"
+        style={{ width: imageWidth, height: boxHeight, maxHeight: fillHeight ? '100%' : undefined }}
       >
         <Image
           src={BRAND_LOGO_PATH}
           alt="Commergio"
           fill
-          sizes="(max-width: 768px) 120px, 160px"
+          sizes={fillHeight ? '200px' : '(max-width: 768px) 180px, 240px'}
           className="object-contain object-left"
           priority
         />

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Mail, Lock, Eye, EyeOff, CircleAlert as AlertCircle, CircleCheck, Loader } from 'lucide-react';
 import BrandLogo from '@/components/BrandLogo';
+import { BRAND_LOGO_HEIGHT } from '@/lib/brand';
 import { supabase } from '@/lib/supabase';
 import { useTheme } from '@/lib/theme-context';
 import { useI18n } from '@/lib/i18n-context';
@@ -83,7 +84,7 @@ export default function SignupPage() {
       <div className="relative w-full max-w-[420px]">
         {/* Logo */}
         <div className="flex justify-center mb-8">
-          <BrandLogo size={48} />
+          <BrandLogo size={BRAND_LOGO_HEIGHT.auth} />
         </div>
 
         <div

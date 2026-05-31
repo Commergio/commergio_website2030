@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { ArrowRight, ChevronLeft } from 'lucide-react';
 import { useI18n } from '@/lib/i18n-context';
-import { BRAND_LOGO_PATH } from '@/lib/brand';
+import { BRAND_LOGO_PATH, BRAND_LOGO_HEIGHT } from '@/lib/brand';
 import Image from 'next/image';
 
 export default function Hero() {
@@ -19,7 +19,7 @@ export default function Hero() {
       <div className="absolute inset-0 -z-10 bg-gradient-to-br from-white via-[#F8FAFC] to-[#EEF2FF]" />
 
       {/* Content */}
-      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-20 sm:py-24 grid lg:grid-cols-2 gap-10 sm:gap-12 items-center">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-20 sm:py-24 grid lg:grid-cols-[1fr_1.15fr] gap-10 sm:gap-12 items-center">
 
         {/* Text */}
         <div className="flex flex-col">
@@ -62,16 +62,17 @@ export default function Hero() {
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="w-full rounded-2xl shadow-lg bg-white p-4"
+          transition={{ duration: 0.5 }}
+          className="w-full max-w-3xl mx-auto lg:max-w-none rounded-2xl shadow-lg bg-white p-2 sm:p-3 flex items-center justify-center"
         >
           <Image
             src={BRAND_LOGO_PATH}
             alt="Commergio"
-            width={640}
-            height={560}
-            className="w-full h-auto rounded-lg object-contain"
+            width={1200}
+            height={1050}
+            className="w-full h-auto max-h-[min(78vh,640px)] sm:max-h-[min(85vh,760px)] lg:max-h-[min(88vh,840px)] rounded-lg object-contain"
             priority
+            style={{ maxHeight: BRAND_LOGO_HEIGHT.hero }}
           />
         </motion.div>
 

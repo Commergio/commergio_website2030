@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Mail, Phone, MapPin, Linkedin, Twitter, Instagram, ArrowUpRight, ShieldCheck, ExternalLink } from 'lucide-react';
 import BrandLogo from '@/components/BrandLogo';
+import { BRAND_LOGO_HEIGHT } from '@/lib/brand';
 import { useI18n } from '@/lib/i18n-context';
 import { isRtlLocale } from '@/lib/locale-text';
 
@@ -41,7 +42,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
           <div className="lg:col-span-1">
             <div className="mb-5">
-              <BrandLogo size={40} />
+              <BrandLogo size={BRAND_LOGO_HEIGHT.footer} />
             </div>
             <p className="text-slate-600 text-sm leading-relaxed mb-6">
               {t.footer.tagline}
