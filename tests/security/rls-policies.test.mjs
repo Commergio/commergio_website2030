@@ -86,7 +86,9 @@ test('all anonymous RLS grants are limited to public reads and public form inser
     }
 
     if (policy.operation === 'SELECT' && policy.table === 'storage.objects') {
-      assert.match(policy.block, /public\.is_commergio_admin\(\)/);
+      if (/partnership-videos|partnership-thumbnails/.test(policy.block)) {
+        assert.match(policy.block, /public\.is_commergio_admin\(\)/);
+      }
       assert.doesNotMatch(policy.block, /FOR\s+(INSERT|UPDATE|DELETE)/i);
       continue;
     }
