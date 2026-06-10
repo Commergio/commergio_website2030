@@ -13,7 +13,7 @@ export const adminTranslations = {
     blog: 'Blog',
     portfolio: 'Portfolio',
     partners: 'Partners',
-    signingVideos: 'Signing Videos',
+    signingVideos: 'Partnership Archive',
     products: 'Products',
 
     // Overview
@@ -122,13 +122,13 @@ export const adminTranslations = {
     descArPlaceholder: 'وصف مختصر…',
 
     // Partnership signing videos
-    signingVideosTitle: 'Partnership Signing Videos',
+    signingVideosTitle: 'Partnership Documentation Videos',
     signingVideosCount: '{count} video(s)',
     publishedCount: '{count} published',
     addSigningVideoBtn: 'Add Signing Video',
     editSigningVideo: 'Edit Signing Video',
     noSigningVideosYet: 'No signing videos yet',
-    noSigningVideosSub: 'Upload partnership and contract signing ceremony videos.',
+    noSigningVideosSub: 'Upload formal partnership and agreement conclusion videos.',
     signingVideoDetails: 'Video, thumbnail, and partner details',
     uploadVideo: 'Upload Video',
     uploadVideoHint: 'MP4 or WebM, up to 100MB',
@@ -137,7 +137,7 @@ export const adminTranslations = {
     signingTitleAr: 'Ceremony Title (Arabic)',
     signingTitleEnPlaceholder: 'e.g. Partnership Agreement Signing',
     signingTitleArPlaceholder: 'مثال: توقيع اتفاقية الشراكة',
-    recordedAt: 'Ceremony Date',
+    recordedAt: 'Event Date',
     publishOnSite: 'Publish on partners page',
     publishRequiredHint: 'video will NOT appear on the site',
 
@@ -194,7 +194,7 @@ export const adminTranslations = {
     blog: 'المدونة',
     portfolio: 'الأعمال',
     partners: 'الشركاء',
-    signingVideos: 'فيديوهات التوقيع',
+    signingVideos: 'توثيق الشراكات',
     products: 'المنتجات',
 
     // Overview
@@ -303,22 +303,22 @@ export const adminTranslations = {
     descArPlaceholder: 'وصف مختصر…',
 
     // Partnership signing videos
-    signingVideosTitle: 'فيديوهات توقيع الشراكات',
+    signingVideosTitle: 'فيديوهات توثيق الشراكات',
     signingVideosCount: '{count} فيديو',
     publishedCount: '{count} منشور',
-    addSigningVideoBtn: 'إضافة فيديو توقيع',
-    editSigningVideo: 'تعديل فيديو التوقيع',
-    noSigningVideosYet: 'لا توجد فيديوهات توقيع بعد',
-    noSigningVideosSub: 'ارفع فيديوهات توقيع الشراكات والعقود من هنا.',
+    addSigningVideoBtn: 'إضافة فيديو توثيق',
+    editSigningVideo: 'تعديل فيديو التوثيق',
+    noSigningVideosYet: 'لا يوجد محتوى توثيق بعد',
+    noSigningVideosSub: 'ارفع فيديوهات مراسم إبرام الشراكات والاتفاقيات من هنا.',
     signingVideoDetails: 'الفيديو والصورة المصغرة وتفاصيل الشريك',
     uploadVideo: 'رفع الفيديو',
     uploadVideoHint: 'MP4 أو WebM، حتى 100 ميجابايت',
     uploadThumbnail: 'صورة مصغرة (غلاف الفيديو)',
-    signingTitleEn: 'عنوان الحفل (إنجليزي)',
-    signingTitleAr: 'عنوان الحفل (عربي)',
+    signingTitleEn: 'عنوان المراسم (إنجليزي)',
+    signingTitleAr: 'عنوان المراسم (عربي)',
     signingTitleEnPlaceholder: 'e.g. Partnership Agreement Signing',
-    signingTitleArPlaceholder: 'مثال: توقيع اتفاقية الشراكة',
-    recordedAt: 'تاريخ التوقيع',
+    signingTitleArPlaceholder: 'مثال: مراسم إبرام اتفاقية الشراكة',
+    recordedAt: 'تاريخ المراسم',
     publishOnSite: 'نشر في صفحة الشركاء',
     publishRequiredHint: 'لن يظهر الفيديو على الموقع',
 

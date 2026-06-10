@@ -97,7 +97,7 @@ export default function PartnershipSigningVideos({
     const errorBlock = (
       <div className="glass-card p-8 text-center border-amber-200/60">
         <p className="text-slate-900 font-semibold mb-2">
-          {pick('Could not load signing videos', 'تعذر تحميل فيديوهات التوقيع')}
+          {pick('Could not load partnership videos', 'تعذر تحميل محتوى توثيق الشراكات')}
         </p>
         <p className="text-slate-600 text-sm mb-4">
           {misconfigured
