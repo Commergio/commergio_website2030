@@ -1,148 +1,34 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-  Globe, Smartphone, Settings, Palette, TrendingUp,
-  CreditCard, Briefcase, ShoppingBag, Search, Brain, ArrowRight, X
-} from 'lucide-react';
+import { ArrowRight, Loader as Loader2 } from 'lucide-react';
 import { useI18n } from '@/lib/i18n-context';
-
-const serviceNodes = [
-  {
-    id: 'web',
-    icon: Globe,
-    title: 'Web Development',
-    titleAr: 'تطوير المواقع',
-    description: 'High-performance web applications built with modern stacks.',
-    descriptionAr: 'تطبيقات ويب عالية الأداء بأحدث التقنيات.',
-    color: '#3b82f6',
-    slug: 'web-development',
-    angle: 0,
-  },
-  {
-    id: 'mobile',
-    icon: Smartphone,
-    title: 'Mobile Apps',
-    titleAr: 'تطبيقات الجوال',
-    description: 'Native and cross-platform mobile applications for iOS & Android.',
-    descriptionAr: 'تطبيقات الجوال الأصلية ومتعددة المنصات.',
-    color: '#10b981',
-    slug: 'mobile-app-development',
-    angle: 36,
-  },
-  {
-    id: 'systems',
-    icon: Settings,
-    title: 'Systems & Automation',
-    titleAr: 'الأنظمة والأتمتة',
-    description: 'Custom ERP, CRM, and workflow automation systems.',
-    descriptionAr: 'أنظمة ERP وCRM وأتمتة سير العمل.',
-    color: '#f5a623',
-    slug: 'systems-automation',
-    angle: 72,
-  },
-  {
-    id: 'uiux',
-    icon: Palette,
-    title: 'UI/UX Design',
-    titleAr: 'تصميم الواجهات',
-    description: 'Research-driven design systems that convert visitors into customers.',
-    descriptionAr: 'أنظمة تصميم تحوّل الزوار إلى عملاء.',
-    color: '#ec4899',
-    slug: 'ui-ux-design',
-    angle: 108,
-  },
-  {
-    id: 'bizdev',
-    icon: TrendingUp,
-    title: 'Business Development',
-    titleAr: 'تطوير الأعمال',
-    description: 'Strategic restructuring and business transformation services.',
-    descriptionAr: 'إعادة الهيكلة والتحول التجاري الاستراتيجي.',
-    color: '#a855f7',
-    slug: 'business-development',
-    angle: 144,
-  },
-  {
-    id: 'payment',
-    icon: CreditCard,
-    title: 'Payment Integration',
-    titleAr: 'بوابات الدفع',
-    description: 'Seamless payment gateways: Mada, Tabby, Tamara, Stripe.',
-    descriptionAr: 'بوابات دفع متكاملة: مدى، تابي، تمارا، سترايب.',
-    color: '#14b8a6',
-    slug: 'payment-integration',
-    angle: 180,
-  },
-  {
-    id: 'consulting',
-    icon: Briefcase,
-    title: 'Business Consulting',
-    titleAr: 'الاستشارات التجارية',
-    description: 'End-to-end business setup from legal structure to market entry.',
-    descriptionAr: 'تأسيس الأعمال من الهيكل القانوني إلى دخول السوق.',
-    color: '#f59e0b',
-    slug: 'business-consulting',
-    angle: 216,
-  },
-  {
-    id: 'ecommerce',
-    icon: ShoppingBag,
-    title: 'E-commerce (Salla)',
-    titleAr: 'متاجر سلة',
-    description: 'Full Salla store setup with custom themes and optimization.',
-    descriptionAr: 'إعداد متجر سلة كامل بقوالب مخصصة.',
-    color: '#06b6d4',
-    slug: 'ecommerce-salla',
-    angle: 252,
-  },
-  {
-    id: 'seo',
-    icon: Search,
-    title: 'SEO Optimization',
-    titleAr: 'تحسين محركات البحث',
-    description: 'Technical and content SEO that dominates Google rankings.',
-    descriptionAr: 'SEO تقني ومحتوى يتصدر نتائج جوجل.',
-    color: '#84cc16',
-    slug: 'seo-optimization',
-    angle: 288,
-  },
-  {
-    id: 'ai',
-    icon: Brain,
-    title: 'AI Solutions',
-    titleAr: 'حلول الذكاء الاصطناعي',
-    description: 'Custom AI integrations, chatbots, and machine learning systems.',
-    descriptionAr: 'تكاملات الذكاء الاصطناعي والروبوتات وأنظمة التعلم الآلي.',
-    color: '#f43f5e',
-    slug: 'ai-solutions',
-    angle: 324,
-  },
-];
+import { useCompanyServices } from '@/hooks/useCompanyServices';
+import { toEcosystemNode, type ServiceEcosystemNode } from '@/lib/services-fallback';
 
 function EcosystemSVG({
+  nodes,
   activeId,
   hoveredId,
   onHover,
   onLeave,
   onSelect,
-  isRTL,
 }: {
+  nodes: ServiceEcosystemNode[];
   activeId: string | null;
   hoveredId: string | null;
   onHover: (id: string) => void;
   onLeave: () => void;
   onSelect: (id: string) => void;
-  isRTL: boolean;
 }) {
   const centerX = 400;
   const centerY = 400;
   const orbitRadius = 280;
   const nodeRadius = 44;
 
-  const nodes = serviceNodes.map((s) => {
+  const positioned = nodes.map((s) => {
     const rad = (s.angle * Math.PI) / 180;
     return {
       ...s,
@@ -162,7 +48,7 @@ function EcosystemSVG({
           <stop offset="0%" stopColor="rgba(245,166,35,0.08)" />
           <stop offset="100%" stopColor="rgba(245,166,35,0)" />
         </radialGradient>
-        {serviceNodes.map((s) => (
+        {nodes.map((s) => (
           <radialGradient key={`grad-${s.id}`} id={`grad-${s.id}`} cx="50%" cy="50%" r="50%">
             <stop offset="0%" stopColor={s.color} stopOpacity="0.25" />
             <stop offset="100%" stopColor={s.color} stopOpacity="0.05" />
@@ -181,7 +67,7 @@ function EcosystemSVG({
         strokeDasharray="4 8"
       />
 
-      {nodes.map((node) => {
+      {positioned.map((node) => {
         const isActive = activeId === node.id || hoveredId === node.id;
         return (
           <line
@@ -198,7 +84,7 @@ function EcosystemSVG({
         );
       })}
 
-      {nodes.map((node) => {
+      {positioned.map((node) => {
         const isActive = activeId === node.id;
         const isHovered = hoveredId === node.id;
         const highlighted = isActive || isHovered;
@@ -243,10 +129,10 @@ function EcosystemSVG({
   );
 }
 
-function MobileServiceCard({ service, isRTL }: { service: typeof serviceNodes[0]; isRTL: boolean }) {
+function MobileServiceCard({ service, isRTL }: { service: ServiceEcosystemNode; isRTL: boolean }) {
   const Icon = service.icon;
   return (
-    <Link href={`/services/${service.slug}`}>
+    <Link href="/services">
       <div
         className="glass-card p-4 flex items-center gap-3 group hover:-translate-y-0.5 transition-all duration-200"
         style={{ borderColor: `${service.color}20` }}
@@ -277,6 +163,8 @@ function MobileServiceCard({ service, isRTL }: { service: typeof serviceNodes[0]
 export default function ServicesEcosystem() {
   const { t, locale } = useI18n();
   const isRTL = locale === 'ar';
+  const { services, loading } = useCompanyServices({ homepageOnly: true });
+  const serviceNodes = services.map(toEcosystemNode);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
@@ -287,6 +175,7 @@ export default function ServicesEcosystem() {
   const activeNode = serviceNodes.find((s) => s.id === activeId);
   const hoveredNode = serviceNodes.find((s) => s.id === hoveredId);
   const displayNode = activeNode || hoveredNode || null;
+  const DisplayIcon = displayNode?.icon;
 
   return (
     <section className="section-padding bg-navy-900 relative overflow-hidden" id="services">
@@ -310,6 +199,12 @@ export default function ServicesEcosystem() {
           <p className="text-slate-400 max-w-2xl mx-auto text-lg">{t.services.sub}</p>
         </div>
 
+        {loading ? (
+          <div className="flex justify-center py-16">
+            <Loader2 className="animate-spin text-brand-orange" size={32} />
+          </div>
+        ) : (
+        <>
         <div className="hidden lg:block">
           <div className="relative">
             <div className="grid lg:grid-cols-[1fr_auto_1fr] gap-8 items-center">
@@ -352,12 +247,12 @@ export default function ServicesEcosystem() {
 
               <div className="relative w-[420px] flex-shrink-0">
                 <EcosystemSVG
+                  nodes={serviceNodes}
                   activeId={activeId}
                   hoveredId={hoveredId}
                   onHover={setHoveredId}
                   onLeave={() => setHoveredId(null)}
                   onSelect={(id) => setActiveId(activeId === id ? null : id)}
-                  isRTL={effectiveRTL}
                 />
 
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -383,7 +278,7 @@ export default function ServicesEcosystem() {
                           className="w-7 h-7 rounded-lg flex items-center justify-center"
                           style={{ background: `${displayNode.color}20`, border: `1px solid ${displayNode.color}30` }}
                         >
-                          <displayNode.icon size={14} style={{ color: displayNode.color }} />
+                          {DisplayIcon && <DisplayIcon size={14} style={{ color: displayNode.color }} />}
                         </div>
                         <p className="text-white font-semibold text-sm">
                           {effectiveRTL ? displayNode.titleAr : displayNode.title}
@@ -442,6 +337,8 @@ export default function ServicesEcosystem() {
             <MobileServiceCard key={node.id} service={node} isRTL={effectiveRTL} />
           ))}
         </div>
+        </>
+        )}
 
         <div className="text-center mt-12">
           <Link href="/services" className="btn-primary text-base px-8 py-3.5">

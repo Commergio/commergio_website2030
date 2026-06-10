@@ -15,6 +15,7 @@ export const adminTranslations = {
     partners: 'Partners',
     signingVideos: 'Partnership Archive',
     products: 'Products',
+    services: 'Services',
 
     // Overview
     quickActions: 'Quick Actions',
@@ -22,6 +23,7 @@ export const adminTranslations = {
     createInvoice: 'Create Invoice',
     addProject: 'Add Project',
     addProduct: 'Add Product',
+    addService: 'Add Service',
     systemStatus: 'System Status',
     operational: 'Operational',
     database: 'Database',
@@ -30,6 +32,7 @@ export const adminTranslations = {
     storage: 'Storage',
     partnersCMS: 'Partners CMS',
     productsCMS: 'Products CMS',
+    servicesCMS: 'Services CMS',
 
     // Status badges
     statusNew: 'New',
@@ -102,6 +105,30 @@ export const adminTranslations = {
     featuredOnHomepage: 'Featured on homepage',
     update: 'Update',
     add: 'Add',
+
+    // Services
+    servicesTitle: 'Company Services',
+    servicesCount: '{count} service(s)',
+    addServiceBtn: 'Add Service',
+    noServicesYet: 'No services yet',
+    noServicesSub: 'Add services to display them on the website and homepage.',
+    editService: 'Edit Service',
+    serviceDetails: 'Service content, icon, and display settings',
+    serviceNameEn: 'Service Name (English) *',
+    serviceNameAr: 'Service Name (Arabic)',
+    serviceSlug: 'URL Slug',
+    serviceIcon: 'Icon',
+    serviceColor: 'Accent Color',
+    iconPreview: 'Icon preview',
+    benefitsEn: 'Key Benefits (English)',
+    benefitsAr: 'Key Benefits (Arabic)',
+    processEn: 'Process Steps (English)',
+    processAr: 'Process Steps (Arabic)',
+    onePerLine: 'One item per line',
+    ecosystemAngle: 'Homepage orbit angle (0–360)',
+    showOnHomepage: 'Show on homepage ecosystem',
+    onHomepage: 'Homepage',
+    serviceNameRequired: 'English service name is required.',
 
     // Partners
     partnersTitle: 'Partners',
@@ -196,6 +223,7 @@ export const adminTranslations = {
     partners: 'الشركاء',
     signingVideos: 'توثيق الشراكات',
     products: 'المنتجات',
+    services: 'الخدمات',
 
     // Overview
     quickActions: 'إجراءات سريعة',
@@ -203,6 +231,7 @@ export const adminTranslations = {
     createInvoice: 'إنشاء فاتورة',
     addProject: 'إضافة مشروع',
     addProduct: 'إضافة منتج',
+    addService: 'إضافة خدمة',
     systemStatus: 'حالة النظام',
     operational: 'يعمل',
     database: 'قاعدة البيانات',
@@ -211,6 +240,7 @@ export const adminTranslations = {
     storage: 'التخزين',
     partnersCMS: 'إدارة الشركاء',
     productsCMS: 'إدارة المنتجات',
+    servicesCMS: 'إدارة الخدمات',
 
     // Status badges
     statusNew: 'جديد',
@@ -283,6 +313,30 @@ export const adminTranslations = {
     featuredOnHomepage: 'مميز في الصفحة الرئيسية',
     update: 'تحديث',
     add: 'إضافة',
+
+    // Services
+    servicesTitle: 'خدمات الشركة',
+    servicesCount: '{count} خدمة',
+    addServiceBtn: 'إضافة خدمة',
+    noServicesYet: 'لا توجد خدمات بعد',
+    noServicesSub: 'أضف خدمات الشركة لعرضها في الموقع والصفحة الرئيسية.',
+    editService: 'تعديل الخدمة',
+    serviceDetails: 'محتوى الخدمة والأيقونة وإعدادات العرض',
+    serviceNameEn: 'اسم الخدمة (إنجليزي) *',
+    serviceNameAr: 'اسم الخدمة (عربي)',
+    serviceSlug: 'المسار (Slug)',
+    serviceIcon: 'الأيقونة',
+    serviceColor: 'لون التمييز',
+    iconPreview: 'معاينة الأيقونة',
+    benefitsEn: 'المزايا الرئيسية (إنجليزي)',
+    benefitsAr: 'المزايا الرئيسية (عربي)',
+    processEn: 'خطوات العمل (إنجليزي)',
+    processAr: 'خطوات العمل (عربي)',
+    onePerLine: 'عنصر واحد في كل سطر',
+    ecosystemAngle: 'زاوية العرض في الصفحة الرئيسية (0–360)',
+    showOnHomepage: 'إظهار في منظومة الصفحة الرئيسية',
+    onHomepage: 'الرئيسية',
+    serviceNameRequired: 'اسم الخدمة بالإنجليزية مطلوب.',
 
     // Partners
     partnersTitle: 'الشركاء',

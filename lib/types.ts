@@ -115,15 +115,26 @@ export interface Product {
   created_at: string;
 }
 
-export interface Service {
+export interface CompanyService {
   id: string;
   title: string;
   title_ar: string;
+  short_description: string;
+  short_description_ar: string;
   description: string;
   description_ar: string;
+  slug: string;
   icon: string;
+  color: string;
   category: string;
-  featured: boolean;
+  category_ar: string;
+  benefits: string[];
+  benefits_ar: string[];
+  process: string[];
+  process_ar: string[];
+  ecosystem_angle: number;
+  show_on_homepage: boolean;
+  is_published: boolean;
   display_order: number;
   created_at: string;
 }

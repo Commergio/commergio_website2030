@@ -7,7 +7,7 @@ import { BRAND_LOGO_HEIGHT } from '@/lib/brand';
 import {
   LayoutDashboard, MessageSquare, FileText, Briefcase, Receipt,
   Plus, CircleCheck as CheckCircle2, TrendingUp, Mail, Loader as Loader2,
-  X, Save, Globe, Package, Languages, LogOut, Film,
+  X, Save, Globe, Package, Languages, LogOut, Film, Layers,
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import type { ContactMessage, Invoice, InvoiceItem } from '@/lib/types';
@@ -15,6 +15,7 @@ import { AdminI18nProvider, useAdminI18n } from '@/lib/admin-i18n-context';
 import PartnersTab from '@/components/admin/PartnersTab';
 import PartnershipVideosTab from '@/components/admin/PartnershipVideosTab';
 import ProductsTab from '@/components/admin/ProductsTab';
+import ServicesTab from '@/components/admin/ServicesTab';
 import PortfolioAdminTab from '@/components/admin/PortfolioAdminTab';
 
 type Tab =
@@ -25,7 +26,8 @@ type Tab =
   | 'portfolio'
   | 'partners'
   | 'signingVideos'
-  | 'products';
+  | 'products'
+  | 'services';
 
 const ADMIN_EMAIL = 'info@commergio.com';
 const TEMP_BYPASS_ADMIN_AUTH = true;
@@ -93,6 +95,7 @@ function AdminDashboardInner() {
   const [stats, setStats] = useState({
   messages: 0,
   products: 0,
+  services: 0,
   partners: 0,
   invoices: 0,
 });
@@ -101,16 +104,18 @@ function AdminDashboardInner() {
   const [showInvoiceModal, setShowInvoiceModal] = useState(false);
 
   const fetchStats = async () => {
-    const [{ count: messagesCount }, { count: productsCount }, { count: partnersCount }, { count: invoicesCount }] =
+    const [{ count: messagesCount }, { count: productsCount }, { count: servicesCount }, { count: partnersCount }, { count: invoicesCount }] =
       await Promise.all([
         supabase.from('messages').select('*', { count: 'exact', head: true }),
         supabase.from('products').select('*', { count: 'exact', head: true }),
+        supabase.from('company_services').select('*', { count: 'exact', head: true }),
         supabase.from('partners').select('*', { count: 'exact', head: true }),
         supabase.from('invoices').select('*', { count: 'exact', head: true }),
       ]);
     setStats({
       messages: messagesCount || 0,
       products: productsCount || 0,
+      services: servicesCount || 0,
       partners: partnersCount || 0,
       invoices: invoicesCount || 0,
     });
@@ -180,6 +185,7 @@ const markMessageRead = async (id: string) => {
     { id: 'partners', labelKey: 'partners', icon: Globe },
     { id: 'signingVideos', labelKey: 'signingVideos', icon: Film },
     { id: 'products', labelKey: 'products', icon: Package },
+    { id: 'services', labelKey: 'services', icon: Layers },
   ] as const;
 
   return (
@@ -276,6 +282,7 @@ const markMessageRead = async (id: string) => {
         {tab === 'partners' && <PartnersTab />}
         {tab === 'signingVideos' && <PartnershipVideosTab />}
         {tab === 'products' && <ProductsTab />}
+        {tab === 'services' && <ServicesTab />}
       </div>
 
       {showInvoiceModal && (
@@ -309,7 +316,7 @@ const markMessageRead = async (id: string) => {
   );
 }
 
-function OverviewTab({ stats }: { stats: { messages: number; products: number; partners: number; invoices: number } }) {
+function OverviewTab({ stats }: { stats: { messages: number; products: number; services: number; partners: number; invoices: number } }) {
   const { t } = useAdminI18n();
 
   const statsData = [
@@ -319,6 +326,7 @@ function OverviewTab({ stats }: { stats: { messages: number; products: number; p
   { labelKey: 'portfolio', value: 0, icon: Briefcase, color: '#ec4899', bg: 'rgba(236,72,153,0.08)' },
   { labelKey: 'partners', value: stats.partners, icon: Globe, color: '#06b6d4', bg: 'rgba(6,182,212,0.08)' },
   { labelKey: 'products', value: stats.products, icon: Package, color: '#8b5cf6', bg: 'rgba(139,92,246,0.08)' },
+  { labelKey: 'services', value: stats.services, icon: Layers, color: '#0ea5e9', bg: 'rgba(14,165,233,0.08)' },
 ] as const;
 
   const quickActions = [
@@ -326,6 +334,7 @@ function OverviewTab({ stats }: { stats: { messages: number; products: number; p
     { labelKey: 'createInvoice', icon: Receipt, color: '#10b981' },
     { labelKey: 'addProject', icon: Briefcase, color: '#ec4899' },
     { labelKey: 'addProduct', icon: Package, color: '#8b5cf6' },
+    { labelKey: 'addService', icon: Layers, color: '#0ea5e9' },
   ] as const;
 
   const systemItems = [
