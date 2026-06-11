@@ -1,6 +1,9 @@
 /** Canonical brand logo (PNG, transparent background). */
 export const BRAND_LOGO_PATH = '/images/commergio-logo.png';
 
+/** Homepage hero visual (office / brand scene). */
+export const HERO_IMAGE_PATH = '/images/commergio-hero.jpg';
+
 export const BRAND_LOGO_URL = `https://commergio.com${BRAND_LOGO_PATH}`;
 
 /** Logo lockup width relative to height (horizontal mark + wordmark). */

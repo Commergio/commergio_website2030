@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { ArrowRight, ChevronLeft } from 'lucide-react';
 import { useI18n } from '@/lib/i18n-context';
-import { BRAND_LOGO_PATH, BRAND_LOGO_HEIGHT } from '@/lib/brand';
+import { HERO_IMAGE_PATH } from '@/lib/brand';
 import Image from 'next/image';
 
 export default function Hero() {
@@ -58,21 +58,21 @@ export default function Hero() {
           </div>
         </div>
 
-        {/* Image — responsive, no cropping */}
+        {/* Hero visual */}
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="w-full max-w-3xl mx-auto lg:max-w-none rounded-2xl shadow-lg bg-white p-2 sm:p-3 flex items-center justify-center"
+          className="w-full max-w-3xl mx-auto lg:max-w-none rounded-2xl overflow-hidden shadow-2xl shadow-slate-900/10 ring-1 ring-slate-200/60"
         >
           <Image
-            src={BRAND_LOGO_PATH}
-            alt="Commergio"
-            width={1200}
-            height={1050}
-            className="w-full h-auto max-h-[min(78vh,640px)] sm:max-h-[min(85vh,760px)] lg:max-h-[min(88vh,840px)] rounded-lg object-contain"
+            src={HERO_IMAGE_PATH}
+            alt="Commergio — Technology, Innovation, Growth"
+            width={1024}
+            height={682}
+            className="w-full h-auto object-cover"
             priority
-            style={{ maxHeight: BRAND_LOGO_HEIGHT.hero }}
+            sizes="(max-width: 1024px) 100vw, 55vw"
           />
         </motion.div>
 
