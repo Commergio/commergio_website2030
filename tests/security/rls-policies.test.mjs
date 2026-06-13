@@ -85,5 +85,5 @@ test('public CMS reads for draftable content only expose published rows', () => 
 
 test('CSP allows Supabase-hosted video playback', () => {
   const nextConfig = readFileSync(path.join(repoRoot, 'next.config.js'), 'utf8');
-  assert.match(nextConfig, /media-src[^"']*https:\/\/\*\.supabase\.co/);
+  assert.match(nextConfig, /media-src[^\n]*https:\/\/\*\.supabase\.co/);
 });
