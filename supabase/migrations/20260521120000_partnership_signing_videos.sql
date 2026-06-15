@@ -24,6 +24,14 @@ CREATE INDEX IF NOT EXISTS partnership_signing_videos_published_order_idx
 
 ALTER TABLE public.partnership_signing_videos ENABLE ROW LEVEL SECURITY;
 
+CREATE OR REPLACE FUNCTION public.is_commergio_admin()
+RETURNS boolean
+LANGUAGE sql
+STABLE
+AS $$
+  SELECT lower(coalesce(auth.jwt() ->> 'email', '')) = 'info@commergio.com';
+$$;
+
 DROP POLICY IF EXISTS "cms_signing_videos_select" ON public.partnership_signing_videos;
 DROP POLICY IF EXISTS "cms_signing_videos_insert" ON public.partnership_signing_videos;
 DROP POLICY IF EXISTS "cms_signing_videos_update" ON public.partnership_signing_videos;
@@ -32,23 +40,23 @@ DROP POLICY IF EXISTS "cms_signing_videos_delete" ON public.partnership_signing_
 CREATE POLICY "cms_signing_videos_select"
   ON public.partnership_signing_videos FOR SELECT
   TO anon, authenticated
-  USING (true);
+  USING (is_published = true OR public.is_commergio_admin());
 
 CREATE POLICY "cms_signing_videos_insert"
   ON public.partnership_signing_videos FOR INSERT
-  TO anon, authenticated
-  WITH CHECK (true);
+  TO authenticated
+  WITH CHECK (public.is_commergio_admin());
 
 CREATE POLICY "cms_signing_videos_update"
   ON public.partnership_signing_videos FOR UPDATE
-  TO anon, authenticated
-  USING (true)
-  WITH CHECK (true);
+  TO authenticated
+  USING (public.is_commergio_admin())
+  WITH CHECK (public.is_commergio_admin());
 
 CREATE POLICY "cms_signing_videos_delete"
   ON public.partnership_signing_videos FOR DELETE
-  TO anon, authenticated
-  USING (true);
+  TO authenticated
+  USING (public.is_commergio_admin());
 
 INSERT INTO storage.buckets (id, name, public)
 VALUES
@@ -71,28 +79,40 @@ CREATE POLICY "cms_storage_select"
 
 CREATE POLICY "cms_storage_insert"
   ON storage.objects FOR INSERT
-  TO anon, authenticated
-  WITH CHECK (bucket_id IN (
-    'portfolio-images', 'product-images', 'partner-logos',
-    'partnership-videos', 'partnership-thumbnails'
-  ));
+  TO authenticated
+  WITH CHECK (
+    public.is_commergio_admin()
+    AND bucket_id IN (
+      'portfolio-images', 'product-images', 'partner-logos',
+      'partnership-videos', 'partnership-thumbnails'
+    )
+  );
 
 CREATE POLICY "cms_storage_update"
   ON storage.objects FOR UPDATE
-  TO anon, authenticated
-  USING (bucket_id IN (
-    'portfolio-images', 'product-images', 'partner-logos',
-    'partnership-videos', 'partnership-thumbnails'
-  ))
-  WITH CHECK (bucket_id IN (
-    'portfolio-images', 'product-images', 'partner-logos',
-    'partnership-videos', 'partnership-thumbnails'
-  ));
+  TO authenticated
+  USING (
+    public.is_commergio_admin()
+    AND bucket_id IN (
+      'portfolio-images', 'product-images', 'partner-logos',
+      'partnership-videos', 'partnership-thumbnails'
+    )
+  )
+  WITH CHECK (
+    public.is_commergio_admin()
+    AND bucket_id IN (
+      'portfolio-images', 'product-images', 'partner-logos',
+      'partnership-videos', 'partnership-thumbnails'
+    )
+  );
 
 CREATE POLICY "cms_storage_delete"
   ON storage.objects FOR DELETE
-  TO anon, authenticated
-  USING (bucket_id IN (
-    'portfolio-images', 'product-images', 'partner-logos',
-    'partnership-videos', 'partnership-thumbnails'
-  ));
+  TO authenticated
+  USING (
+    public.is_commergio_admin()
+    AND bucket_id IN (
+      'portfolio-images', 'product-images', 'partner-logos',
+      'partnership-videos', 'partnership-thumbnails'
+    )
+  );
