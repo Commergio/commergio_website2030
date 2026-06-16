@@ -29,30 +29,45 @@ CREATE TABLE IF NOT EXISTS public.company_services (
 CREATE INDEX IF NOT EXISTS company_services_published_order_idx
   ON public.company_services (is_published, display_order);
 
+CREATE OR REPLACE FUNCTION public.is_commergio_admin()
+RETURNS boolean
+LANGUAGE sql
+STABLE
+AS $$
+  SELECT lower(coalesce(auth.jwt() ->> 'email', '')) = 'info@commergio.com';
+$$;
+
 ALTER TABLE public.company_services ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "cms_company_services_select" ON public.company_services;
+DROP POLICY IF EXISTS "cms_company_services_public_select" ON public.company_services;
+DROP POLICY IF EXISTS "cms_company_services_admin_select" ON public.company_services;
 DROP POLICY IF EXISTS "cms_company_services_insert" ON public.company_services;
 DROP POLICY IF EXISTS "cms_company_services_update" ON public.company_services;
 DROP POLICY IF EXISTS "cms_company_services_delete" ON public.company_services;
 
-CREATE POLICY "cms_company_services_select"
+CREATE POLICY "cms_company_services_public_select"
   ON public.company_services FOR SELECT
   TO anon, authenticated
-  USING (true);
+  USING (is_published = true);
+
+CREATE POLICY "cms_company_services_admin_select"
+  ON public.company_services FOR SELECT
+  TO authenticated
+  USING (public.is_commergio_admin());
 
 CREATE POLICY "cms_company_services_insert"
   ON public.company_services FOR INSERT
-  TO anon, authenticated
-  WITH CHECK (true);
+  TO authenticated
+  WITH CHECK (public.is_commergio_admin());
 
 CREATE POLICY "cms_company_services_update"
   ON public.company_services FOR UPDATE
-  TO anon, authenticated
-  USING (true)
-  WITH CHECK (true);
+  TO authenticated
+  USING (public.is_commergio_admin())
+  WITH CHECK (public.is_commergio_admin());
 
 CREATE POLICY "cms_company_services_delete"
   ON public.company_services FOR DELETE
-  TO anon, authenticated
-  USING (true);
+  TO authenticated
+  USING (public.is_commergio_admin());

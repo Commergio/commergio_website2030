@@ -30,7 +30,7 @@ type Tab =
   | 'services';
 
 const ADMIN_EMAIL = 'info@commergio.com';
-const TEMP_BYPASS_ADMIN_AUTH = true;
+const TEMP_BYPASS_ADMIN_AUTH = false;
 
 export default function AdminDashboard() {
   const [authed, setAuthed] = useState(false);
@@ -123,6 +123,7 @@ function AdminDashboardInner() {
 
 useEffect(() => {
   fetchMessages();
+  fetchInvoices();
   fetchStats();
 }, []);
 
