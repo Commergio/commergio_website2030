@@ -2,6 +2,14 @@
   Company services CMS — run in Supabase SQL Editor if not using CLI migrations.
 */
 
+CREATE OR REPLACE FUNCTION public.is_commergio_admin()
+RETURNS boolean
+LANGUAGE sql
+STABLE
+AS $$
+  SELECT lower(coalesce(auth.jwt() ->> 'email', '')) = 'info@commergio.com';
+$$;
+
 CREATE TABLE IF NOT EXISTS public.company_services (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   title text NOT NULL DEFAULT '',
@@ -35,24 +43,31 @@ DROP POLICY IF EXISTS "cms_company_services_select" ON public.company_services;
 DROP POLICY IF EXISTS "cms_company_services_insert" ON public.company_services;
 DROP POLICY IF EXISTS "cms_company_services_update" ON public.company_services;
 DROP POLICY IF EXISTS "cms_company_services_delete" ON public.company_services;
+DROP POLICY IF EXISTS "public_company_services_select" ON public.company_services;
+DROP POLICY IF EXISTS "admin_company_services_select" ON public.company_services;
 
-CREATE POLICY "cms_company_services_select"
+CREATE POLICY "public_company_services_select"
   ON public.company_services FOR SELECT
   TO anon, authenticated
-  USING (true);
+  USING (is_published = true);
+
+CREATE POLICY "admin_company_services_select"
+  ON public.company_services FOR SELECT
+  TO authenticated
+  USING (public.is_commergio_admin());
 
 CREATE POLICY "cms_company_services_insert"
   ON public.company_services FOR INSERT
-  TO anon, authenticated
-  WITH CHECK (true);
+  TO authenticated
+  WITH CHECK (public.is_commergio_admin());
 
 CREATE POLICY "cms_company_services_update"
   ON public.company_services FOR UPDATE
-  TO anon, authenticated
-  USING (true)
-  WITH CHECK (true);
+  TO authenticated
+  USING (public.is_commergio_admin())
+  WITH CHECK (public.is_commergio_admin());
 
 CREATE POLICY "cms_company_services_delete"
   ON public.company_services FOR DELETE
-  TO anon, authenticated
-  USING (true);
+  TO authenticated
+  USING (public.is_commergio_admin());
