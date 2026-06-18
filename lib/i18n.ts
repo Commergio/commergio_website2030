@@ -266,6 +266,7 @@ const baseTranslations = {
       errName: 'Please enter your full name.',
       errEmail: 'Please enter a valid email address.',
       errMessage: 'Message is too long (max 4000 characters).',
+      errSubmit: 'We could not submit your project brief. Please try again or contact us on WhatsApp.',
       services: [
         'Website Development',
         'E-commerce (Salla)',
@@ -576,6 +577,7 @@ const baseTranslations = {
       errName: 'يرجى إدخال الاسم الكامل.',
       errEmail: 'يرجى إدخال بريد إلكتروني صالح.',
       errMessage: 'الرسالة طويلة جداً (الحد 4000 حرف).',
+      errSubmit: 'تعذر إرسال ملخص المشروع. يرجى المحاولة مرة أخرى أو التواصل معنا عبر واتساب.',
       services: [
         'تطوير المواقع',
         'التجارة الإلكترونية (سلة)',
