@@ -1,11 +1,10 @@
 /*
-  # CMS public reads and admin-only mutations
+  # Lock down CMS/admin policies
 
-  The Next.js app uses the Supabase anon key in the browser. Row Level Security
-  must allow public reads/submissions while restricting admin data and mutations
-  to the authorized Supabase account.
-
-  Requires tables: products, partners, portfolio_projects, messages, invoices
+  A previous migration allowed anonymous users with the browser anon key to read
+  private admin data and mutate CMS tables/storage. Preserve public site reads and
+  form submissions, but require the authorized admin account for private reads and
+  all admin mutations.
 */
 
 -- ---------- PRODUCTS ----------
@@ -182,14 +181,7 @@ CREATE POLICY "cms_project_leads_delete"
   TO authenticated
   USING (lower(auth.jwt() ->> 'email') = 'info@commergio.com');
 
--- ---------- STORAGE: buckets + object policies ----------
-INSERT INTO storage.buckets (id, name, public)
-VALUES
-  ('portfolio-images', 'portfolio-images', true),
-  ('product-images', 'product-images', true),
-  ('partner-logos', 'partner-logos', true)
-ON CONFLICT (id) DO UPDATE SET public = EXCLUDED.public;
-
+-- ---------- STORAGE ----------
 DROP POLICY IF EXISTS "cms_storage_select" ON storage.objects;
 DROP POLICY IF EXISTS "cms_storage_insert" ON storage.objects;
 DROP POLICY IF EXISTS "cms_storage_update" ON storage.objects;
