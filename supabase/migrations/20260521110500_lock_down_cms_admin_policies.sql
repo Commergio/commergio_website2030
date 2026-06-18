@@ -1,11 +1,10 @@
 /*
-  # CMS public reads and authenticated admin writes
+  # Lock down CMS/admin policies
 
-  The Next.js app uses the Supabase anon key in the browser. Row Level Security
-  allows anon users to read public content and submit public forms. Admin-only
-  reads of private data and all CMS mutations require the Commergio admin user.
-
-  Requires tables: products, partners, portfolio_projects, messages, invoices
+  Removes the temporary anonymous CMS write/read policies from already-migrated
+  databases. Public pages keep read access to products, partners, and portfolio
+  projects, and public forms keep insert access to messages and project leads.
+  Private data reads and all admin mutations require the Commergio admin user.
 */
 
 -- ---------- PRODUCTS ----------
@@ -156,8 +155,18 @@ CREATE POLICY "cms_invoices_delete"
 -- ---------- PROJECT LEADS ----------
 ALTER TABLE public.project_leads ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Anyone can submit a lead" ON public.project_leads;
+DROP POLICY IF EXISTS "Authenticated users can view leads" ON public.project_leads;
+DROP POLICY IF EXISTS "Authenticated users can update leads" ON public.project_leads;
+DROP POLICY IF EXISTS "Authenticated users can delete leads" ON public.project_leads;
 DROP POLICY IF EXISTS "cms_project_leads_select" ON public.project_leads;
 DROP POLICY IF EXISTS "cms_project_leads_update" ON public.project_leads;
+DROP POLICY IF EXISTS "cms_project_leads_delete" ON public.project_leads;
+
+CREATE POLICY "Anyone can submit a lead"
+  ON public.project_leads FOR INSERT
+  TO anon, authenticated
+  WITH CHECK (true);
 
 CREATE POLICY "cms_project_leads_select"
   ON public.project_leads FOR SELECT
@@ -170,7 +179,12 @@ CREATE POLICY "cms_project_leads_update"
   USING (lower(auth.jwt() ->> 'email') = 'info@commergio.com')
   WITH CHECK (lower(auth.jwt() ->> 'email') = 'info@commergio.com');
 
--- ---------- STORAGE: buckets + object policies ----------
+CREATE POLICY "cms_project_leads_delete"
+  ON public.project_leads FOR DELETE
+  TO authenticated
+  USING (lower(auth.jwt() ->> 'email') = 'info@commergio.com');
+
+-- ---------- STORAGE ----------
 INSERT INTO storage.buckets (id, name, public)
 VALUES
   ('portfolio-images', 'portfolio-images', true),
