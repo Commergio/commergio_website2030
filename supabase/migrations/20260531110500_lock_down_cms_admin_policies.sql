@@ -1,11 +1,8 @@
 /*
-  # CMS public access for published site data and admin-only mutations
+  Lock down CMS/private data policies that were previously opened to the anon key.
 
-  The Next.js app uses the Supabase anon key in the browser. Row Level Security
-  must allow anon to read public content and submit public forms, while private
-  data and CMS mutations require the authenticated admin account.
-
-  Requires tables: products, partners, portfolio_projects, messages, invoices
+  Public visitors may still read site content and submit forms. Private records,
+  CMS mutations, and storage writes require the authenticated admin account.
 */
 
 -- ---------- PRODUCTS ----------
@@ -156,29 +153,76 @@ CREATE POLICY "cms_invoices_delete"
 -- ---------- PROJECT LEADS ----------
 ALTER TABLE public.project_leads ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Anyone can submit a lead" ON public.project_leads;
+DROP POLICY IF EXISTS "Authenticated users can view leads" ON public.project_leads;
+DROP POLICY IF EXISTS "Authenticated users can update leads" ON public.project_leads;
+DROP POLICY IF EXISTS "Authenticated users can delete leads" ON public.project_leads;
+DROP POLICY IF EXISTS "Authenticated admin can view leads" ON public.project_leads;
+DROP POLICY IF EXISTS "Authenticated admin can update leads" ON public.project_leads;
+DROP POLICY IF EXISTS "Authenticated admin can delete leads" ON public.project_leads;
 DROP POLICY IF EXISTS "cms_project_leads_select" ON public.project_leads;
 DROP POLICY IF EXISTS "cms_project_leads_update" ON public.project_leads;
 
-CREATE POLICY "cms_project_leads_select"
+CREATE POLICY "Anyone can submit a lead"
+  ON public.project_leads FOR INSERT
+  TO anon, authenticated
+  WITH CHECK (true);
+
+CREATE POLICY "Authenticated admin can view leads"
   ON public.project_leads FOR SELECT
   TO authenticated
   USING (lower(auth.jwt() ->> 'email') = 'info@commergio.com');
 
-CREATE POLICY "cms_project_leads_update"
+CREATE POLICY "Authenticated admin can update leads"
   ON public.project_leads FOR UPDATE
   TO authenticated
   USING (lower(auth.jwt() ->> 'email') = 'info@commergio.com')
   WITH CHECK (lower(auth.jwt() ->> 'email') = 'info@commergio.com');
 
--- ---------- STORAGE: buckets + object policies ----------
-INSERT INTO storage.buckets (id, name, public)
-VALUES
-  ('portfolio-images', 'portfolio-images', true),
-  ('product-images', 'product-images', true),
-  ('partner-logos', 'partner-logos', true)
-ON CONFLICT (id) DO UPDATE SET public = EXCLUDED.public;
+CREATE POLICY "Authenticated admin can delete leads"
+  ON public.project_leads FOR DELETE
+  TO authenticated
+  USING (lower(auth.jwt() ->> 'email') = 'info@commergio.com');
 
+-- ---------- PARTNERSHIP SIGNING VIDEOS ----------
+ALTER TABLE public.partnership_signing_videos ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "cms_signing_videos_select" ON public.partnership_signing_videos;
+DROP POLICY IF EXISTS "public_signing_videos_select" ON public.partnership_signing_videos;
+DROP POLICY IF EXISTS "admin_signing_videos_select" ON public.partnership_signing_videos;
+DROP POLICY IF EXISTS "cms_signing_videos_insert" ON public.partnership_signing_videos;
+DROP POLICY IF EXISTS "cms_signing_videos_update" ON public.partnership_signing_videos;
+DROP POLICY IF EXISTS "cms_signing_videos_delete" ON public.partnership_signing_videos;
+
+CREATE POLICY "public_signing_videos_select"
+  ON public.partnership_signing_videos FOR SELECT
+  TO anon, authenticated
+  USING (is_published = true);
+
+CREATE POLICY "admin_signing_videos_select"
+  ON public.partnership_signing_videos FOR SELECT
+  TO authenticated
+  USING (lower(auth.jwt() ->> 'email') = 'info@commergio.com');
+
+CREATE POLICY "cms_signing_videos_insert"
+  ON public.partnership_signing_videos FOR INSERT
+  TO authenticated
+  WITH CHECK (lower(auth.jwt() ->> 'email') = 'info@commergio.com');
+
+CREATE POLICY "cms_signing_videos_update"
+  ON public.partnership_signing_videos FOR UPDATE
+  TO authenticated
+  USING (lower(auth.jwt() ->> 'email') = 'info@commergio.com')
+  WITH CHECK (lower(auth.jwt() ->> 'email') = 'info@commergio.com');
+
+CREATE POLICY "cms_signing_videos_delete"
+  ON public.partnership_signing_videos FOR DELETE
+  TO authenticated
+  USING (lower(auth.jwt() ->> 'email') = 'info@commergio.com');
+
+-- ---------- STORAGE OBJECTS ----------
 DROP POLICY IF EXISTS "cms_storage_select" ON storage.objects;
+DROP POLICY IF EXISTS "cms_storage_admin_select" ON storage.objects;
 DROP POLICY IF EXISTS "cms_storage_insert" ON storage.objects;
 DROP POLICY IF EXISTS "cms_storage_update" ON storage.objects;
 DROP POLICY IF EXISTS "cms_storage_delete" ON storage.objects;
@@ -188,11 +232,25 @@ CREATE POLICY "cms_storage_select"
   TO anon, authenticated
   USING (bucket_id IN ('portfolio-images', 'product-images', 'partner-logos'));
 
+CREATE POLICY "cms_storage_admin_select"
+  ON storage.objects FOR SELECT
+  TO authenticated
+  USING (
+    bucket_id IN (
+      'portfolio-images', 'product-images', 'partner-logos',
+      'partnership-videos', 'partnership-thumbnails'
+    )
+    AND lower(auth.jwt() ->> 'email') = 'info@commergio.com'
+  );
+
 CREATE POLICY "cms_storage_insert"
   ON storage.objects FOR INSERT
   TO authenticated
   WITH CHECK (
-    bucket_id IN ('portfolio-images', 'product-images', 'partner-logos')
+    bucket_id IN (
+      'portfolio-images', 'product-images', 'partner-logos',
+      'partnership-videos', 'partnership-thumbnails'
+    )
     AND lower(auth.jwt() ->> 'email') = 'info@commergio.com'
   );
 
@@ -200,11 +258,17 @@ CREATE POLICY "cms_storage_update"
   ON storage.objects FOR UPDATE
   TO authenticated
   USING (
-    bucket_id IN ('portfolio-images', 'product-images', 'partner-logos')
+    bucket_id IN (
+      'portfolio-images', 'product-images', 'partner-logos',
+      'partnership-videos', 'partnership-thumbnails'
+    )
     AND lower(auth.jwt() ->> 'email') = 'info@commergio.com'
   )
   WITH CHECK (
-    bucket_id IN ('portfolio-images', 'product-images', 'partner-logos')
+    bucket_id IN (
+      'portfolio-images', 'product-images', 'partner-logos',
+      'partnership-videos', 'partnership-thumbnails'
+    )
     AND lower(auth.jwt() ->> 'email') = 'info@commergio.com'
   );
 
@@ -212,6 +276,9 @@ CREATE POLICY "cms_storage_delete"
   ON storage.objects FOR DELETE
   TO authenticated
   USING (
-    bucket_id IN ('portfolio-images', 'product-images', 'partner-logos')
+    bucket_id IN (
+      'portfolio-images', 'product-images', 'partner-logos',
+      'partnership-videos', 'partnership-thumbnails'
+    )
     AND lower(auth.jwt() ->> 'email') = 'info@commergio.com'
   );
