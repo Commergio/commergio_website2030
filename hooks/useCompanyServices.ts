@@ -30,7 +30,7 @@ export function useCompanyServices(options: Options = {}) {
 
       const { data, error } = await query;
 
-      if (!error && data && data.length > 0) {
+      if (!error && data) {
         setServices(data.map((row) => normalizeCompanyService(row as Record<string, unknown>)));
         setFromDatabase(true);
       } else {

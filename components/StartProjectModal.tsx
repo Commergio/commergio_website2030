@@ -65,17 +65,24 @@ export default function StartProjectModal({ onClose, defaultService = '', source
       return;
     }
     setSaving(true);
-    await supabase.from('project_leads').insert([
-      {
-        ...form,
-        name: form.name.trim(),
-        email: form.email.trim().toLowerCase(),
-        message: form.message.trim(),
-        source,
-      },
-    ]);
-    setSaving(false);
-    setDone(true);
+    try {
+      const { error } = await supabase.from('project_leads').insert([
+        {
+          ...form,
+          name: form.name.trim(),
+          email: form.email.trim().toLowerCase(),
+          message: form.message.trim(),
+          source,
+        },
+      ]);
+      if (error) throw error;
+      setDone(true);
+    } catch (err) {
+      console.error('Project lead submission failed:', err);
+      setFormError(m.errSubmit);
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
