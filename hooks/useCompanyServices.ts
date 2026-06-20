@@ -30,15 +30,15 @@ export function useCompanyServices(options: Options = {}) {
 
       const { data, error } = await query;
 
-      if (!error && data && data.length > 0) {
-        setServices(data.map((row) => normalizeCompanyService(row as Record<string, unknown>)));
-        setFromDatabase(true);
-      } else {
+      if (error) {
         let fallback = [...FALLBACK_COMPANY_SERVICES];
         if (publishedOnly) fallback = fallback.filter((s) => s.is_published);
         if (homepageOnly) fallback = fallback.filter((s) => s.show_on_homepage);
         setServices(fallback);
         setFromDatabase(false);
+      } else {
+        setServices((data ?? []).map((row) => normalizeCompanyService(row as Record<string, unknown>)));
+        setFromDatabase(true);
       }
       setLoading(false);
     };
