@@ -20,7 +20,7 @@ const securityHeaders = [
       "img-src 'self' data: blob: https: http:",
       "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://maps.googleapis.com",
       "frame-src https://www.google.com https://maps.google.com",
-      "media-src 'self'",
+      "media-src 'self' https://*.supabase.co",
     ].join('; '),
   },
 ];
