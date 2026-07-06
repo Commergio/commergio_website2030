@@ -1,11 +1,6 @@
 /*
-  # CMS RLS for public site reads and authenticated admin writes
-
-  The Next.js app uses the Supabase anon key in the browser. Public visitors may
-  read site content and submit forms, but private admin data and CMS mutations
-  must be limited to the Commergio admin account.
-
-  Requires tables: products, partners, portfolio_projects, messages, invoices
+  Lock down CMS/admin policies that previously allowed anonymous browser-key
+  access to private data and CMS mutations.
 */
 
 CREATE OR REPLACE FUNCTION public.is_commergio_admin()
@@ -18,9 +13,30 @@ AS $$
   SELECT lower(coalesce(auth.jwt() ->> 'email', '')) = 'info@commergio.com';
 $$;
 
--- ---------- PRODUCTS ----------
-ALTER TABLE public.products ENABLE ROW LEVEL SECURITY;
+-- ---------- PROJECT LEADS ----------
+DROP POLICY IF EXISTS "Authenticated users can view leads" ON public.project_leads;
+DROP POLICY IF EXISTS "Authenticated users can update leads" ON public.project_leads;
+DROP POLICY IF EXISTS "Authenticated users can delete leads" ON public.project_leads;
+DROP POLICY IF EXISTS "cms_project_leads_select" ON public.project_leads;
+DROP POLICY IF EXISTS "cms_project_leads_update" ON public.project_leads;
 
+CREATE POLICY "Authenticated users can view leads"
+  ON public.project_leads FOR SELECT
+  TO authenticated
+  USING (public.is_commergio_admin());
+
+CREATE POLICY "Authenticated users can update leads"
+  ON public.project_leads FOR UPDATE
+  TO authenticated
+  USING (public.is_commergio_admin())
+  WITH CHECK (public.is_commergio_admin());
+
+CREATE POLICY "Authenticated users can delete leads"
+  ON public.project_leads FOR DELETE
+  TO authenticated
+  USING (public.is_commergio_admin());
+
+-- ---------- PRODUCTS ----------
 DROP POLICY IF EXISTS "cms_products_select" ON public.products;
 DROP POLICY IF EXISTS "cms_products_insert" ON public.products;
 DROP POLICY IF EXISTS "cms_products_update" ON public.products;
@@ -48,8 +64,6 @@ CREATE POLICY "cms_products_delete"
   USING (public.is_commergio_admin());
 
 -- ---------- PARTNERS ----------
-ALTER TABLE public.partners ENABLE ROW LEVEL SECURITY;
-
 DROP POLICY IF EXISTS "cms_partners_select" ON public.partners;
 DROP POLICY IF EXISTS "cms_partners_insert" ON public.partners;
 DROP POLICY IF EXISTS "cms_partners_update" ON public.partners;
@@ -77,8 +91,6 @@ CREATE POLICY "cms_partners_delete"
   USING (public.is_commergio_admin());
 
 -- ---------- PORTFOLIO ----------
-ALTER TABLE public.portfolio_projects ENABLE ROW LEVEL SECURITY;
-
 DROP POLICY IF EXISTS "cms_portfolio_select" ON public.portfolio_projects;
 DROP POLICY IF EXISTS "cms_portfolio_insert" ON public.portfolio_projects;
 DROP POLICY IF EXISTS "cms_portfolio_update" ON public.portfolio_projects;
@@ -106,8 +118,6 @@ CREATE POLICY "cms_portfolio_delete"
   USING (public.is_commergio_admin());
 
 -- ---------- CONTACT MESSAGES ----------
-ALTER TABLE public.messages ENABLE ROW LEVEL SECURITY;
-
 DROP POLICY IF EXISTS "cms_messages_select" ON public.messages;
 DROP POLICY IF EXISTS "cms_messages_insert" ON public.messages;
 DROP POLICY IF EXISTS "cms_messages_update" ON public.messages;
@@ -135,8 +145,6 @@ CREATE POLICY "cms_messages_delete"
   USING (public.is_commergio_admin());
 
 -- ---------- INVOICES ----------
-ALTER TABLE public.invoices ENABLE ROW LEVEL SECURITY;
-
 DROP POLICY IF EXISTS "cms_invoices_select" ON public.invoices;
 DROP POLICY IF EXISTS "cms_invoices_insert" ON public.invoices;
 DROP POLICY IF EXISTS "cms_invoices_update" ON public.invoices;
@@ -163,31 +171,61 @@ CREATE POLICY "cms_invoices_delete"
   TO authenticated
   USING (public.is_commergio_admin());
 
--- ---------- PROJECT LEADS ----------
-ALTER TABLE public.project_leads ENABLE ROW LEVEL SECURITY;
+-- ---------- PARTNERSHIP SIGNING VIDEOS ----------
+DROP POLICY IF EXISTS "cms_signing_videos_select" ON public.partnership_signing_videos;
+DROP POLICY IF EXISTS "cms_signing_videos_insert" ON public.partnership_signing_videos;
+DROP POLICY IF EXISTS "cms_signing_videos_update" ON public.partnership_signing_videos;
+DROP POLICY IF EXISTS "cms_signing_videos_delete" ON public.partnership_signing_videos;
 
-DROP POLICY IF EXISTS "cms_project_leads_select" ON public.project_leads;
-DROP POLICY IF EXISTS "cms_project_leads_update" ON public.project_leads;
+CREATE POLICY "cms_signing_videos_select"
+  ON public.partnership_signing_videos FOR SELECT
+  TO anon, authenticated
+  USING (is_published = true OR public.is_commergio_admin());
 
-CREATE POLICY "cms_project_leads_select"
-  ON public.project_leads FOR SELECT
+CREATE POLICY "cms_signing_videos_insert"
+  ON public.partnership_signing_videos FOR INSERT
   TO authenticated
-  USING (public.is_commergio_admin());
+  WITH CHECK (public.is_commergio_admin());
 
-CREATE POLICY "cms_project_leads_update"
-  ON public.project_leads FOR UPDATE
+CREATE POLICY "cms_signing_videos_update"
+  ON public.partnership_signing_videos FOR UPDATE
   TO authenticated
   USING (public.is_commergio_admin())
   WITH CHECK (public.is_commergio_admin());
 
--- ---------- STORAGE: buckets + object policies ----------
-INSERT INTO storage.buckets (id, name, public)
-VALUES
-  ('portfolio-images', 'portfolio-images', true),
-  ('product-images', 'product-images', true),
-  ('partner-logos', 'partner-logos', true)
-ON CONFLICT (id) DO UPDATE SET public = EXCLUDED.public;
+CREATE POLICY "cms_signing_videos_delete"
+  ON public.partnership_signing_videos FOR DELETE
+  TO authenticated
+  USING (public.is_commergio_admin());
 
+-- ---------- COMPANY SERVICES ----------
+DROP POLICY IF EXISTS "cms_company_services_select" ON public.company_services;
+DROP POLICY IF EXISTS "cms_company_services_insert" ON public.company_services;
+DROP POLICY IF EXISTS "cms_company_services_update" ON public.company_services;
+DROP POLICY IF EXISTS "cms_company_services_delete" ON public.company_services;
+
+CREATE POLICY "cms_company_services_select"
+  ON public.company_services FOR SELECT
+  TO anon, authenticated
+  USING (is_published = true OR public.is_commergio_admin());
+
+CREATE POLICY "cms_company_services_insert"
+  ON public.company_services FOR INSERT
+  TO authenticated
+  WITH CHECK (public.is_commergio_admin());
+
+CREATE POLICY "cms_company_services_update"
+  ON public.company_services FOR UPDATE
+  TO authenticated
+  USING (public.is_commergio_admin())
+  WITH CHECK (public.is_commergio_admin());
+
+CREATE POLICY "cms_company_services_delete"
+  ON public.company_services FOR DELETE
+  TO authenticated
+  USING (public.is_commergio_admin());
+
+-- ---------- STORAGE ----------
 DROP POLICY IF EXISTS "cms_storage_select" ON storage.objects;
 DROP POLICY IF EXISTS "cms_storage_insert" ON storage.objects;
 DROP POLICY IF EXISTS "cms_storage_update" ON storage.objects;
@@ -196,14 +234,23 @@ DROP POLICY IF EXISTS "cms_storage_delete" ON storage.objects;
 CREATE POLICY "cms_storage_select"
   ON storage.objects FOR SELECT
   TO anon, authenticated
-  USING (bucket_id IN ('portfolio-images', 'product-images', 'partner-logos'));
+  USING (
+    bucket_id IN ('portfolio-images', 'product-images', 'partner-logos')
+    OR (
+      public.is_commergio_admin()
+      AND bucket_id IN ('partnership-videos', 'partnership-thumbnails')
+    )
+  );
 
 CREATE POLICY "cms_storage_insert"
   ON storage.objects FOR INSERT
   TO authenticated
   WITH CHECK (
     public.is_commergio_admin()
-    AND bucket_id IN ('portfolio-images', 'product-images', 'partner-logos')
+    AND bucket_id IN (
+      'portfolio-images', 'product-images', 'partner-logos',
+      'partnership-videos', 'partnership-thumbnails'
+    )
   );
 
 CREATE POLICY "cms_storage_update"
@@ -211,11 +258,17 @@ CREATE POLICY "cms_storage_update"
   TO authenticated
   USING (
     public.is_commergio_admin()
-    AND bucket_id IN ('portfolio-images', 'product-images', 'partner-logos')
+    AND bucket_id IN (
+      'portfolio-images', 'product-images', 'partner-logos',
+      'partnership-videos', 'partnership-thumbnails'
+    )
   )
   WITH CHECK (
     public.is_commergio_admin()
-    AND bucket_id IN ('portfolio-images', 'product-images', 'partner-logos')
+    AND bucket_id IN (
+      'portfolio-images', 'product-images', 'partner-logos',
+      'partnership-videos', 'partnership-thumbnails'
+    )
   );
 
 CREATE POLICY "cms_storage_delete"
@@ -223,5 +276,8 @@ CREATE POLICY "cms_storage_delete"
   TO authenticated
   USING (
     public.is_commergio_admin()
-    AND bucket_id IN ('portfolio-images', 'product-images', 'partner-logos')
+    AND bucket_id IN (
+      'portfolio-images', 'product-images', 'partner-logos',
+      'partnership-videos', 'partnership-thumbnails'
+    )
   );

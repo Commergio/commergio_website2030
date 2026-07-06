@@ -65,7 +65,7 @@ export default function StartProjectModal({ onClose, defaultService = '', source
       return;
     }
     setSaving(true);
-    await supabase.from('project_leads').insert([
+    const { error } = await supabase.from('project_leads').insert([
       {
         ...form,
         name: form.name.trim(),
@@ -75,6 +75,13 @@ export default function StartProjectModal({ onClose, defaultService = '', source
       },
     ]);
     setSaving(false);
+
+    if (error) {
+      console.error('project_leads insert:', error.message);
+      setFormError(m.errSubmit);
+      return;
+    }
+
     setDone(true);
   };
 
