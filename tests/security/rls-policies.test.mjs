@@ -24,7 +24,11 @@ const policyStatements = allSql
   .filter((statement) => /^CREATE\s+POLICY\b/i.test(statement));
 
 for (const statement of policyStatements) {
-  const table = statement.match(/\bON\s+((?:public|storage)\.\w+)/i)?.[1] ?? '';
+  const rawTable = statement.match(/\bON\s+((?:(?:public|storage)\.)?\w+)/i)?.[1] ?? '';
+  const table =
+    rawTable && !rawTable.includes('.') && rawTable !== 'objects'
+      ? `public.${rawTable}`
+      : rawTable;
   const operation = statement.match(/\bFOR\s+(SELECT|INSERT|UPDATE|DELETE)\b/i)?.[1]?.toUpperCase() ?? '';
   const targetsAnon = /\bTO\s+[^;]*\banon\b/i.test(statement);
 
