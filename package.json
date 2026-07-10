@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test:forms": "node tests/forms/start-project-modal-submit.test.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
