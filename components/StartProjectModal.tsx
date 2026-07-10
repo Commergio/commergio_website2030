@@ -65,17 +65,26 @@ export default function StartProjectModal({ onClose, defaultService = '', source
       return;
     }
     setSaving(true);
-    await supabase.from('project_leads').insert([
-      {
-        ...form,
-        name: form.name.trim(),
-        email: form.email.trim().toLowerCase(),
-        message: form.message.trim(),
-        source,
-      },
-    ]);
-    setSaving(false);
-    setDone(true);
+    setFormError('');
+
+    try {
+      const { error } = await supabase.from('project_leads').insert([
+        {
+          ...form,
+          name: form.name.trim(),
+          email: form.email.trim().toLowerCase(),
+          message: form.message.trim(),
+          source,
+        },
+      ]);
+      if (error) throw error;
+      setDone(true);
+    } catch (error) {
+      console.error('project_leads insert:', error);
+      setFormError(m.errSubmit);
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (

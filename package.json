@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "test:security": "node tests/security/rls-policies.test.mjs",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test:forms": "node tests/forms/start-project-modal-submit.test.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
