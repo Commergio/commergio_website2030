@@ -23,8 +23,7 @@ assert.match(
 
 function policy(name) {
   const pattern = new RegExp(
-    `CREATE POLICY "${name}"[\\s\\S]*?(?=\\n\\n(?:CREATE POLICY|DROP POLICY|ALTER TABLE|INSERT INTO|--)|$)`,
-    'm'
+    `CREATE POLICY "${name}"[\\s\\S]*?(?=\\n\\n(?:CREATE POLICY|DROP POLICY|ALTER TABLE|INSERT INTO|--)|$)`
   );
   const match = remediation.match(pattern);
   assert(match, `missing policy ${name}`);
