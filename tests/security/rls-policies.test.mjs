@@ -10,6 +10,13 @@ assert(
   'temporary admin auth bypass must not be enabled'
 );
 
+const nextConfig = readFileSync(join(root, 'next.config.js'), 'utf8');
+assert.match(
+  nextConfig,
+  /media-src 'self' https:\/\/\*\.supabase\.co/,
+  'CSP media-src must allow videos served from Supabase storage'
+);
+
 const remediation = readFileSync(
   join(root, 'supabase/migrations/20260601121000_lock_down_cms_admin_policies.sql'),
   'utf8'
