@@ -150,13 +150,26 @@ const fetchMessages = async () => {
   }
 };
 const fetchInvoices = async () => {
-  setLoading(true);
-  const { data } = await supabase
-    .from('invoices')
-    .select('*')
-    .order('created_at', { ascending: false });
-  setInvoices(data || []);
-  setLoading(false);
+  try {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from('invoices')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Fetch invoices error:', error.message);
+      setInvoices([]);
+      return;
+    }
+
+    setInvoices(data ?? []);
+  } catch (err) {
+    console.error('Unexpected invoices error:', err);
+    setInvoices([]);
+  } finally {
+    setLoading(false);
+  }
 };
 
 const markMessageRead = async (id: string) => {
@@ -274,7 +287,7 @@ const markMessageRead = async (id: string) => {
     invoices={invoices}
     loading={loading}
     onNew={() => setShowInvoiceModal(true)}
-    onRefresh={() => {}}
+    onRefresh={fetchInvoices}
   />
 )}
         {tab === 'blog' && <BlogTab />}
@@ -470,6 +483,12 @@ function InvoicesTab({ invoices, loading, onNew, onRefresh }: {
 }) {
   const { t, isRTL } = useAdminI18n();
 
+  useEffect(() => {
+    onRefresh();
+    // Fetch whenever this tab mounts (parent remounts on tab switch).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const statusLabels: Record<string, string> = {
     draft: t.statusDraft,
     sent: t.statusSent,
@@ -572,6 +591,7 @@ function InvoiceModal({ onClose }: { onClose: () => void }) {
     { description: '', quantity: 1, unit_price: 0 },
   ]);
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState('');
 
   const subtotal = items.reduce((sum, item) => sum + item.quantity * item.unit_price, 0);
   const taxAmount = (subtotal * form.tax_rate) / 100;
@@ -585,11 +605,15 @@ function InvoiceModal({ onClose }: { onClose: () => void }) {
 
   const handleSave = async () => {
     setSaving(true);
+    setSaveError('');
     const invoiceNumber = `INV-${Date.now().toString().slice(-6)}`;
     const fullItems = items.map((item) => ({ ...item, total: item.quantity * item.unit_price }));
-    await supabase.from('invoices').insert([{
+    const { due_date, ...invoiceFields } = form;
+    const { error } = await supabase.from('invoices').insert([{
       invoice_number: invoiceNumber,
-      ...form,
+      ...invoiceFields,
+      // Empty date inputs must not be sent as '' — Postgres date columns reject that.
+      due_date: due_date.trim() ? due_date : null,
       items: fullItems,
       subtotal,
       tax_amount: taxAmount,
@@ -597,6 +621,11 @@ function InvoiceModal({ onClose }: { onClose: () => void }) {
       status: 'draft',
     }]);
     setSaving(false);
+    if (error) {
+      console.error('Invoice save error:', error.message);
+      setSaveError(error.message || 'Failed to save invoice');
+      return;
+    }
     onClose();
   };
 
@@ -681,6 +710,10 @@ function InvoiceModal({ onClose }: { onClose: () => void }) {
               <span className="text-brand-orange font-bold text-base">{total.toLocaleString()} SAR</span>
             </div>
           </div>
+
+          {saveError && (
+            <p className="text-red-500 text-sm" role="alert">{saveError}</p>
+          )}
 
           <div className="flex gap-3 pt-1">
             <button onClick={onClose} className="btn-secondary flex-1">{t.cancel}</button>
