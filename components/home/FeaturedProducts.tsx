@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { ArrowRight, Package, ExternalLink, Zap, CircleCheck as CheckCircle2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useI18n } from '@/lib/i18n-context';
+import { FALLBACK_PRODUCTS } from '@/lib/products-fallback';
 import type { Product } from '@/lib/types';
 
 const categoryColors: Record<string, string> = {
@@ -16,54 +17,6 @@ const categoryColors: Record<string, string> = {
   API: '#06b6d4',
   Other: '#94a3b8',
 };
-
-const FALLBACK_PRODUCTS: Product[] = [
-  {
-    id: 'fallback-1',
-    product_name: 'Commergio CRM Suite',
-    product_name_ar: 'منصة كوميرجيو لإدارة العملاء',
-    short_description: 'Unified CRM to manage leads, sales pipeline, and customer operations.',
-    short_description_ar: 'منصة موحدة لإدارة العملاء المحتملين وخط المبيعات وعمليات خدمة العملاء.',
-    full_description: '',
-    full_description_ar: '',
-    product_image_url: 'https://images.pexels.com/photos/1181359/pexels-photo-1181359.jpeg?auto=compress&cs=tinysrgb&w=900',
-    product_url: '',
-    category: 'Platform',
-    is_featured: true,
-    display_order: 0,
-    created_at: '',
-  },
-  {
-    id: 'fallback-2',
-    product_name: 'AI Support Assistant',
-    product_name_ar: 'مساعد الدعم بالذكاء الاصطناعي',
-    short_description: 'Arabic-first AI assistant for customer support and ticket triage.',
-    short_description_ar: 'مساعد ذكي عربي لخدمة العملاء وفرز التذاكر تلقائيًا.',
-    full_description: '',
-    full_description_ar: '',
-    product_image_url: 'https://images.pexels.com/photos/8386440/pexels-photo-8386440.jpeg?auto=compress&cs=tinysrgb&w=900',
-    product_url: '',
-    category: 'SaaS',
-    is_featured: true,
-    display_order: 1,
-    created_at: '',
-  },
-  {
-    id: 'fallback-3',
-    product_name: 'Operations Dashboard',
-    product_name_ar: 'لوحة متابعة العمليات',
-    short_description: 'Real-time analytics dashboard for operations, finance, and KPIs.',
-    short_description_ar: 'لوحة لحظية لمتابعة العمليات والمالية ومؤشرات الأداء.',
-    full_description: '',
-    full_description_ar: '',
-    product_image_url: 'https://images.pexels.com/photos/669619/pexels-photo-669619.jpeg?auto=compress&cs=tinysrgb&w=900',
-    product_url: '',
-    category: 'Tool',
-    is_featured: true,
-    display_order: 2,
-    created_at: '',
-  },
-];
 
 export default function FeaturedProducts() {
   const { t, pick } = useI18n();
@@ -78,20 +31,14 @@ export default function FeaturedProducts() {
         .select('*')
         .eq('is_featured', true)
         .order('display_order', { ascending: true });
-      if (!error && featured && featured.length > 0) {
+      // Successful CMS responses (including []) are authoritative. Fallback is
+      // reserved for query/schema failures so an empty catalog cannot reappear
+      // after administrators clear or unfeature every product.
+      if (!error && featured) {
         setProducts(featured);
         return;
       }
-      const { data: anyProducts } = await supabase
-        .from('products')
-        .select('*')
-        .order('display_order', { ascending: true })
-        .limit(6);
-      if (anyProducts && anyProducts.length > 0) {
-        setProducts(anyProducts);
-      } else {
-        setProducts(FALLBACK_PRODUCTS);
-      }
+      setProducts(FALLBACK_PRODUCTS);
     };
     load();
   }, []);

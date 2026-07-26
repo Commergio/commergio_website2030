@@ -7,6 +7,7 @@ import { motion } from 'framer-motion';
 import { ArrowLeft, ExternalLink, Package, CircleCheck as CheckCircle2, MessageSquare, Zap } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useI18n } from '@/lib/i18n-context';
+import { getFallbackProduct } from '@/lib/products-fallback';
 import type { Product } from '@/lib/types';
 
 const categoryColors: Record<string, string> = {
@@ -26,6 +27,14 @@ export default function ProductDetailPage() {
 
   useEffect(() => {
     if (!id) return;
+
+    const fallback = getFallbackProduct(id);
+    if (fallback) {
+      setProduct(fallback);
+      setLoading(false);
+      return;
+    }
+
     supabase
       .from('products')
       .select('*')
