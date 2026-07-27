@@ -3,60 +3,11 @@
 import Link from 'next/link';
 import { ArrowRight, Clock, Tag } from 'lucide-react';
 import { useI18n } from '@/lib/i18n-context';
-
-const posts = [
-  {
-    title: "How AI is Reshaping Saudi Arabia's Business Landscape in 2025",
-    titleAr: 'كيف يعيد الذكاء الاصطناعي تشكيل مشهد الأعمال في السعودية 2025',
-    excerpt:
-      "Artificial intelligence is no longer a futuristic concept — it's actively transforming how Saudi businesses operate, compete, and grow.",
-    excerptAr:
-      'الذكاء الاصطناعي لم يعد مفهوماً مستقبلياً — بل يحوّل فعلياً طريقة عمل الشركات السعودية وتنافسها ونموها.',
-    category: 'AI & Technology',
-    categoryAr: 'الذكاء الاصطناعي والتقنية',
-    readTime: '6 min read',
-    readTimeAr: '6 د قراءة',
-    date: 'Jan 15, 2025',
-    dateAr: '15 يناير 2025',
-    color: '#f5a623',
-    image: 'https://images.pexels.com/photos/8386440/pexels-photo-8386440.jpeg?auto=compress&cs=tinysrgb&w=600',
-  },
-  {
-    title: 'Vision 2030: Digital Transformation Opportunities for Saudi SMEs',
-    titleAr: 'رؤية 2030: فرص التحول الرقمي للمنشآت الصغيرة والمتوسطة',
-    excerpt:
-      'Saudi Vision 2030 is creating unprecedented opportunities for small and medium enterprises ready to embrace digital transformation.',
-    excerptAr:
-      'رؤية السعودية 2030 تخلق فرصاً غير مسبوقة للمنشآت الصغيرة والمتوسطة المستعدة للتحول الرقمي.',
-    category: 'Business Strategy',
-    categoryAr: 'استراتيجية الأعمال',
-    readTime: '8 min read',
-    readTimeAr: '8 د قراءة',
-    date: 'Jan 22, 2025',
-    dateAr: '22 يناير 2025',
-    color: '#10b981',
-    image: 'https://images.pexels.com/photos/3184433/pexels-photo-3184433.jpeg?auto=compress&cs=tinysrgb&w=600',
-  },
-  {
-    title: 'The Complete Guide to E-commerce Success on Salla Platform',
-    titleAr: 'الدليل الشامل للنجاح في التجارة الإلكترونية على منصة سلة',
-    excerpt:
-      "Maximize your Salla store's potential with these proven strategies for product presentation, SEO, and conversion optimization.",
-    excerptAr:
-      'حقق أقصى إمكانات متجرك على سلة بهذه الاستراتيجيات المجربة لعرض المنتجات وSEO وتحسين التحويل.',
-    category: 'E-commerce',
-    categoryAr: 'التجارة الإلكترونية',
-    readTime: '10 min read',
-    readTimeAr: '10 د قراءة',
-    date: 'Feb 3, 2025',
-    dateAr: '3 فبراير 2025',
-    color: '#3b82f6',
-    image: 'https://images.pexels.com/photos/230544/pexels-photo-230544.jpeg?auto=compress&cs=tinysrgb&w=600',
-  },
-];
+import { blogPosts } from '@/lib/blog-posts';
 
 export default function BlogPreview() {
   const { t, pick } = useI18n();
+  const posts = blogPosts.slice(0, 3);
 
   return (
     <section className="section-padding bg-navy-900 relative overflow-hidden">
@@ -77,9 +28,9 @@ export default function BlogPreview() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {posts.map((post, i) => (
-            <Link key={i} href="/blog" className="glass-card-hover overflow-hidden group block">
+        <div className={`grid grid-cols-1 gap-6 ${posts.length >= 3 ? 'md:grid-cols-3' : posts.length === 2 ? 'md:grid-cols-2' : 'md:grid-cols-1 max-w-xl'}`}>
+          {posts.map((post) => (
+            <Link key={post.slug} href={`/blog/${post.slug}`} className="glass-card-hover overflow-hidden group block">
               <div className="bg-white rounded-xl p-3">
                 <img
                   src={post.image}
