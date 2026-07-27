@@ -10,18 +10,22 @@ function read(relPath) {
   return readFileSync(join(root, relPath), 'utf8');
 }
 
-test('blog listing and detail pages share one catalog module', () => {
+test('blog listing, detail, and homepage preview share one catalog module', () => {
   const listing = read('app/blog/page.tsx');
   const detail = read('app/blog/[slug]/page.tsx');
+  const preview = read('components/home/BlogPreview.tsx');
   const catalog = read('lib/blog-posts.tsx');
 
   assert.match(listing, /from ['"]@\/lib\/blog-posts['"]/);
   assert.match(detail, /from ['"]@\/lib\/blog-posts['"]/);
+  assert.match(preview, /from ['"]@\/lib\/blog-posts['"]/);
   assert.match(catalog, /export const blogPosts/);
   assert.match(catalog, /export function getBlogPost/);
 
   // Listing must not keep a divergent inline posts array.
   assert.doesNotMatch(listing, /const posts\s*=\s*\[/);
+  // Homepage preview must not keep a divergent inline posts array.
+  assert.doesNotMatch(preview, /const posts\s*=\s*\[/);
   // Detail must not keep a divergent inline blogData map.
   assert.doesNotMatch(detail, /const blogData\s*=/);
 });
@@ -29,22 +33,18 @@ test('blog listing and detail pages share one catalog module', () => {
 test('every catalog slug is unique and has bilingual article bodies', () => {
   const catalog = read('lib/blog-posts.tsx');
   const slugs = [...catalog.matchAll(/slug:\s*'([^']+)'/g)].map((m) => m[1]);
+  const contentBlocks = [...catalog.matchAll(/^\s*content:\s*\(/gm)];
+  const contentArBlocks = [...catalog.matchAll(/^\s*contentAr:\s*\(/gm)];
 
   assert.ok(slugs.length >= 1, 'expected at least one published blog post');
   assert.equal(new Set(slugs).size, slugs.length, 'blog slugs must be unique');
-
-  for (const slug of slugs) {
-    const slugIndex = catalog.indexOf(`slug: '${slug}'`);
-    assert.ok(slugIndex >= 0);
-    // Rough structural check: each post object includes content + contentAr JSX.
-    const slice = catalog.slice(slugIndex, slugIndex + 2500);
-    assert.match(slice, /content:\s*\(/);
-    assert.match(slice, /contentAr:\s*\(/);
-  }
+  assert.equal(contentBlocks.length, slugs.length, 'each post needs an English body');
+  assert.equal(contentArBlocks.length, slugs.length, 'each post needs an Arabic body');
 });
 
 test('known formerly-orphaned listing slugs are not advertised without bodies', () => {
   const listing = read('app/blog/page.tsx');
+  const preview = read('components/home/BlogPreview.tsx');
   const orphaned = [
     'vision-2030-digital-transformation-smes',
     'complete-guide-ecommerce-salla',
@@ -58,6 +58,11 @@ test('known formerly-orphaned listing slugs are not advertised without bodies', 
       listing,
       new RegExp(slug),
       `${slug} must not appear on the listing page without an article body`,
+    );
+    assert.doesNotMatch(
+      preview,
+      new RegExp(slug),
+      `${slug} must not appear on the homepage preview without an article body`,
     );
   }
 });
