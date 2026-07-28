@@ -4,6 +4,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const base = 'https://commergio.com';
   const now = new Date();
 
+  // Only list routes that exist under app/. There is no app/services/[slug]
+  // page — public CTAs go to /contact — so do not advertise /services/<slug>
+  // URLs that would 404 for crawlers and users.
   const staticPages = [
     { url: base, priority: 1.0, changeFrequency: 'weekly' as const },
     { url: `${base}/services`, priority: 0.9, changeFrequency: 'weekly' as const },
@@ -15,28 +18,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${base}/contact`, priority: 0.9, changeFrequency: 'monthly' as const },
   ];
 
-  const serviceSlugs = [
-    'web-development',
-    'mobile-app-development',
-    'systems-automation',
-    'ui-ux-design',
-    'business-development',
-    'payment-integration',
-    'business-consulting',
-    'ecommerce-salla',
-    'seo-optimization',
-    'ai-solutions',
-  ];
-
-  const servicePages = serviceSlugs.map((slug) => ({
-    url: `${base}/services/${slug}`,
-    priority: 0.7,
-    changeFrequency: 'monthly' as const,
-    lastModified: now,
-  }));
-
-  return [
-    ...staticPages.map((p) => ({ ...p, lastModified: now })),
-    ...servicePages,
-  ];
+  return staticPages.map((p) => ({ ...p, lastModified: now }));
 }
