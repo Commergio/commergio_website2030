@@ -8,6 +8,7 @@ import { ArrowLeft, ExternalLink, Package, CircleCheck as CheckCircle2, MessageS
 import { supabase } from '@/lib/supabase';
 import { useI18n } from '@/lib/i18n-context';
 import type { Product } from '@/lib/types';
+import { normalizeExternalUrl } from '@/lib/normalizeExternalUrl';
 
 const categoryColors: Record<string, string> = {
   SaaS: '#f5a623',
@@ -61,6 +62,7 @@ export default function ProductDetailPage() {
   }
 
   const accent = categoryColors[product.category] || '#f5a623';
+  const productUrl = normalizeExternalUrl(product.product_url || '');
 
   return (
     <main className="min-h-screen" style={{ background: '#030b17' }}>
@@ -123,9 +125,9 @@ export default function ProductDetailPage() {
               </p>
 
               <div className="flex flex-wrap gap-3">
-                {product.product_url ? (
+                {productUrl ? (
                   <a
-                    href={product.product_url}
+                    href={productUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="btn-primary px-7 py-3.5"

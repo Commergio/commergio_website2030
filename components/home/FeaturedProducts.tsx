@@ -7,6 +7,7 @@ import { ArrowRight, Package, ExternalLink, Zap, CircleCheck as CheckCircle2 } f
 import { supabase } from '@/lib/supabase';
 import { useI18n } from '@/lib/i18n-context';
 import type { Product } from '@/lib/types';
+import { normalizeExternalUrl } from '@/lib/normalizeExternalUrl';
 
 const categoryColors: Record<string, string> = {
   SaaS: '#f5a623',
@@ -170,6 +171,7 @@ function ProductCard({
 }) {
   const displayName = pick(product.product_name, product.product_name_ar);
   const displayDesc = pick(product.short_description, product.short_description_ar);
+  const productUrl = normalizeExternalUrl(product.product_url || '');
   return (
     <motion.div
       className="group relative overflow-hidden rounded-2xl flex flex-col"
@@ -275,9 +277,9 @@ function ProductCard({
             style={{ background: `linear-gradient(to right, ${accent}35, transparent)` }}
           />
           <div className="flex items-center gap-2">
-            {product.product_url ? (
+            {productUrl ? (
               <a
-                href={product.product_url}
+                href={productUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 text-sm font-semibold transition-all duration-200 group/btn"

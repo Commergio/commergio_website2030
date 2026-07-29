@@ -7,6 +7,7 @@ import { ArrowRight, ExternalLink, Briefcase } from 'lucide-react';
 import { useI18n } from '@/lib/i18n-context';
 import { supabase } from '@/lib/supabase';
 import type { PortfolioProject } from '@/lib/types';
+import { normalizeExternalUrl } from '@/lib/normalizeExternalUrl';
 
 const FALLBACK_PROJECTS: PortfolioProject[] = [
   {
@@ -119,7 +120,9 @@ export default function PortfolioHighlights() {
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {projects.map((project, i) => (
+          {projects.map((project, i) => {
+            const projectUrl = normalizeExternalUrl(project.project_url || '');
+            return (
             <motion.div
               key={project.id}
               className="glass-card-hover overflow-hidden group"
@@ -180,9 +183,9 @@ export default function PortfolioHighlights() {
                   </div>
                 )}
 
-                {project.project_url ? (
+                {projectUrl ? (
                   <a
-                    href={project.project_url}
+                    href={projectUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-2 text-sm font-medium transition-colors duration-200"
@@ -203,7 +206,8 @@ export default function PortfolioHighlights() {
                 )}
               </div>
             </motion.div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>
