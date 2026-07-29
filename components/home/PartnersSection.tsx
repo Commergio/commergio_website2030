@@ -5,6 +5,7 @@ import { Handshake, Globe } from 'lucide-react';
 import { useI18n } from '@/lib/i18n-context';
 import { supabase } from '@/lib/supabase';
 import type { Partner } from '@/lib/types';
+import { normalizeExternalUrl } from '@/lib/normalizeExternalUrl';
 
 export default function PartnersSection() {
   const { t, pick } = useI18n();
@@ -102,10 +103,11 @@ function PartnerCard({
 }) {
   const displayName = pick(partner.name, partner.name_ar);
   const displayDesc = pick(partner.description, partner.description_ar);
+  const websiteUrl = normalizeExternalUrl(partner.website_url || '');
   const inner = (
     <div
       className="glass-card group flex flex-col items-center gap-3 p-5 text-center transition-all duration-300 hover:-translate-y-1"
-      style={{ cursor: partner.website_url ? 'pointer' : 'default' }}
+      style={{ cursor: websiteUrl ? 'pointer' : 'default' }}
     >
       {/* Logo: grayscale → color on hover */}
       <div
@@ -147,18 +149,18 @@ function PartnerCard({
             {displayDesc}
           </p>
         )}
-        {partner.website_url && (
+        {websiteUrl && (
           <p className="text-slate-600 text-xs mt-1 group-hover:text-brand-orange/60 transition-colors duration-200 truncate max-w-[120px]">
-            {partner.website_url.replace(/^https?:\/\//, '')}
+            {websiteUrl.replace(/^https?:\/\//, '')}
           </p>
         )}
       </div>
     </div>
   );
 
-  if (partner.website_url) {
+  if (websiteUrl) {
     return (
-      <a href={partner.website_url} target="_blank" rel="noopener noreferrer" className="block">
+      <a href={websiteUrl} target="_blank" rel="noopener noreferrer" className="block">
         {inner}
       </a>
     );

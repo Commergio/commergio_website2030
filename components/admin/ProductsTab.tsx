@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase';
 import type { Product } from '@/lib/types';
 import ImageUpload from './ImageUpload';
 import { useAdminI18n } from '@/lib/admin-i18n-context';
+import { isValidExternalUrl, normalizeExternalUrl } from '@/lib/normalizeExternalUrl';
 
 const inputCls = "w-full px-3.5 py-2.5 rounded-xl text-slate-800 text-sm focus:outline-none transition-all duration-200 focus:border-orange-400/40";
 const inputStyle = { background: 'rgba(255,255,255,0.95)', border: '1px solid rgba(15,23,42,0.12)' };
@@ -83,12 +84,21 @@ export default function ProductsTab() {
   const handleSave = async () => {
     setSaving(true);
     setSaveError('');
+    if (!isValidExternalUrl(form.product_url)) {
+      setSaving(false);
+      setSaveError(isAR ? 'رابط المنتج غير صالح. أدخل رابطًا صحيحًا مثل https://example.com' : 'Invalid product URL. Please use a valid URL like https://example.com');
+      return;
+    }
+    const payload = {
+      ...form,
+      product_url: normalizeExternalUrl(form.product_url),
+    };
     let err = null;
     if (modal === 'add') {
-      const { error } = await supabase.from('products').insert([form]);
+      const { error } = await supabase.from('products').insert([payload]);
       err = error;
     } else if (editing) {
-      const { error } = await supabase.from('products').update(form).eq('id', editing.id);
+      const { error } = await supabase.from('products').update(payload).eq('id', editing.id);
       err = error;
     }
     setSaving(false);

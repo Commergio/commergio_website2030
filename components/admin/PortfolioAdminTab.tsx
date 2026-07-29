@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase';
 import type { PortfolioProject } from '@/lib/types';
 import { MultiImageUpload } from './ImageUpload';
 import { useAdminI18n } from '@/lib/admin-i18n-context';
+import { isValidExternalUrl, normalizeExternalUrl } from '@/lib/normalizeExternalUrl';
 
 const inputCls = "w-full px-3.5 py-2.5 rounded-xl text-slate-800 text-sm focus:outline-none transition-all duration-200 focus:border-orange-400/40";
 const inputStyle = { background: 'rgba(255,255,255,0.95)', border: '1px solid rgba(15,23,42,0.12)' };
@@ -31,14 +32,6 @@ const emptyForm = (): ProjectForm => ({
 });
 
 const COLOR_OPTIONS = ['#f5a623', '#10b981', '#3b82f6', '#ec4899', '#f43f5e', '#8b5cf6', '#06b6d4'];
-
-const normalizeExternalUrl = (value: string) => {
-  const raw = value.trim();
-  if (!raw) return '';
-  const noLeadingSlashes = raw.replace(/^\/+/, '');
-  if (/^https?:\/\//i.test(noLeadingSlashes)) return noLeadingSlashes;
-  return `https://${noLeadingSlashes}`;
-};
 
 export default function PortfolioAdminTab() {
   const { t, locale } = useAdminI18n();
@@ -92,14 +85,10 @@ export default function PortfolioAdminTab() {
     setSaveError('');
     const normalizedProjectUrl = normalizeExternalUrl(form.project_url);
 
-    if (normalizedProjectUrl) {
-      try {
-        new URL(normalizedProjectUrl);
-      } catch {
-        setSaving(false);
-        setSaveError(isAR ? 'رابط المشروع غير صالح. أدخل رابطًا صحيحًا مثل https://example.com' : 'Invalid project URL. Please use a valid URL like https://example.com');
-        return;
-      }
+    if (!isValidExternalUrl(form.project_url)) {
+      setSaving(false);
+      setSaveError(isAR ? 'رابط المشروع غير صالح. أدخل رابطًا صحيحًا مثل https://example.com' : 'Invalid project URL. Please use a valid URL like https://example.com');
+      return;
     }
 
     const payload = {
@@ -210,7 +199,7 @@ export default function PortfolioAdminTab() {
               </div>
               <div className="flex items-center gap-1 flex-shrink-0">
                 {p.project_url && (
-                  <a href={p.project_url} target="_blank" rel="noopener noreferrer" className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-600 hover:text-slate-300 transition-colors" style={{ background: 'rgba(255,255,255,0.05)' }}>
+                  <a href={normalizeExternalUrl(p.project_url)} target="_blank" rel="noopener noreferrer" className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-600 hover:text-slate-300 transition-colors" style={{ background: 'rgba(255,255,255,0.05)' }}>
                     <ExternalLink size={13} />
                   </a>
                 )}

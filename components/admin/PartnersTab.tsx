@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase';
 import type { Partner } from '@/lib/types';
 import ImageUpload from './ImageUpload';
 import { useAdminI18n } from '@/lib/admin-i18n-context';
+import { isValidExternalUrl, normalizeExternalUrl } from '@/lib/normalizeExternalUrl';
 
 const inputCls = "w-full px-3.5 py-2.5 rounded-xl text-slate-800 text-sm focus:outline-none transition-all duration-200 focus:border-orange-400/40";
 const inputStyle = { background: 'rgba(255,255,255,0.95)', border: '1px solid rgba(15,23,42,0.12)' };
@@ -66,12 +67,21 @@ export default function PartnersTab() {
   const handleSave = async () => {
     setSaving(true);
     setSaveError('');
+    if (!isValidExternalUrl(form.website_url)) {
+      setSaving(false);
+      setSaveError(isAR ? 'رابط الموقع غير صالح. أدخل رابطًا صحيحًا مثل https://partner.com' : 'Invalid website URL. Please use a valid URL like https://partner.com');
+      return;
+    }
+    const payload = {
+      ...form,
+      website_url: normalizeExternalUrl(form.website_url),
+    };
     let err = null;
     if (modal === 'add') {
-      const { error } = await supabase.from('partners').insert([form]);
+      const { error } = await supabase.from('partners').insert([payload]);
       err = error;
     } else if (editing) {
-      const { error } = await supabase.from('partners').update(form).eq('id', editing.id);
+      const { error } = await supabase.from('partners').update(payload).eq('id', editing.id);
       err = error;
     }
     setSaving(false);
@@ -146,7 +156,7 @@ export default function PartnersTab() {
                 </div>
                 {displayDesc(p) && <p className="text-slate-500 text-xs mt-0.5 truncate">{displayDesc(p)}</p>}
                 {p.website_url && (
-                  <a href={p.website_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-xs text-slate-600 hover:text-brand-orange mt-1 transition-colors">
+                  <a href={normalizeExternalUrl(p.website_url)} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-xs text-slate-600 hover:text-brand-orange mt-1 transition-colors">
                     <ExternalLink size={10} /> {p.website_url.replace(/^https?:\/\//, '')}
                   </a>
                 )}
