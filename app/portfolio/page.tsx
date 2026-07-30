@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, ExternalLink } from 'lucide-react';
 import { useI18n } from '@/lib/i18n-context';
+import { portfolioProjectHref } from '@/lib/portfolioProjectUrl';
 import { supabase } from '@/lib/supabase';
 import type { PortfolioProject } from '@/lib/types';
 
@@ -75,7 +76,9 @@ export default function PortfolioPage() {
           <div className="text-center text-slate-400 py-10">{pick('No projects found.', 'لا توجد مشاريع حالياً.')}</div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filtered.map((project) => (
+          {filtered.map((project) => {
+            const href = portfolioProjectHref(project.project_url);
+            return (
             <div
               key={project.id}
               className={`glass-card-hover overflow-hidden group ${project.is_featured ? 'ring-1 ring-brand-orange/20' : ''}`}
@@ -116,16 +119,29 @@ export default function PortfolioPage() {
                 <p className="text-slate-400 text-sm leading-relaxed mb-4">
                   {pick(project.description, project.description_ar)}
                 </p>
-                <div className="flex flex-wrap gap-1.5">
+                <div className="flex flex-wrap gap-1.5 mb-4">
                   {(project.tech_stack || []).map((tech) => (
                     <span key={tech} className="text-xs px-2 py-0.5 rounded-md bg-white/5 border border-white/10 text-slate-400">
                       {tech}
                     </span>
                   ))}
                 </div>
+                {href && (
+                  <a
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-sm font-medium transition-colors duration-200 hover:opacity-80"
+                    style={{ color: project.color || '#f5a623' }}
+                  >
+                    {pick('View Project', 'عرض المشروع')}
+                    <ExternalLink size={14} />
+                  </a>
+                )}
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
         )}
 
