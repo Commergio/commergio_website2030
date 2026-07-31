@@ -98,17 +98,38 @@ interface MultiImageUploadProps {
   bucket: string;
   currentUrls?: string[];
   onUpload: (urls: string[]) => void;
+  /** Notify parent while uploads are in flight so Save can be blocked. */
+  onUploadingChange?: (uploading: boolean) => void;
   label?: string;
 }
 
-export function MultiImageUpload({ bucket, currentUrls = [], onUpload, label = 'Upload Images' }: MultiImageUploadProps) {
+export function MultiImageUpload({
+  bucket,
+  currentUrls = [],
+  onUpload,
+  onUploadingChange,
+  label = 'Upload Images',
+}: MultiImageUploadProps) {
   const [uploading, setUploading] = useState(false);
   const [previews, setPreviews] = useState<string[]>(currentUrls);
   const [uploadError, setUploadError] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
+  const previewsRef = useRef<string[]>(currentUrls);
+
+  const setUploadingState = (value: boolean) => {
+    setUploading(value);
+    onUploadingChange?.(value);
+  };
+
+  const commitPreviews = (updated: string[]) => {
+    previewsRef.current = updated;
+    setPreviews(updated);
+    onUpload(updated);
+  };
 
   const handleFiles = async (files: FileList) => {
-    setUploading(true);
+    if (uploading || files.length === 0) return;
+    setUploadingState(true);
     setUploadError('');
     const newUrls: string[] = [];
     let lastMsg = '';
@@ -129,16 +150,15 @@ export function MultiImageUpload({ bucket, currentUrls = [], onUpload, label = '
     } else if (lastMsg) {
       setUploadError(`Some files failed: ${lastMsg}`);
     }
-    const updated = [...previews, ...newUrls];
-    setPreviews(updated);
-    onUpload(updated);
-    setUploading(false);
+    // Merge against latest previews (not a stale render closure) so removals
+    // during upload are preserved and overlapping batches cannot drop URLs.
+    commitPreviews([...previewsRef.current, ...newUrls]);
+    setUploadingState(false);
   };
 
   const remove = (idx: number) => {
-    const updated = previews.filter((_, i) => i !== idx);
-    setPreviews(updated);
-    onUpload(updated);
+    if (uploading) return;
+    commitPreviews(previewsRef.current.filter((_, i) => i !== idx));
   };
 
   return (
@@ -149,17 +169,23 @@ export function MultiImageUpload({ bucket, currentUrls = [], onUpload, label = '
           <div key={i} className="relative rounded-lg overflow-hidden aspect-video group">
             <img src={url} alt="" className="w-full h-full object-cover" />
             <button
+              type="button"
+              disabled={uploading}
               onClick={() => remove(i)}
-              className="absolute top-1 right-1 w-5 h-5 rounded-full bg-white/95 border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-red-500 hover:text-white transition-colors opacity-0 group-hover:opacity-100"
+              className="absolute top-1 right-1 w-5 h-5 rounded-full bg-white/95 border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-red-500 hover:text-white transition-colors opacity-0 group-hover:opacity-100 disabled:opacity-40 disabled:pointer-events-none"
             >
               <X size={10} />
             </button>
           </div>
         ))}
         <div
-          className="aspect-video rounded-lg flex flex-col items-center justify-center cursor-pointer transition-all"
+          className={`aspect-video rounded-lg flex flex-col items-center justify-center transition-all ${
+            uploading ? 'cursor-wait opacity-70' : 'cursor-pointer'
+          }`}
           style={{ background: 'rgba(255,255,255,0.94)', border: '2px dashed rgba(15,23,42,0.16)' }}
-          onClick={() => inputRef.current?.click()}
+          onClick={() => {
+            if (!uploading) inputRef.current?.click();
+          }}
         >
           {uploading ? (
             <Loader2 size={18} className="animate-spin text-brand-orange" />
@@ -180,7 +206,11 @@ export function MultiImageUpload({ bucket, currentUrls = [], onUpload, label = '
         accept="image/*"
         multiple
         className="hidden"
-        onChange={(e) => { if (e.target.files?.length) handleFiles(e.target.files); }}
+        disabled={uploading}
+        onChange={(e) => {
+          if (e.target.files?.length) handleFiles(e.target.files);
+          e.target.value = '';
+        }}
       />
     </div>
   );

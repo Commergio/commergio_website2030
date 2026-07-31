@@ -254,6 +254,7 @@ function ProjectModal({ form, setForm, onSave, onClose, saving, saveError, isEdi
   isEdit: boolean;
 }) {
   const { t } = useAdminI18n();
+  const [imagesUploading, setImagesUploading] = useState(false);
   const set = (field: keyof ProjectForm, value: string | boolean | number | string[]) =>
     setForm({ ...form, [field]: value });
 
@@ -277,6 +278,7 @@ function ProjectModal({ form, setForm, onSave, onClose, saving, saveError, isEdi
             bucket="portfolio-images"
             currentUrls={form.images}
             onUpload={(urls) => set('images', urls)}
+            onUploadingChange={setImagesUploading}
             label={t.uploadImages}
           />
 
@@ -380,9 +382,13 @@ function ProjectModal({ form, setForm, onSave, onClose, saving, saveError, isEdi
 
         <div className="flex gap-3 mt-6">
           <button onClick={onClose} className="btn-secondary flex-1">{t.cancel}</button>
-          <button onClick={onSave} disabled={saving || !form.title.trim()} className="btn-primary flex-1">
-            {saving ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
-            {saving ? t.saving : isEdit ? t.update : t.add}
+          <button
+            onClick={onSave}
+            disabled={saving || imagesUploading || !form.title.trim()}
+            className="btn-primary flex-1"
+          >
+            {saving || imagesUploading ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
+            {saving ? t.saving : imagesUploading ? t.uploading : isEdit ? t.update : t.add}
           </button>
         </div>
       </div>
