@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, type Dispatch, type SetStateAction } from 'react';
 import { Plus, Pencil, Trash2, Loader as Loader2, X, Save, Film, Eye, EyeOff } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import type { PartnershipSigningVideo } from '@/lib/types';
@@ -278,7 +278,7 @@ function VideoModal({
   isEdit,
 }: {
   form: VideoForm;
-  setForm: (f: VideoForm) => void;
+  setForm: Dispatch<SetStateAction<VideoForm>>;
   onSave: () => void;
   onClose: () => void;
   saving: boolean;
@@ -286,8 +286,13 @@ function VideoModal({
   isEdit: boolean;
 }) {
   const { t } = useAdminI18n();
+  const [videoUploading, setVideoUploading] = useState(false);
+  const [thumbUploading, setThumbUploading] = useState(false);
+  const uploading = videoUploading || thumbUploading;
   const set = (field: keyof VideoForm, value: string | boolean | number | null) =>
-    setForm({ ...form, [field]: value });
+    setForm((prev) => ({ ...prev, [field]: value }));
+  const handleVideoUploadingChange = useCallback((next: boolean) => setVideoUploading(next), []);
+  const handleThumbUploadingChange = useCallback((next: boolean) => setThumbUploading(next), []);
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
@@ -321,6 +326,7 @@ function VideoModal({
             bucket="partnership-videos"
             currentUrl={form.video_url}
             onUpload={(url) => set('video_url', url)}
+            onUploadingChange={handleVideoUploadingChange}
             label={t.uploadVideo}
             hint={t.uploadVideoHint}
           />
@@ -329,6 +335,7 @@ function VideoModal({
             bucket="partnership-thumbnails"
             currentUrl={form.thumbnail_url}
             onUpload={(url) => set('thumbnail_url', url)}
+            onUploadingChange={handleThumbUploadingChange}
             label={t.uploadThumbnail}
           />
 
@@ -471,11 +478,11 @@ function VideoModal({
           </button>
           <button
             onClick={onSave}
-            disabled={saving || !form.partner_name.trim() || !form.video_url.trim()}
+            disabled={saving || uploading || !form.partner_name.trim() || !form.video_url.trim()}
             className="btn-primary flex-1"
           >
-            {saving ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
-            {saving ? t.saving : isEdit ? t.update : t.add}
+            {saving || uploading ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
+            {uploading ? t.uploading : saving ? t.saving : isEdit ? t.update : t.add}
           </button>
         </div>
       </div>

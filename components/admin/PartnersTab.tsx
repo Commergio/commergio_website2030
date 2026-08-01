@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, type Dispatch, type SetStateAction } from 'react';
 import { Plus, Pencil, Trash2, Loader as Loader2, X, Save, Star, Globe, ExternalLink } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import type { Partner } from '@/lib/types';
@@ -184,7 +184,7 @@ export default function PartnersTab() {
 
 function PartnerModal({ form, setForm, onSave, onClose, saving, saveError, isEdit }: {
   form: PartnerForm;
-  setForm: (f: PartnerForm) => void;
+  setForm: Dispatch<SetStateAction<PartnerForm>>;
   onSave: () => void;
   onClose: () => void;
   saving: boolean;
@@ -192,8 +192,10 @@ function PartnerModal({ form, setForm, onSave, onClose, saving, saveError, isEdi
   isEdit: boolean;
 }) {
   const { t } = useAdminI18n();
+  const [uploading, setUploading] = useState(false);
   const set = (field: keyof PartnerForm, value: string | boolean | number) =>
-    setForm({ ...form, [field]: value });
+    setForm((prev) => ({ ...prev, [field]: value }));
+  const handleUploadingChange = useCallback((next: boolean) => setUploading(next), []);
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
@@ -215,6 +217,7 @@ function PartnerModal({ form, setForm, onSave, onClose, saving, saveError, isEdi
             bucket="partner-logos"
             currentUrl={form.logo_url}
             onUpload={(url) => set('logo_url', url)}
+            onUploadingChange={handleUploadingChange}
             label={t.uploadImage}
           />
 
@@ -275,9 +278,9 @@ function PartnerModal({ form, setForm, onSave, onClose, saving, saveError, isEdi
 
         <div className="flex gap-3 mt-6">
           <button onClick={onClose} className="btn-secondary flex-1">{t.cancel}</button>
-          <button onClick={onSave} disabled={saving || !form.name.trim()} className="btn-primary flex-1">
-            {saving ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
-            {saving ? t.saving : isEdit ? t.update : t.add}
+          <button onClick={onSave} disabled={saving || uploading || !form.name.trim()} className="btn-primary flex-1">
+            {saving || uploading ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
+            {uploading ? t.uploading : saving ? t.saving : isEdit ? t.update : t.add}
           </button>
         </div>
       </div>

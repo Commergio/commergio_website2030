@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, type Dispatch, type SetStateAction } from 'react';
 import { Plus, Pencil, Trash2, Loader as Loader2, X, Save, Layers } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import type { CompanyService } from '@/lib/types';
@@ -322,7 +322,7 @@ function ServiceModal({
   isEdit,
 }: {
   form: ServiceForm;
-  setForm: (f: ServiceForm) => void;
+  setForm: Dispatch<SetStateAction<ServiceForm>>;
   onSave: () => void;
   onClose: () => void;
   saving: boolean;
@@ -330,7 +330,8 @@ function ServiceModal({
   isEdit: boolean;
 }) {
   const { t } = useAdminI18n();
-  const set = (field: keyof ServiceForm, value: string | boolean | number) => setForm({ ...form, [field]: value });
+  const set = (field: keyof ServiceForm, value: string | boolean | number) =>
+    setForm((prev) => ({ ...prev, [field]: value }));
   const Icon = getServiceIcon(form.icon);
 
   return (

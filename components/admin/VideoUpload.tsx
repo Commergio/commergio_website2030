@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Upload, X, Loader as Loader2, Film } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
@@ -10,6 +10,7 @@ interface VideoUploadProps {
   bucket: string;
   currentUrl?: string;
   onUpload: (url: string) => void;
+  onUploadingChange?: (uploading: boolean) => void;
   label?: string;
   hint?: string;
 }
@@ -18,6 +19,7 @@ export default function VideoUpload({
   bucket,
   currentUrl,
   onUpload,
+  onUploadingChange,
   label = 'Upload Video',
   hint = 'MP4 or WebM, up to 100MB',
 }: VideoUploadProps) {
@@ -26,8 +28,12 @@ export default function VideoUpload({
   const [fileName, setFileName] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
+  useEffect(() => {
+    onUploadingChange?.(uploading);
+  }, [uploading, onUploadingChange]);
+
   const handleFile = async (file: File) => {
-    if (!file) return;
+    if (!file || uploading) return;
     if (file.size > MAX_BYTES) {
       setUploadError('File is too large. Maximum size is 100MB.');
       return;
