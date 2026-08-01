@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Upload, X, Loader as Loader2, Image as ImageIcon } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
@@ -8,17 +8,28 @@ interface ImageUploadProps {
   bucket: string;
   currentUrl?: string;
   onUpload: (url: string) => void;
+  onUploadingChange?: (uploading: boolean) => void;
   label?: string;
 }
 
-export default function ImageUpload({ bucket, currentUrl, onUpload, label = 'Upload Image' }: ImageUploadProps) {
+export default function ImageUpload({
+  bucket,
+  currentUrl,
+  onUpload,
+  onUploadingChange,
+  label = 'Upload Image',
+}: ImageUploadProps) {
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState<string>(currentUrl || '');
   const [uploadError, setUploadError] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
+  useEffect(() => {
+    onUploadingChange?.(uploading);
+  }, [uploading, onUploadingChange]);
+
   const handleFile = async (file: File) => {
-    if (!file) return;
+    if (!file || uploading) return;
     setUploading(true);
     setUploadError('');
     const ext = file.name.split('.').pop();

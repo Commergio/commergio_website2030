@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, type Dispatch, type SetStateAction } from 'react';
 import { Plus, Pencil, Trash2, Loader as Loader2, X, Save, Star, Briefcase, ExternalLink } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import type { PortfolioProject } from '@/lib/types';
@@ -246,7 +246,7 @@ export default function PortfolioAdminTab() {
 
 function ProjectModal({ form, setForm, onSave, onClose, saving, saveError, isEdit }: {
   form: ProjectForm;
-  setForm: (f: ProjectForm) => void;
+  setForm: Dispatch<SetStateAction<ProjectForm>>;
   onSave: () => void;
   onClose: () => void;
   saving: boolean;
@@ -254,8 +254,9 @@ function ProjectModal({ form, setForm, onSave, onClose, saving, saveError, isEdi
   isEdit: boolean;
 }) {
   const { t } = useAdminI18n();
+  // Functional updates keep concurrent field edits when MultiImageUpload finishes async.
   const set = (field: keyof ProjectForm, value: string | boolean | number | string[]) =>
-    setForm({ ...form, [field]: value });
+    setForm((prev) => ({ ...prev, [field]: value }));
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
