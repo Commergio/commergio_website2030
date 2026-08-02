@@ -317,6 +317,17 @@ export function slugifyTitle(title: string): string {
     .replace(/^-+|-+$/g, '');
 }
 
+/**
+ * Keep auto-generated service slugs in sync while the admin types a title.
+ * Once the slug no longer matches the previous title's auto-slug (manual edit),
+ * leave it alone.
+ */
+export function nextAutoSlug(previousTitle: string, previousSlug: string, nextTitle: string): string {
+  const previousAuto = slugifyTitle(previousTitle);
+  const customized = previousSlug !== '' && previousSlug !== previousAuto;
+  return customized ? previousSlug : slugifyTitle(nextTitle);
+}
+
 export function linesToList(text: string): string[] {
   return text
     .split('\n')
