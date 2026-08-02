@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, type Dispatch, type SetStateAction } from 'react';
 import { Plus, Pencil, Trash2, Loader as Loader2, X, Save, Layers } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import type { CompanyService } from '@/lib/types';
 import { useAdminI18n } from '@/lib/admin-i18n-context';
 import { SERVICE_ICON_OPTIONS, getServiceIcon } from '@/lib/service-icons';
-import { linesToList, listToLines, slugifyTitle } from '@/lib/services-fallback';
+import { linesToList, listToLines, nextAutoSlug, slugifyTitle } from '@/lib/services-fallback';
 
 const inputCls =
   'w-full px-3.5 py-2.5 rounded-xl text-slate-800 text-sm focus:outline-none transition-all duration-200 focus:border-orange-400/40';
@@ -322,7 +322,7 @@ function ServiceModal({
   isEdit,
 }: {
   form: ServiceForm;
-  setForm: (f: ServiceForm) => void;
+  setForm: Dispatch<SetStateAction<ServiceForm>>;
   onSave: () => void;
   onClose: () => void;
   saving: boolean;
@@ -330,7 +330,8 @@ function ServiceModal({
   isEdit: boolean;
 }) {
   const { t } = useAdminI18n();
-  const set = (field: keyof ServiceForm, value: string | boolean | number) => setForm({ ...form, [field]: value });
+  const set = (field: keyof ServiceForm, value: string | boolean | number) =>
+    setForm((prev) => ({ ...prev, [field]: value }));
   const Icon = getServiceIcon(form.icon);
 
   return (
@@ -370,10 +371,15 @@ function ServiceModal({
                 value={form.title}
                 onChange={(e) => {
                   const title = e.target.value;
-                  setForm({
-                    ...form,
-                    title,
-                    slug: form.slug || slugifyTitle(title),
+                  setForm((prev) => {
+                    // Edit mode: keep the existing slug stable for SEO.
+                    // Add mode: keep regenerating until the admin customizes the slug field.
+                    if (isEdit) return { ...prev, title };
+                    return {
+                      ...prev,
+                      title,
+                      slug: nextAutoSlug(prev.title, prev.slug, title),
+                    };
                   });
                 }}
               />
