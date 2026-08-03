@@ -9,6 +9,20 @@ export interface ContactMessage {
   created_at: string;
 }
 
+export interface ProjectLead {
+  id: string;
+  name: string;
+  company: string;
+  email: string;
+  phone: string;
+  service: string;
+  budget_range: string;
+  message: string;
+  status: string;
+  source: string;
+  created_at: string;
+}
+
 export interface BlogPost {
   id: string;
   title: string;

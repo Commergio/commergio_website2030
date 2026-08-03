@@ -48,8 +48,14 @@ export const adminTranslations = {
 
     // Messages
     noMessagesYet: 'No messages yet',
-    noMessagesSub: 'Contact form messages will appear here.',
+    noMessagesSub: 'Contact form messages and Start Project leads will appear here.',
     markRead: 'Mark Read',
+    markContacted: 'Mark Contacted',
+    inboxContact: 'Contact',
+    inboxProjectLead: 'Project Lead',
+    inboxBudget: 'Budget',
+    inboxPhone: 'Phone',
+    inboxSource: 'Source',
 
     // Invoices
     noInvoicesYet: 'No invoices yet',
@@ -256,8 +262,14 @@ export const adminTranslations = {
 
     // Messages
     noMessagesYet: 'لا توجد رسائل بعد',
-    noMessagesSub: 'ستظهر رسائل نموذج التواصل هنا.',
+    noMessagesSub: 'ستظهر هنا رسائل نموذج التواصل وطلبات بدء المشروع.',
     markRead: 'تحديد كمقروء',
+    markContacted: 'تم التواصل',
+    inboxContact: 'تواصل',
+    inboxProjectLead: 'طلب مشروع',
+    inboxBudget: 'الميزانية',
+    inboxPhone: 'الهاتف',
+    inboxSource: 'المصدر',
 
     // Invoices
     noInvoicesYet: 'لا توجد فواتير بعد',
