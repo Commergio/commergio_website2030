@@ -10,7 +10,8 @@ import {
   X, Save, Globe, Package, Languages, LogOut, Film, Layers,
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import type { ContactMessage, Invoice, InvoiceItem } from '@/lib/types';
+import type { ContactMessage, Invoice, InvoiceItem, ProjectLead } from '@/lib/types';
+import { mergeAdminInbox, isLeadNew, type InboxItem } from '@/lib/admin-inbox';
 import { AdminI18nProvider, useAdminI18n } from '@/lib/admin-i18n-context';
 import PartnersTab from '@/components/admin/PartnersTab';
 import PartnershipVideosTab from '@/components/admin/PartnershipVideosTab';
@@ -92,6 +93,7 @@ function AdminDashboardInner() {
   };
   const [tab, setTab] = useState<Tab>('overview');
   const [messages, setMessages] = useState<ContactMessage[]>([]);
+  const [projectLeads, setProjectLeads] = useState<ProjectLead[]>([]);
   const [stats, setStats] = useState({
   messages: 0,
   products: 0,
@@ -104,16 +106,23 @@ function AdminDashboardInner() {
   const [showInvoiceModal, setShowInvoiceModal] = useState(false);
 
   const fetchStats = async () => {
-    const [{ count: messagesCount }, { count: productsCount }, { count: servicesCount }, { count: partnersCount }, { count: invoicesCount }] =
-      await Promise.all([
-        supabase.from('messages').select('*', { count: 'exact', head: true }),
-        supabase.from('products').select('*', { count: 'exact', head: true }),
-        supabase.from('company_services').select('*', { count: 'exact', head: true }),
-        supabase.from('partners').select('*', { count: 'exact', head: true }),
-        supabase.from('invoices').select('*', { count: 'exact', head: true }),
-      ]);
+    const [
+      { count: messagesCount },
+      { count: leadsCount },
+      { count: productsCount },
+      { count: servicesCount },
+      { count: partnersCount },
+      { count: invoicesCount },
+    ] = await Promise.all([
+      supabase.from('messages').select('*', { count: 'exact', head: true }),
+      supabase.from('project_leads').select('*', { count: 'exact', head: true }),
+      supabase.from('products').select('*', { count: 'exact', head: true }),
+      supabase.from('company_services').select('*', { count: 'exact', head: true }),
+      supabase.from('partners').select('*', { count: 'exact', head: true }),
+      supabase.from('invoices').select('*', { count: 'exact', head: true }),
+    ]);
     setStats({
-      messages: messagesCount || 0,
+      messages: (messagesCount || 0) + (leadsCount || 0),
       products: productsCount || 0,
       services: servicesCount || 0,
       partners: partnersCount || 0,
@@ -130,21 +139,28 @@ const fetchMessages = async () => {
   try {
     setLoading(true);
 
-    const { data, error } = await supabase
-      .from('messages')
-      .select('*')
-      .order('created_at', { ascending: false });
+    const [messagesResult, leadsResult] = await Promise.all([
+      supabase.from('messages').select('*').order('created_at', { ascending: false }),
+      supabase.from('project_leads').select('*').order('created_at', { ascending: false }),
+    ]);
 
-    if (error) {
-      console.error('Fetch messages error:', error.message);
+    if (messagesResult.error) {
+      console.error('Fetch messages error:', messagesResult.error.message);
       setMessages([]);
-      return;
+    } else {
+      setMessages((messagesResult.data as ContactMessage[]) ?? []);
     }
 
-    setMessages(data ?? []);
+    if (leadsResult.error) {
+      console.error('Fetch project_leads error:', leadsResult.error.message);
+      setProjectLeads([]);
+    } else {
+      setProjectLeads((leadsResult.data as ProjectLead[]) ?? []);
+    }
   } catch (err) {
     console.error('Unexpected error:', err);
     setMessages([]);
+    setProjectLeads([]);
   } finally {
     setLoading(false);
   }
@@ -174,6 +190,22 @@ const markMessageRead = async (id: string) => {
     prev.map((m) =>
       m.id === id ? { ...m, status: 'read' } : m
     )
+  );
+};
+
+const markLeadContacted = async (id: string) => {
+  const { error } = await supabase
+    .from('project_leads')
+    .update({ status: 'contacted' })
+    .eq('id', id);
+
+  if (error) {
+    console.error('Update project_leads error:', error.message);
+    return;
+  }
+
+  setProjectLeads((prev) =>
+    prev.map((lead) => (lead.id === id ? { ...lead, status: 'contacted' } : lead)),
   );
 };
   const nav = [
@@ -268,7 +300,14 @@ const markMessageRead = async (id: string) => {
         </div>
 
         {tab === 'overview' && <OverviewTab stats={stats} />}
-        {tab === 'messages' && <MessagesTab messages={messages} loading={loading} onMarkRead={markMessageRead} />}
+        {tab === 'messages' && (
+          <MessagesTab
+            items={mergeAdminInbox(messages, projectLeads)}
+            loading={loading}
+            onMarkRead={markMessageRead}
+            onMarkLeadContacted={markLeadContacted}
+          />
+        )}
        {tab === 'invoices' && (
   <InvoicesTab
     invoices={invoices}
@@ -398,10 +437,16 @@ function OverviewTab({ stats }: { stats: { messages: number; products: number; s
   );
 }
 
-function MessagesTab({ messages, loading, onMarkRead }: {
-  messages: ContactMessage[];
+function MessagesTab({
+  items,
+  loading,
+  onMarkRead,
+  onMarkLeadContacted,
+}: {
+  items: InboxItem[];
   loading: boolean;
   onMarkRead: (id: string) => void;
+  onMarkLeadContacted: (id: string) => void;
 }) {
   const { t, isRTL } = useAdminI18n();
 
@@ -411,7 +456,7 @@ function MessagesTab({ messages, loading, onMarkRead }: {
     </div>
   );
 
-  if (messages.length === 0) return (
+  if (items.length === 0) return (
     <div className="glass-card p-16 text-center">
       <div className="w-14 h-14 rounded-2xl mx-auto mb-4 flex items-center justify-center" style={{ background: 'rgba(245,166,35,0.08)', border: '1px solid rgba(245,166,35,0.15)' }}>
         <MessageSquare size={24} className="text-brand-orange opacity-60" />
@@ -423,41 +468,93 @@ function MessagesTab({ messages, loading, onMarkRead }: {
 
   return (
     <div className="space-y-2">
-      {messages.map((msg) => (
-        <div key={msg.id} className="glass-card p-5 transition-all duration-200"
-          style={{ borderColor: msg.status === 'unread' ? 'rgba(245,166,35,0.2)' : undefined }}>
-          <div className="flex items-start justify-between gap-4">
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-                <p className="text-white font-semibold text-sm">{msg.name}</p>
+      {items.map((item) => {
+        if (item.kind === 'message') {
+          const msg = item.data;
+          return (
+            <div key={`message-${msg.id}`} className="glass-card p-5 transition-all duration-200"
+              style={{ borderColor: msg.status === 'unread' ? 'rgba(245,166,35,0.2)' : undefined }}>
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                    <p className="text-white font-semibold text-sm">{msg.name}</p>
+                    <span className="text-xs px-2 py-0.5 rounded-full text-slate-400" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                      {t.inboxContact}
+                    </span>
+                    {msg.status === 'unread' && (
+                      <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: 'rgba(245,166,35,0.1)', color: '#f5a623', border: '1px solid rgba(245,166,35,0.2)' }}>
+                        {t.statusNew}
+                      </span>
+                    )}
+                    {msg.service && (
+                      <span className="text-xs px-2 py-0.5 rounded-full text-slate-400" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                        {msg.service}
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-center flex-wrap gap-x-3 gap-y-1 text-xs text-slate-500 mb-3">
+                    <span className="flex items-center gap-1"><Mail size={11} />{msg.email}</span>
+                    {msg.company && <span>· {msg.company}</span>}
+                    <span>· {new Date(msg.created_at).toLocaleDateString(isRTL ? 'ar-SA' : 'en-US')}</span>
+                  </div>
+                  <p className="text-slate-300 text-sm leading-relaxed">{msg.message}</p>
+                </div>
                 {msg.status === 'unread' && (
-                  <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: 'rgba(245,166,35,0.1)', color: '#f5a623', border: '1px solid rgba(245,166,35,0.2)' }}>
-                    {t.statusNew}
-                  </span>
-                )}
-                {msg.service && (
-                  <span className="text-xs px-2 py-0.5 rounded-full text-slate-400" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                    {msg.service}
-                  </span>
+                  <button onClick={() => onMarkRead(msg.id)}
+                    className="flex-shrink-0 text-xs px-3 py-1.5 rounded-lg transition-all text-slate-400 hover:text-white"
+                    style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                    {t.markRead}
+                  </button>
                 )}
               </div>
-              <div className="flex items-center flex-wrap gap-x-3 gap-y-1 text-xs text-slate-500 mb-3">
-                <span className="flex items-center gap-1"><Mail size={11} />{msg.email}</span>
-                {msg.company && <span>· {msg.company}</span>}
-                <span>· {new Date(msg.created_at).toLocaleDateString(isRTL ? 'ar-SA' : 'en-US')}</span>
-              </div>
-              <p className="text-slate-300 text-sm leading-relaxed">{msg.message}</p>
             </div>
-            {msg.status === 'unread' && (
-              <button onClick={() => onMarkRead(msg.id)}
-                className="flex-shrink-0 text-xs px-3 py-1.5 rounded-lg transition-all text-slate-400 hover:text-white"
-                style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                {t.markRead}
-              </button>
-            )}
+          );
+        }
+
+        const lead = item.data;
+        const leadIsNew = isLeadNew(lead.status);
+        return (
+          <div key={`lead-${lead.id}`} className="glass-card p-5 transition-all duration-200"
+            style={{ borderColor: leadIsNew ? 'rgba(245,166,35,0.2)' : undefined }}>
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                  <p className="text-white font-semibold text-sm">{lead.name}</p>
+                  <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: 'rgba(14,165,233,0.12)', color: '#38bdf8', border: '1px solid rgba(14,165,233,0.25)' }}>
+                    {t.inboxProjectLead}
+                  </span>
+                  {leadIsNew && (
+                    <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: 'rgba(245,166,35,0.1)', color: '#f5a623', border: '1px solid rgba(245,166,35,0.2)' }}>
+                      {t.statusNew}
+                    </span>
+                  )}
+                  {lead.service && (
+                    <span className="text-xs px-2 py-0.5 rounded-full text-slate-400" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                      {lead.service}
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center flex-wrap gap-x-3 gap-y-1 text-xs text-slate-500 mb-3">
+                  {lead.email && <span className="flex items-center gap-1"><Mail size={11} />{lead.email}</span>}
+                  {lead.phone && <span>· {t.inboxPhone}: {lead.phone}</span>}
+                  {lead.company && <span>· {lead.company}</span>}
+                  {lead.budget_range && <span>· {t.inboxBudget}: {lead.budget_range}</span>}
+                  {lead.source && <span>· {t.inboxSource}: {lead.source}</span>}
+                  <span>· {new Date(lead.created_at).toLocaleDateString(isRTL ? 'ar-SA' : 'en-US')}</span>
+                </div>
+                {lead.message && <p className="text-slate-300 text-sm leading-relaxed">{lead.message}</p>}
+              </div>
+              {leadIsNew && (
+                <button onClick={() => onMarkLeadContacted(lead.id)}
+                  className="flex-shrink-0 text-xs px-3 py-1.5 rounded-lg transition-all text-slate-400 hover:text-white"
+                  style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                  {t.markContacted}
+                </button>
+              )}
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
