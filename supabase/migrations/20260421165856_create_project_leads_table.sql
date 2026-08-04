@@ -17,8 +17,12 @@
 
   2. Security
     - Enable RLS
-    - Anon users can INSERT (to submit leads)
+    - Anon and authenticated users can INSERT (to submit leads)
     - Authenticated users can SELECT/UPDATE/DELETE (admin access)
+
+  Note: INSERT must include `authenticated`. Supabase uses the authenticated role
+  whenever a JWT session exists (admin login or /signup). An anon-only INSERT
+  policy silently blocks Start Project submissions from logged-in browsers.
 */
 
 CREATE TABLE IF NOT EXISTS project_leads (
@@ -40,7 +44,7 @@ ALTER TABLE project_leads ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Anyone can submit a lead"
   ON project_leads
   FOR INSERT
-  TO anon
+  TO anon, authenticated
   WITH CHECK (true);
 
 CREATE POLICY "Authenticated users can view leads"
