@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Handshake, Globe } from 'lucide-react';
 import { useI18n } from '@/lib/i18n-context';
+import { orderPartnersForHomepage } from '@/lib/partnersHomepage';
 import { supabase } from '@/lib/supabase';
 import type { Partner } from '@/lib/types';
 
@@ -14,21 +15,19 @@ export default function PartnersSection() {
   useEffect(() => {
     setMounted(true);
     const load = async () => {
-      const { data: featured } = await supabase
-        .from('partners')
-        .select('*')
-        .eq('is_featured', true)
-        .order('display_order', { ascending: true });
-      if (featured && featured.length > 0) {
-        setPartners(featured);
-        return;
-      }
-      const { data: all } = await supabase
+      // Load all partners. Featuring only reorders for prominence — never hides the rest.
+      // (Previously: any featured row replaced the full catalog with only featured rows.)
+      const { data: all, error } = await supabase
         .from('partners')
         .select('*')
         .order('display_order', { ascending: true })
         .limit(24);
-      setPartners(all || []);
+      if (error) {
+        console.error('partners fetch:', error.message);
+        setPartners([]);
+        return;
+      }
+      setPartners(orderPartnersForHomepage(all || []));
     };
     load();
   }, []);
